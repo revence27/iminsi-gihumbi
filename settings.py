@@ -1,6 +1,6 @@
 import os
 
-WEBAPP          = 'miisigihumbi'
+WEBAPP          = 'iminsigihumbi'
 GESTATION       = 270
 BMI_MIN         = 19
 BMI_MAX         = 25
