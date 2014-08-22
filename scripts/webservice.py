@@ -90,7 +90,10 @@ class ThousandNavigation:
   def make_time(self, txt):
     '''dd/mm/yyyy'''
     pcs = [int(x) for x in re.split(r'\D', txt)]
-    return datetime(year = pcs[2], month = pcs[1], day = pcs[0])
+    try:
+      return datetime(year = pcs[2], month = pcs[1], day = pcs[0])
+    except ValueError:
+      return datetime(year = pcs[2], month = pcs[0], day = pcs[1])
 
 class ThousandCharts(ThousandDays):
   @cherrypy.expose
