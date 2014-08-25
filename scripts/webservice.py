@@ -30,15 +30,14 @@ class ThousandDays:
       pass
     return {}
 
-  @cherrypy.expose
   def dynamised(self, chart, mapping = {}, *args, **kw):
     info  = {}
+    nav   = ThousandNavigation(*args, **kw)
     info.update({
       'base_template' : self.base,
       'ref'           : chart,
-      'locations'     : ['TODO'],
       'args'          : kw,
-      'nav'           : ThousandNavigation(*args, **kw),
+      'nav'           : nav,
       'static_path'   : self.static
     })
     info.update(self.app_data())
@@ -47,7 +46,7 @@ class ThousandDays:
     info.update({'display': mapping})
     return self.jinja.get_template('%s.html' % (chart, )).render(*args, **info)
 
-class ThousandNavigation:
+class OldThousandNavigation:
   def __init__(self, *args, **kw):
     self.args   = args
     self.kw     = kw
@@ -55,12 +54,38 @@ class ThousandNavigation:
     self.fin    = datetime(year = td.year, month = td.month, day = td.day)
     self.gap    = timedelta(days = 1000)
 
+  # Locations:
+  # 1.  Nation
+  # 2.  Provinces
+  # 3.  Districts
+  # 4.  Health Centre
+  def hierarchy(self):
+    return []
+
+  @property
+  def subarea(self):
+    return ['province', 'district', 'hc'][len(self.hierarchy())]
+
+  def areas(self, *args):
+    return ['TODO']
+    sa  = self.subarea
+    return orm.ORM.query('chws__%s' % ({
+      'hc':'healthcentre'
+    }.get(sa, sa), ), {}, order = [('name', 'ASC')]).list()
+
   def conditions(self, tn = 'created_at'):
     ans = {
       (tn + ' >= %s')  : self.start,
       (tn + ' <= %s')  : self.finish
     }
     return ans
+
+  @property
+  def location(self):
+    gat = self.kw.get('location', '')
+    if not gat:
+      return 1
+    return int(gat)
 
   @property
   def start(self):

@@ -28,11 +28,36 @@ class ThousandNavigation:
     self.fin    = datetime(year = td.year, month = td.month, day = td.day)
     self.gap    = timedelta(days = 1000)
 
+  @property
+  def hierarchy(self):
+    prv = self.kw.get('province')
+    dst = self.kw.get('district')
+    if self.kw.get('hc'):
+      return [{'province': prv}, {'district':dst}]
+    if self.kw.get('district'):
+      return [{'province': prv}]
+    return []
+
+  @property
+  def subarea(self):
+    return ['province', 'district', 'hc'][len(self.hierarchy)]
+
+  @property
+  def areas(self):
+    prvs  = orm.ORM.query('chws__province', {}, order = ('name', 'DESC')).list()
+    return prvs
+
   def conditions(self, tn = 'created_at'):
     ans = {
       (tn + ' >= %s')  : self.start,
       (tn + ' <= %s')  : self.finish
     }
+    if 'province' in self.kw:
+      ans['province_pk = (SELECT old_pk FROM chws__province WHERE indexcol = %s LIMIT 1)']  = self.kw.get('province')
+    if 'district' in self.kw:
+      ans['district_pk = (SELECT old_pk FROM chws__district WHERE indexcol = %s LIMIT 1)']  = self.kw.get('district')
+    if 'hc' in self.kw:
+      ans['health_centre_pk = (SELECT old_pk FROM chws__healthcentre WHERE indexcol = %s LIMIT 1)']  = self.kw.get('hc')
     return ans
 
   @property
