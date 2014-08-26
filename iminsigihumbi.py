@@ -54,7 +54,7 @@ class ThousandNavigation:
     self.kw     = kw
     td          = datetime.today()
     self.fin    = datetime(year = td.year, month = td.month, day = td.day)
-    self.gap    = timedelta(days = 1000)
+    self.gap    = timedelta(days = 1000 - 1)
 
   def __unicode__(self):
     them  = self.listing
