@@ -13,12 +13,40 @@ def neat_numbers(num):
   pcs = divided_num(str(num), 3)
   return ','.join(pcs)
 
+def first_cap(s):
+  if not s: return s
+  return s[0].upper() + s[1:]
+
 def divided_num(num, mx = 3):
   if len(num) < (mx + 1):
     return [num]
   lft = num[0:-3]
   rgt = num[-3:]
   return divided_num(lft) + [rgt]
+
+class ThousandLocation:
+  def __init__(self, loc, nav, lmt, ttl, chop  = None):
+    self.location   = loc
+    self.navigator  = nav
+    self.title      = ttl
+    self.limits     = lmt
+    self.chop       = chop
+
+  def __unicode__(self):
+    nom = self.location['name']
+    return u'%s %s' % (nom if not self.chop else self.chop(nom), self.title)
+
+  @property
+  def name(self):
+    nom = self.location['name']
+    return nom if not self.chop else self.chop(nom)
+
+  def link(self, ref):
+    pcs, qrs  = self.navigator.pre_link(self.navigator.link(ref))
+    for l in self.limits:
+      try:              del qrs[l]
+      except KeyError:  pass
+    return urlparse.urlunsplit((pcs[0], pcs[1], pcs[2], '&'.join(['%s=%s' % (k, urllib2.quote(qrs[k])) for k in qrs if qrs[k]]), pcs[4]))
 
 class ThousandNavigation:
   def __init__(self, *args, **kw):
@@ -28,15 +56,36 @@ class ThousandNavigation:
     self.fin    = datetime(year = td.year, month = td.month, day = td.day)
     self.gap    = timedelta(days = 1000)
 
+  def __unicode__(self):
+    them  = self.listing
+    them.reverse()
+    return ', '.join([unicode(x) for x in them])
+
+  @property
+  def listing(self):
+    dem = [ThousandLocation(self.nation(), self, ['province', 'district', 'hc'], '')]
+    if self.kw.get('province'):
+      dem.append(ThousandLocation(self.province(), self, ['district', 'hc'], 'Province', lambda x: first_cap(re.sub(u' PROVINCE', '', x).lower())))
+    if self.kw.get('district'):
+      dem.append(ThousandLocation(self.district(), self, ['hc'], 'District'))
+    if self.kw.get('hc'):
+      dem.append(ThousandLocation(self.hc(), self, [], 'Health Centre'))
+    return dem
+
   @property
   def hierarchy(self):
     prv = self.kw.get('province')
     dst = self.kw.get('district')
-    if self.kw.get('hc'):
-      return [{'province': self.province()}, {'district':self.district()}]
+    ans = []
     if self.kw.get('district'):
+      return [{'province': self.province()}, {'district':self.district()}]
+    if self.kw.get('province'):
       return [{'province': self.province()}]
     return []
+
+  def nation(self):
+    gat = orm.ORM.query('chws__nation', {'indexcol = 1':''})[0]
+    return gat
 
   def province(self, prv = None):
     num = int(prv or self.kw.get('province'))
@@ -48,22 +97,43 @@ class ThousandNavigation:
     gat = orm.ORM.query('chws__district', {'indexcol = %s': num})[0]
     return gat
 
+  def hc(self, h = None):
+    num = int(h or self.kw.get('hc'))
+    gat = orm.ORM.query('chws__healthcentre', {'indexcol = %s': num})[0]
+    return gat
+
+  @property
+  def child(self):
+    if self.kw.get('hc'):       return ''
+    if self.kw.get('district'): return 'hc'
+    if self.kw.get('province'): return 'district'
+    return 'province'
+
   @property
   def subarea(self):
     return ['province', 'district', 'hc'][len(self.hierarchy)]
 
   @property
-  def areas(self):
-    tbl, sel  = {
-      'province'  : lambda _: ('chws__province', self.province()),
-      'district'  : lambda _: ('chws__district', self.district()),
-      'hc'        : lambda _: ('chws__healthcentre', None)
-    }[self.subarea](None)
-    prvs      = orm.ORM.query(tbl, {},
-      cols  = ['*'] + (['indexcol = %d as selected' % (sel['indexcol'], )] if self.kw.get('province') else []),
+  def childareas(self):
+    if self.kw.get('hc'):
+      return []
+    if self.kw.get('district'):
+      return self.areas('hc')
+    if self.kw.get('province'):
+      return self.areas('district')
+    return self.areas('province')
+
+  def areas(self, level = None):
+    tbl, sel, etc = {
+      'province'  : lambda _: ('chws__province', [self.province()] if self.kw.get('province') else [], {}),
+      'district'  : lambda _: ('chws__district', [self.district()] if self.kw.get('district') else [], {'province = %s': self.province()['indexcol']}),
+      'hc'        : lambda _: ('chws__healthcentre', [], {'province = %s':self.province()['indexcol'], 'district = %s':self.district()['indexcol']})
+    }[level or self.subarea](None)
+    prvq      = orm.ORM.query(tbl, etc,
+      cols  = ['*'] + ['indexcol = %d AS selected' % (s['indexcol'], ) for s in sel],
       sort  = ('name', 'DESC')
-    ).list()
-    return prvs
+    )
+    return prvq.list()
 
   def conditions(self, tn = 'created_at'):
     ans = {
@@ -75,7 +145,7 @@ class ThousandNavigation:
     if 'district' in self.kw:
       ans['district_pk = (SELECT old_pk FROM chws__district WHERE indexcol = %s LIMIT 1)']  = self.kw.get('district')
     if 'hc' in self.kw:
-      ans['health_centre_pk = (SELECT old_pk FROM chws__healthcentre WHERE indexcol = %s LIMIT 1)']  = self.kw.get('hc')
+      ans['health_center_pk = (SELECT old_pk FROM chws__healthcentre WHERE indexcol = %s LIMIT 1)']  = self.kw.get('hc')
     return ans
 
   @property
@@ -108,12 +178,16 @@ class ThousandNavigation:
     pcs = [int(x) for x in re.split(r'\D', txt)]
     return datetime(year = pcs[2], month = pcs[1], day = pcs[0])
 
-  def link(self, url):
-    if not self.kw:
-      return url
+  def pre_link(self, url):
     pcs = urlparse.urlsplit(url)
     qrs = urlparse.parse_qs(pcs[3])
     qrs.update(self.kw)
+    return (pcs, qrs)
+
+  def link(self, url):
+    if not self.kw:
+      return url
+    pcs, qrs  = self.pre_link(url)
     return urlparse.urlunsplit((pcs[0], pcs[1], pcs[2], '&'.join(['%s=%s' % (k, urllib2.quote(qrs[k])) for k in qrs if qrs[k]]), pcs[4]))
 
 class Application:
