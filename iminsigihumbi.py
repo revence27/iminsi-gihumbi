@@ -33,10 +33,20 @@ class ThousandNavigation:
     prv = self.kw.get('province')
     dst = self.kw.get('district')
     if self.kw.get('hc'):
-      return [{'province': prv}, {'district':dst}]
+      return [{'province': self.province()}, {'district':self.district()}]
     if self.kw.get('district'):
-      return [{'province': prv}]
+      return [{'province': self.province()}]
     return []
+
+  def province(self, prv = None):
+    num = int(prv or self.kw.get('province'))
+    gat = orm.ORM.query('chws__province', {'indexcol = %s': num})[0]
+    return gat
+
+  def district(self, dst = None):
+    num = int(dst or self.kw.get('district'))
+    gat = orm.ORM.query('chws__district', {'indexcol = %s': num})[0]
+    return gat
 
   @property
   def subarea(self):
@@ -44,7 +54,15 @@ class ThousandNavigation:
 
   @property
   def areas(self):
-    prvs  = orm.ORM.query('chws__province', {}, order = ('name', 'DESC')).list()
+    tbl, sel  = {
+      'province'  : lambda _: ('chws__province', self.province()),
+      'district'  : lambda _: ('chws__district', self.district()),
+      'hc'        : lambda _: ('chws__healthcentre', None)
+    }[self.subarea](None)
+    prvs      = orm.ORM.query(tbl, {},
+      cols  = ['*'] + (['indexcol = %d as selected' % (sel['indexcol'], )] if self.kw.get('province') else []),
+      sort  = ('name', 'DESC')
+    ).list()
     return prvs
 
   def conditions(self, tn = 'created_at'):
@@ -137,6 +155,18 @@ class Application:
   @cherrypy.expose
   def charts(self, *args, **kw):
     return ':-\\'
+
+  @cherrypy.expose
+  def dashboards_death(self, *args, **kw):
+    return self.dynamised('death', *args, **kw)
+
+  @cherrypy.expose
+  def dashboards_redalert(self, *args, **kw):
+    return self.dynamised('redalert', *args, **kw)
+
+  @cherrypy.expose
+  def dashboards_pnc(self, *args, **kw):
+    return self.dynamised('pnc', *args, **kw)
 
   @cherrypy.expose
   def dashboards_anc(self, *args, **kw):
