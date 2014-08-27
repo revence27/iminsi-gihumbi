@@ -56,6 +56,15 @@ class ThousandNavigation:
     self.fin    = datetime(year = td.year, month = td.month, day = td.day)
     self.gap    = timedelta(days = 1000 - 1)
 
+  def pages(self, qry, limit = 25):
+    tot, etc  = divmod(qry.count(), limit)
+    if etc:
+      tot = tot + 1
+    cpg = int(self.kw.get('page', '0'))
+    crg = cpg * limit
+    pgs = xrange(tot)
+    return (cpg, (crg, crg + limit), pgs)
+
   def __unicode__(self):
     them  = self.listing
     them.reverse()
@@ -63,13 +72,13 @@ class ThousandNavigation:
 
   @property
   def listing(self):
-    dem = [ThousandLocation(self.nation(), self, ['province', 'district', 'hc'], '')]
+    dem = [ThousandLocation(self.nation(), self, ['province', 'district', 'hc', 'page'], '')]
     if self.kw.get('province'):
-      dem.append(ThousandLocation(self.province(), self, ['district', 'hc'], 'Province', lambda x: first_cap(re.sub(u' PROVINCE', '', x).lower())))
+      dem.append(ThousandLocation(self.province(), self, ['district', 'hc', 'page'], 'Province', lambda x: first_cap(re.sub(u' PROVINCE', '', x).lower())))
     if self.kw.get('district'):
-      dem.append(ThousandLocation(self.district(), self, ['hc'], 'District'))
+      dem.append(ThousandLocation(self.district(), self, ['hc', 'page'], 'District'))
     if self.kw.get('hc'):
-      dem.append(ThousandLocation(self.hc(), self, [], 'Health Centre'))
+      dem.append(ThousandLocation(self.hc(), self, ['page'], 'Health Centre'))
     return dem
 
   @property
@@ -184,11 +193,12 @@ class ThousandNavigation:
     qrs.update(self.kw)
     return (pcs, qrs)
 
-  def link(self, url):
+  def link(self, url, **kw):
     if not self.kw:
       return url
     pcs, qrs  = self.pre_link(url)
-    return urlparse.urlunsplit((pcs[0], pcs[1], pcs[2], '&'.join(['%s=%s' % (k, urllib2.quote(qrs[k])) for k in qrs if qrs[k]]), pcs[4]))
+    qrs.update(kw)
+    return urlparse.urlunsplit((pcs[0], pcs[1], pcs[2], '&'.join(['%s=%s' % (k, urllib2.quote(str(qrs[k]))) for k in qrs if qrs[k]]), pcs[4]))
 
 class Application:
   def __init__(self, templates, statics, static_path, app_data, **kw):
@@ -432,7 +442,7 @@ class Application:
   @cherrypy.expose
   def tables_delivery(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cols    = self.tables_in_general()
+    cols    = self.tables_in_general(*args, **kw)
     cnds    = navb.conditions('report_date')
     # TODO: optimise
     nat     = orm.ORM.query('bir_table', cnds,
@@ -443,7 +453,7 @@ class Application:
   @cherrypy.expose
   def tables_pregnancy(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cols  = self.tables_in_general()
+    cols    = self.tables_in_general(*args, **kw)
     # TODO: optimise
     cnds    = navb.conditions('report_date')
     nat     = orm.ORM.query('pre_table', cnds,
