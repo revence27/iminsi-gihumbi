@@ -442,8 +442,10 @@ class Application:
 
   @cherrypy.expose
   def tables_pregnancy(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
     cols  = self.tables_in_general()
     # TODO: optimise
+    cnds    = navb.conditions('report_date')
     nat     = orm.ORM.query('pre_table', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
     )
