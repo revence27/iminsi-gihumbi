@@ -15,7 +15,7 @@ def neat_numbers(num):
 
 def first_cap(s):
   if not s: return s
-  return s[0].upper() + s[1:]
+  return ' '.join([x[0].upper() + x[1:] for x in re.split(r'\s+', s)])
 
 def divided_num(num, mx = 3):
   if len(num) < (mx + 1):
@@ -428,6 +428,30 @@ class Application:
       }
     )
     return self.dynamised('nutrition', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregnancy(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    cols    = (([
+      ('indexcol', 'Report ID'),
+      ('report_date', 'Date'),
+      ('reporter_phone', 'Reporter'),
+      ('reporter_pk', 'Reporter ID')
+    ]) +
+
+    ([('province_pk', 'Province'),
+      ('district_pk', 'District'),
+      ('health_center_pk', 'Health Centre')]) +
+
+    ([('patient_id', 'Mother ID'),
+      ('lmp', 'LMP'),
+    ]))
+    # TODO: optimise
+    nat     = orm.ORM.query('pre_table', cnds,
+      cols      = [x[0] for x in cols],
+    )
+    return self.dynamised('pregnancy_table', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def dashboards_pregnancy(self, *args, **kw):
