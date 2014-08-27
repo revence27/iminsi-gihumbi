@@ -210,7 +210,7 @@ class Application:
   def dynamised(self, chart, mapping = {}, *args, **kw):
     info  = {}
     info.update({
-      'ref'           : chart,
+      'ref'           : re.sub(r'_table$', '', chart),
       'locations'     : ['TODO'],
       'args'          : kw,
       'nav'           : ThousandNavigation(*args, **kw),
@@ -430,28 +430,43 @@ class Application:
     return self.dynamised('nutrition', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
+  def tables_delivery(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cols    = self.tables_in_general()
+    cnds    = navb.conditions('report_date')
+    # TODO: optimise
+    nat     = orm.ORM.query('bir_table', cnds,
+      cols  = [x[0] for x in cols if x[0][0] != '_'],
+    )
+    return self.dynamised('delivery_table', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
   def tables_pregnancy(self, *args, **kw):
+    cols  = self.tables_in_general()
+    # TODO: optimise
+    nat     = orm.ORM.query('pre_table', cnds,
+      cols  = [x[0] for x in cols if x[0][0] != '_'],
+    )
+    return self.dynamised('pregnancy_table', mapping = locals(), *args, **kw)
+
+  def tables_in_general(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('report_date')
     cols    = (([
-      ('indexcol', 'Report ID'),
-      ('report_date', 'Date'),
-      ('reporter_phone', 'Reporter'),
-      ('reporter_pk', 'Reporter ID')
+      ('indexcol',          'Report ID'),
+      ('report_date',       'Date'),
+      ('reporter_phone',    'Reporter'),
+      ('reporter_pk',       'Reporter ID')
     ]) +
 
-    ([('province_pk', 'Province'),
-      ('district_pk', 'District'),
-      ('health_center_pk', 'Health Centre')]) +
+    (([] if 'province' in kw else [('province_pk',       'Province')]) +
+     ([] if 'district' in kw else [('district_pk',       'District')]) +
+     ([] if 'hc' in kw else [('health_center_pk',  'Health Centre')])) +
 
-    ([('patient_id', 'Mother ID'),
-      ('lmp', 'LMP'),
+    ([('patient_id',        'Mother ID'),
+      ('lmp',               'LMP'),
     ]))
-    # TODO: optimise
-    nat     = orm.ORM.query('pre_table', cnds,
-      cols      = [x[0] for x in cols],
-    )
-    return self.dynamised('pregnancy_table', mapping = locals(), *args, **kw)
+    return cols
 
   @cherrypy.expose
   def dashboards_pregnancy(self, *args, **kw):
