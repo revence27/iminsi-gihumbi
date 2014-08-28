@@ -1,4 +1,5 @@
 #!  /usr/bin/env python
+# encoding: utf-8
 import cherrypy
 import copy
 from datetime import datetime, timedelta
@@ -8,6 +9,24 @@ import re
 import settings
 import sys
 import urllib2, urlparse
+
+PREGNANCY_MATCHES  = {
+  'coughing'  : ('COUNT(*)', 'ch_bool IS NOT NULL'),
+  'diarrhoea' : ('COUNT(*)',  'di_bool IS NOT NULL'),
+  'fever'     : ('COUNT(*)',  'fe_bool IS NOT NULL'),
+  'oedema'    : ('COUNT(*)',  'oe_bool IS NOT NULL'),
+  'pneumo'    : ('COUNT(*)',  'pc_bool IS NOT NULL'),
+  'disab'     : ('COUNT(*)',  'db_bool IS NOT NULL'),
+  'cordi'     : ('COUNT(*)',  'ci_bool IS NOT NULL'),
+  'necks'     : ('COUNT(*)',  'ns_bool IS NOT NULL'),
+  'malaria'   : ('COUNT(*)',  'ma_bool IS NOT NULL'),
+  'vomiting'  : ('COUNT(*)',  'vo_bool IS NOT NULL'),
+  'stillb'    : ('COUNT(*)',  'sb_bool IS NOT NULL'),
+  'jaun'      : ('COUNT(*)',  'ja_bool IS NOT NULL'),
+  'hypoth'    : ('COUNT(*)',  'hy_bool IS NOT NULL'),
+  'ibibari'   : ('COUNT(*)',  'ib_bool IS NOT NULL')
+}
+RISK_MOD = {'(gs_bool IS NOT NULL OR mu_bool IS NOT NULL OR rm_bool IS NOT NULL OR ol_bool IS NOT NULL OR yg_bool IS NOT NULL OR kx_bool IS NOT NULL OR yj_bool IS NOT NULL OR lz_bool IS NOT NULL)':''}
 
 def neat_numbers(num):
   pcs = divided_num(str(num), 3)
@@ -194,7 +213,7 @@ class ThousandNavigation:
     return (pcs, qrs)
 
   def link(self, url, **kw):
-    if not self.kw:
+    if not self.kw and not kw:
       return url
     pcs, qrs  = self.pre_link(url)
     qrs.update(kw)
@@ -439,31 +458,107 @@ class Application:
     )
     return self.dynamised('nutrition', mapping = locals(), *args, **kw)
 
+  def tables_preg_extras(self, dest, *args, **kw):
+    navb, cnds, cols    = self.tables_in_general(*args, **kw)
+    upds  = {'pregcough':'coughing', 'pregdiarrhea':'diarrhoea', 'pregfever':'fever', 'pregmalaria':'malaria', 'pregvomit':'vomiting', 'pregstill':'stillb', 'pregedema':'oedema', 'pregjaundice':'jaun', 'pregpneumonia':'pneumo', 'pregdisability':'disab', 'preganemia':'ibibari', 'pregcord':'cordi', 'pregneck':'necks', 'preghypothemia':'hypoth'}
+    exts  = {PREGNANCY_MATCHES[upds[dest]][1]:''}
+    cnds.update(exts)
+    nat     = orm.ORM.query('pre_table', cnds,
+      cols  = [x[0] for x in cols if x[0][0] != '_'],
+    )
+    desc    = kw.pop('desc', '')
+    return self.dynamised('pregnancy_table', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def tables_risks(self, *args, **kw):
+    navb, cnds, cols    = self.tables_in_general(*args, **kw)
+    cnds.update(RISK_MOD)
+    nat     = orm.ORM.query('pre_table', cnds,
+      cols  = [x[0] for x in cols if x[0][0] != '_'],
+    )
+    desc = 'High-Risk Mothers'
+    return self.dynamised('pregnancy_table', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregcough(self, *args, **kw):
+    return self.tables_preg_extras('pregcough', desc = 'Mothers With Cough', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregdiarrhea(self, *args, **kw):
+    return self.tables_preg_extras('pregdiarrhea', desc = 'Mothers With Diarrhœa', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregfever(self, *args, **kw):
+    return self.tables_preg_extras('pregfever', desc = 'Mothers With a Fever', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregmalaria(self, *args, **kw):
+    return self.tables_preg_extras('pregmalaria', desc = 'Mothers With Malaria', *args, **kw)
+
+
+  @cherrypy.expose
+  def tables_pregvomit(self, *args, **kw):
+    return self.tables_preg_extras('pregvomit', desc = 'Vomiting Mothers', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregstill(self, *args, **kw):
+    return self.tables_preg_extras('pregstill', desc = 'Mothers With Still Births', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregedema(self, *args, **kw):
+    return self.tables_preg_extras('pregedema', desc = u'Mothers With Œdema', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregjaundice(self, *args, **kw):
+    return self.tables_preg_extras('pregjaundice', desc = 'Mothes With Jaundice', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregpneumonia(self, *args, **kw):
+    return self.tables_preg_extras('pregpneumonia', desc = 'Mothers With Pneumonia', *args, **kw)
+
+  @cherrypy.expose
+  def tables_preganemia(self, *args, **kw):
+    return self.tables_preg_extras('preganemia', desc = u'Mothers With Anæmia', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregdisability(self, *args, **kw):
+    return self.tables_preg_extras('pregdisability', desc = 'Mothers With Disabled Children', *args, **kw)
+
+  @cherrypy.expose
+  def tables_preghypothemia(self, *args, **kw):
+    return self.tables_preg_extras('preghypothemia', desc = 'Cool Mothers', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregcord(self, *args, **kw):
+    return self.tables_preg_extras('pregcord', desc = 'Mothers Whose Babies Have Infected Cords', *args, **kw)
+
+  @cherrypy.expose
+  def tables_pregneck(self, *args, **kw):
+    return self.tables_preg_extras('pregneck', desc = 'Mothers With Neck-Stiffness', *args, **kw)
+
   @cherrypy.expose
   def tables_delivery(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
-    cols    = self.tables_in_general(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    navb, cnds, cols    = self.tables_in_general(*args, **kw)
     # TODO: optimise
     nat     = orm.ORM.query('bir_table', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
     )
+    desc  = 'Delivery Reports'
     return self.dynamised('delivery_table', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def tables_pregnancy(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
-    cols    = self.tables_in_general(*args, **kw)
+    navb, cnds, cols    = self.tables_in_general(*args, **kw)
     # TODO: optimise
-    cnds    = navb.conditions('report_date')
     nat     = orm.ORM.query('pre_table', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
     )
+    desc  = 'Pregnancy Reports'
     return self.dynamised('pregnancy_table', mapping = locals(), *args, **kw)
 
-  def tables_in_general(self, *args, **kw):
+  def tables_in_general(self, sorter = 'report_date', *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    cnds    = navb.conditions(sorter)
     cols    = (([
       ('indexcol',          'Report ID'),
       ('report_date',       'Date'),
@@ -478,7 +573,7 @@ class Application:
     ([('patient_id',        'Mother ID'),
       ('lmp',               'LMP'),
     ]))
-    return cols
+    return (navb, cnds, cols)
 
   @cherrypy.expose
   def dashboards_pregnancy(self, *args, **kw):
@@ -486,22 +581,7 @@ class Application:
     cnds    = navb.conditions('report_date')
     nat     = orm.ORM.query('pre_table', cnds,
       cols      = ['COUNT(*) AS allpregs'],
-      extended  = {
-        'coughing':('COUNT(*)', 'ch_bool IS NOT NULL'),
-        'diarrhoea':('COUNT(*)',  'di_bool IS NOT NULL'),
-        'fever':('COUNT(*)',  'fe_bool IS NOT NULL'),
-        'oedema':('COUNT(*)',  'oe_bool IS NOT NULL'),
-        'pneumo':('COUNT(*)',  'pc_bool IS NOT NULL'),
-        'disab':('COUNT(*)',  'db_bool IS NOT NULL'),
-        'cordi':('COUNT(*)',  'ci_bool IS NOT NULL'),
-        'necks':('COUNT(*)',  'ns_bool IS NOT NULL'),
-        'malaria':('COUNT(*)',  'ma_bool IS NOT NULL'),
-        'vomiting':('COUNT(*)',  'vo_bool IS NOT NULL'),
-        'stillb':('COUNT(*)',  'sb_bool IS NOT NULL'),
-        'jaun':('COUNT(*)',  'ja_bool IS NOT NULL'),
-        'hypoth':('COUNT(*)',  'hy_bool IS NOT NULL'),
-        'ibibari':('COUNT(*)',  'ib_bool IS NOT NULL')
-      },
+      extended  = PREGNANCY_MATCHES,
       migrations  = [
         ('db_bool', False),
         ('fe_bool', False),
@@ -534,8 +614,7 @@ class Application:
     weighed = nat.specialise({'mother_height_float > 100.0 AND mother_weight_float > 15.0':''})
     thinq   = weighed.specialise({'(mother_weight_float / ((mother_height_float * mother_height_float) / 10000.0)) < %s': settings.BMI_MIN})
     fatq    = weighed.specialise({'(mother_weight_float / ((mother_height_float * mother_height_float) / 10000.0)) > %s': settings.BMI_MAX})
-    riskhsh = {'(gs_bool IS NOT NULL OR mu_bool IS NOT NULL OR rm_bool IS NOT NULL OR ol_bool IS NOT NULL OR yg_bool IS NOT NULL OR kx_bool IS NOT NULL OR yj_bool IS NOT NULL OR lz_bool IS NOT NULL)':''}
-    riskys  = nat.specialise(riskhsh)
+    riskys  = nat.specialise(RISK_MOD)
     info    = nat[0]
     rez     = orm.ORM.query('res_table',
       cnds,
