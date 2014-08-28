@@ -56,7 +56,7 @@ class ThousandNavigation:
     self.fin    = datetime(year = td.year, month = td.month, day = td.day)
     self.gap    = timedelta(days = 1000 - 1)
 
-  def pages(self, qry, limit = 25):
+  def pages(self, qry, limit = 100):
     tot, etc  = divmod(qry.count(), limit)
     if etc:
       tot = tot + 1
