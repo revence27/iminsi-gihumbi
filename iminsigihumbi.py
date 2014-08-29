@@ -24,7 +24,7 @@ PREGNANCY_MATCHES  = {
   'stillb'    : ('COUNT(*)',  'sb_bool IS NOT NULL'),
   'jaun'      : ('COUNT(*)',  'ja_bool IS NOT NULL'),
   'hypoth'    : ('COUNT(*)',  'hy_bool IS NOT NULL'),
-  'ibibari'   : ('COUNT(*)',  'ib_bool IS NOT NULL')
+  'anaemia'   : ('COUNT(*)',  'sa_bool IS NOT NULL')
 }
 RISK_MOD = {'(gs_bool IS NOT NULL OR mu_bool IS NOT NULL OR rm_bool IS NOT NULL OR ol_bool IS NOT NULL OR yg_bool IS NOT NULL OR kx_bool IS NOT NULL OR yj_bool IS NOT NULL OR lz_bool IS NOT NULL)':''}
 
@@ -44,8 +44,9 @@ def divided_num(num, mx = 3):
   return divided_num(lft) + [rgt]
 
 class ThousandLocation:
-  def __init__(self, loc, nav, lmt, ttl, chop  = None):
+  def __init__(self, loc, tp, nav, lmt, ttl, chop  = None):
     self.location   = loc
+    self.loctype    = tp
     self.navigator  = nav
     self.title      = ttl
     self.limits     = lmt
@@ -91,13 +92,29 @@ class ThousandNavigation:
 
   @property
   def listing(self):
-    dem = [ThousandLocation(self.nation(), self, ['province', 'district', 'hc', 'page'], '')]
-    if self.kw.get('province'):
-      dem.append(ThousandLocation(self.province(), self, ['district', 'hc', 'page'], 'Province', lambda x: first_cap(re.sub(u' PROVINCE', '', x).lower())))
-    if self.kw.get('district'):
-      dem.append(ThousandLocation(self.district(), self, ['hc', 'page'], 'District'))
-    if self.kw.get('hc'):
-      dem.append(ThousandLocation(self.hc(), self, ['page'], 'Health Centre'))
+    dem = [ThousandLocation(self.nation(), 'nation', self, ['province', 'district', 'hc', 'page'], '')]
+    pcs = {
+      'province':{
+        'area'  : lambda _: self.province(),
+        'miss'  :['district', 'hc'],
+        'title' : 'Province',
+        'trx'   : lambda x: first_cap(re.sub(u' PROVINCE', '', x).lower())
+      },
+      'district':{
+        'area'  : lambda _: self.district(),
+        'miss'  : ['hc'],
+        'title' : 'District'
+      },
+      'hc':{
+        'area'  : lambda _: self.hc(),
+        'miss'  : [],
+        'title' : 'Health Centre'
+      }
+    }
+    for pc in ['province', 'district', 'hc']:
+      if self.kw.get(pc):
+        it  = pcs[pc]
+        dem.append(ThousandLocation(it['area'](None), pc, self, it['miss'], it['title'], it['trx'] if 'trx' in it else None))
     return dem
 
   @property
@@ -460,7 +477,7 @@ class Application:
 
   def tables_preg_extras(self, dest, *args, **kw):
     navb, cnds, cols    = self.tables_in_general(*args, **kw)
-    upds  = {'pregcough':'coughing', 'pregdiarrhea':'diarrhoea', 'pregfever':'fever', 'pregmalaria':'malaria', 'pregvomit':'vomiting', 'pregstill':'stillb', 'pregedema':'oedema', 'pregjaundice':'jaun', 'pregpneumonia':'pneumo', 'pregdisability':'disab', 'preganemia':'ibibari', 'pregcord':'cordi', 'pregneck':'necks', 'preghypothemia':'hypoth'}
+    upds  = {'pregcough':'coughing', 'pregdiarrhea':'diarrhoea', 'pregfever':'fever', 'pregmalaria':'malaria', 'pregvomit':'vomiting', 'pregstill':'stillb', 'pregedema':'oedema', 'pregjaundice':'jaun', 'pregpneumonia':'pneumo', 'pregdisability':'disab', 'preganemia':'anaemia', 'pregcord':'cordi', 'pregneck':'necks', 'preghypothemia':'hypoth'}
     exts  = {PREGNANCY_MATCHES[upds[dest]][1]:''}
     cnds.update(exts)
     nat     = orm.ORM.query('pre_table', cnds,
@@ -574,6 +591,13 @@ class Application:
       ('lmp',               'LMP'),
     ]))
     return (navb, cnds, cols)
+
+  @cherrypy.expose
+  def exports_delivery(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    nat     = orm.ORM.query('bir_table', cnds)
+    raise Exception, str(kw)
 
   @cherrypy.expose
   def dashboards_pregnancy(self, *args, **kw):
