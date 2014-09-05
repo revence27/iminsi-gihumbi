@@ -16,14 +16,14 @@ PREGNANCY_MATCHES  = {
   'fever'     : ('COUNT(*)',  'fe_bool IS NOT NULL'),
   'oedema'    : ('COUNT(*)',  'oe_bool IS NOT NULL'),
   'pneumo'    : ('COUNT(*)',  'pc_bool IS NOT NULL'),
-  'disab'     : ('COUNT(*)',  'db_bool IS NOT NULL'),
-  'cordi'     : ('COUNT(*)',  'ci_bool IS NOT NULL'),
+  # 'disab'     : ('COUNT(*)',  'db_bool IS NOT NULL'),
+  # 'cordi'     : ('COUNT(*)',  'ci_bool IS NOT NULL'),
   'necks'     : ('COUNT(*)',  'ns_bool IS NOT NULL'),
   'malaria'   : ('COUNT(*)',  'ma_bool IS NOT NULL'),
   'vomiting'  : ('COUNT(*)',  'vo_bool IS NOT NULL'),
-  'stillb'    : ('COUNT(*)',  'sb_bool IS NOT NULL'),
+  # 'stillb'    : ('COUNT(*)',  'sb_bool IS NOT NULL'),
   'jaun'      : ('COUNT(*)',  'ja_bool IS NOT NULL'),
-  'hypoth'    : ('COUNT(*)',  'hy_bool IS NOT NULL'),
+  # 'hypoth'    : ('COUNT(*)',  'hy_bool IS NOT NULL'),
   'anaemia'   : ('COUNT(*)',  'sa_bool IS NOT NULL')
 }
 RISK_MOD = {'(gs_bool IS NOT NULL OR mu_bool IS NOT NULL OR rm_bool IS NOT NULL OR ol_bool IS NOT NULL OR yg_bool IS NOT NULL OR kx_bool IS NOT NULL OR yj_bool IS NOT NULL OR lz_bool IS NOT NULL)':''}
@@ -598,6 +598,14 @@ class Application:
     cnds    = navb.conditions('report_date')
     nat     = orm.ORM.query('bir_table', cnds)
     raise Exception, str(kw)
+
+  @cherrypy.expose
+  def dashboards_mothers(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    nat     = orm.ORM.query('pre_table', cnds)
+    total   = nat.count()
+    return self.dynamised('mothers', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def dashboards_pregnancy(self, *args, **kw):

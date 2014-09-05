@@ -9,6 +9,21 @@ MAX_WEIGHT      = 65
 
 APP_DATA  = {
   'indicators'  : [
+    {'name':'Mothers',
+      'ref':'mothers'},
+    {'name':'Babies',
+      'ref':'children'},
+    {'name':'Reporters',
+      # 'title' : 'Reporters',
+      'ref'   : 'reporters'},
+    {'name':'Sanitation',
+      'title' : 'Toilets and Water',
+      'ref'   : 'sanitation'}
+  ]
+}
+
+OLD_APP_DATA  = {
+  'indicators'  : [
     {'name':'Ante-Natal',
       'ref':'anc'},
     {'name':'Birth Reports',
