@@ -599,6 +599,16 @@ class Application:
     nat     = orm.ORM.query('bir_table', cnds)
     raise Exception, str(kw)
 
+  # TODO.
+  @cherrypy.expose
+  def dashboards_babies(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    nat     = orm.ORM.query('pre_table', cnds)
+    total   = nat.count()
+    return self.dynamised('babies', mapping = locals(), *args, **kw)
+
+  # TODO.
   @cherrypy.expose
   def dashboards_mothers(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)

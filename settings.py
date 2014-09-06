@@ -12,7 +12,7 @@ APP_DATA  = {
     {'name':'Mothers',
       'ref':'mothers'},
     {'name':'Babies',
-      'ref':'children'},
+      'ref':'babies'},
     {'name':'Reporters',
       # 'title' : 'Reporters',
       'ref'   : 'reporters'},
