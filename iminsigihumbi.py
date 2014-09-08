@@ -181,10 +181,12 @@ class ThousandNavigation:
     return prvq.list()
 
   def conditions(self, tn = 'created_at'):
-    ans = {
-      (tn + ' >= %s')  : self.start,
-      (tn + ' <= %s')  : self.finish
-    }
+    ans = {}
+    if tn:
+      ans = {
+        (tn + ' >= %s')  : self.start,
+        (tn + ' <= %s')  : self.finish
+      }
     if 'province' in self.kw:
       ans['province_pk = (SELECT old_pk FROM chws__province WHERE indexcol = %s LIMIT 1)']  = self.kw.get('province')
     if 'district' in self.kw:
@@ -601,20 +603,71 @@ class Application:
 
   # TODO.
   @cherrypy.expose
+  def dashboards_reporters(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions(None)
+    nat     = orm.ORM.query('ig_reporters', cnds)
+    total   = nat.count()
+    return self.dynamised('reporters', mapping = locals(), *args, **kw)
+
+  # TODO.
+  @cherrypy.expose
+  def dashboards_pregnancies(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    attrs   = [
+      ('at_clinic', 'Confirmed at Clinic'),
+      ('at_home', 'Confirmed at Home'),
+      ('at_hospital', 'Confirmed at Hospital'),
+      ('en_route', 'Confirmed en route'),
+      ('no_problem', 'Problem-Free'),
+      ('no_prev_risks', 'No Previous Risks'),
+      ('rapid_breathing', 'Rapid Breathing'),
+      ('multiples', 'Multiples'),
+      ('young_mother', 'Young Mother'),
+      ('asm_advice', 'ASM Advice Given'),
+      ('malaria', 'Malaria'),
+      ('vomiting', 'Vomiting'),
+    ]
+    nat     = self.civilised_fetch('ig_pregnancies', cnds, attrs)
+    total   = nat[0]['total']
+    return self.dynamised('pregnancies', mapping = locals(), *args, **kw)
+
+  # TODO.
+  @cherrypy.expose
   def dashboards_babies(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('report_date')
-    nat     = orm.ORM.query('pre_table', cnds)
+    nat     = orm.ORM.query('ig_babies', cnds)
     total   = nat.count()
     return self.dynamised('babies', mapping = locals(), *args, **kw)
+
+  def civilised_fetch(self, tbl, cnds, attrs):
+    exts    = {}
+    for ext in attrs:
+      exts[ext[0]] = ('COUNT(*)', ext[0])
+    return orm.ORM.query(tbl, cnds, cols = ['COUNT(*) AS total'], extended = exts)
 
   # TODO.
   @cherrypy.expose
   def dashboards_mothers(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('report_date')
-    nat     = orm.ORM.query('ig_mothers', cnds)
-    total   = nat.count()
+    pregs   = orm.ORM.query('ig_pregnancies', cnds, cols = ['COUNT(*) AS total'])[0]['total']
+    attrs   = [
+      ('young_mother', 'Under 18'),
+      ('old', 'Over 35'),
+      ('surgeries', 'With Previous Obstetric Surgery'),
+      ('miscarries', 'With Previous Miscarriage'),
+      ('prev_home_deliv', 'Previous Home Delivery'),
+      ('chronic_disease', 'With Chronic Disease'),
+      ('toilet', 'With Toilet'),
+      ('no_toilet', 'No Toilet'),
+      ('handwashing', 'With Water Tap'),
+      ('no_handwashing', 'No Water Tap'),
+    ]
+    nat     = self.civilised_fetch('ig_mothers', cnds, attrs)
+    total   = nat[0]['total']
     return self.dynamised('mothers', mapping = locals(), *args, **kw)
 
   @cherrypy.expose

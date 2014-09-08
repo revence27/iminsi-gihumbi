@@ -44,8 +44,28 @@ class R1000Object:
       self.set(ncol, source[ocol])
     return self
 
+  def copy_presence(self, source, cols):
+    for col in cols:
+      ncol  = col
+      ocol  = col
+      if type(col) == type(('', '')):
+        ocol  = col[0]
+        ncol  = col[1]
+      self.set(ncol, False if (source[ocol] is None) else True)
+    return self
+
 MOTHER_MIGRATIONS = [
-  ('patient_id', '1198670116338016')
+  ('patient_id', '1198670116338016'),
+  ('handwashing', True),
+  ('no_handwashing', True),
+  ('miscarries', True),
+  ('surgeries', True),
+  ('toilet', True),
+  ('no_toilet', True),
+  ('old', True),
+  ('young_mother', True),
+  ('prev_home_deliv', True),
+  ('chronic_disease', True)
 ]
 class Mother(R1000Object):
   def load(self, nid):
@@ -71,11 +91,38 @@ class Reporter(R1000Object):
     return self
 
 PREGNANCY_MIGRATIONS  = [
-  ('lmp', datetime.today())
+  ('lmp', datetime.today()),
+  ('mother', 1),
+  ('at_clinic', True),
+  ('at_home', True),
+  ('at_hospital', True),
+  ('en_route', True),
+  ('no_problem', True),
+  ('no_prev_risks', True),
+  ('rapid_breathing', True),
+  ('multiples', True),
+  ('mother_well', True),
+  ('young_mother', True),
+  ('asm_advice', True),
+  ('vomiting', True),
+  ('previous_serious_case', True),
+  ('severe_anaemia', True),
+  ('previous_haemorrhage', True),
+  ('mother_sick', True),
+  ('coughing', True),
+  ('malaria', True),
+  ('referred', True),
+  ('diarrhoea', True),
+  ('previous_convulsion', True),
+  ('oedema', True),
+  ('fever', True),
+  ('stiff_neck', True),
+  ('jaundice', True),
+  ('pneumonia', True)
 ]
 class Pregnancy(R1000Object):
   def load(self, mum, lmp):
-    gat = orm.ORM.query(self.table, {'indexcol = %s': mum, 'lmp = %s': lmp}, migrations = PREGNANCY_MIGRATIONS)
+    gat = orm.ORM.query(self.table, {'mother = %s': mum, 'lmp = %s': lmp}, migrations = PREGNANCY_MIGRATIONS)
     self['mother']  = mum
     self['lmp']     = lmp
     if not gat.count():
@@ -89,21 +136,60 @@ class Pregancies:
     mum = Mother('ig_mothers')
     mum.load(entry['patient_id'])
     rep = Reporter('ig_reporters')
+    rep.copy(entry, ['province_pk', 'district_pk', 'health_center_pk'])
     rep.load(entry['reporter_phone'])
     mum['reporter'] = rep['indexcol']
     prg = Pregnancy('ig_pregnancies')
     prg.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date', 'lmp'])
     prg.load(mum['indexcol'], entry['lmp'])
+    prg.copy_presence(row, [
+      ('cl_bool', 'at_clinic'),
+      ('ho_bool', 'at_home'),
+      ('hp_bool', 'at_hospital'),
+      ('or_bool', 'en_route'),
+      # TODO: Collapse the above? XXX
+      ('np_bool', 'no_problem'),
+      ('nr_bool', 'no_prev_risks'),
+      ('rb_bool', 'rapid_breathing'),
+      ('mu_bool', 'multiples'),
+      ('mw_bool', 'mother_well'),
+      ('yg_bool', 'young_mother'),
+      ('aa_bool', 'asm_advice'),
+      ('vo_bool', 'vomiting'),
+      ('yj_bool', 'previous_serious_case'),
+      ('sa_bool', 'severe_anaemia'),
+      ('lz_bool', 'previous_haemorrhage'),
+      ('ms_bool', 'mother_sick'),
+      ('ch_bool', 'coughing'),
+      ('ma_bool', 'malaria'),
+      ('pr_bool', 'referred'),
+      ('di_bool', 'diarrhoea'),
+      ('kx_bool', 'previous_convulsion'),
+      ('oe_bool', 'oedema'),
+      ('fe_bool', 'fever'),
+      ('ns_bool', 'stiff_neck'),
+      ('ja_bool', 'jaundice'),
+      ('pc_bool', 'pneumonia'),
+      ('hy_bool', 'hypothermia'),
+    ])
     mum.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date', 'lmp']).copy(row,   [
       ('mother_weight_float', 'weight'),
       ('mother_height_float', 'height'),
       ('parity_float', 'parity'),
       ('gravity_float', 'gravidity'),
-      ('indexcol', 'former_id'),
+      ('indexcol', 'former_id')
+    ]).copy_presence(row, [
       ('hw_bool', 'handwashing'),
-      ('to_bool', 'toilet')
+      ('nh_bool', 'no_handwashing'),
+      ('rm_bool', 'miscarries'),
+      ('gs_bool', 'surgeries'),
+      ('to_bool', 'toilet'),
+      ('nt_bool', 'no_toilet'),
+      ('ol_bool', 'old'),
+      ('yg_bool', 'young_mother'),
+      ('hd_bool', 'prev_home_deliv'),
+      ('ds_bool', 'chronic_disease'),
     ])
-    # .copy(row, ['log_id', 'cl_bool', 'np_bool', 'nr_bool', 'nh_bool', 'rm_bool', 'gs_bool', 'nt_bool', 'hp_bool', 'ol_bool', 'rb_bool', 'mu_bool', 'mw_bool', 'yg_bool', 'hd_bool', 'ds_bool', 'ho_bool', 'aa_bool', 'vo_bool', 'yj_bool', 'sa_bool', 'lz_bool', 'ms_bool', 'pm_bool', 'ch_bool', 'anc2_bool', 'ma_bool', 'pr_bool', 'dth_bool', 'sb_bool', 'af_bool', 'di_bool', 'kx_bool', 'cw_bool', 'cs_bool', 'nb_bool', 'oe_bool', 'fe_bool', 'ns_bool', 'or_bool', 'ja_bool', 'pc_bool', 'anc_bool', 'hy_bool', 'bo_bool', 'db_bool', 'ci_bool', 'ib_bool'])
     mum.save()
 
 class Nutrition:
