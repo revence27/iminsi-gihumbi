@@ -613,7 +613,7 @@ class Application:
   def dashboards_mothers(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('report_date')
-    nat     = orm.ORM.query('pre_table', cnds)
+    nat     = orm.ORM.query('ig_mothers', cnds)
     total   = nat.count()
     return self.dynamised('mothers', mapping = locals(), *args, **kw)
 

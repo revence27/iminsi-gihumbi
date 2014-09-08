@@ -13,17 +13,16 @@ APP_DATA  = {
       'ref':'mothers'},
     {'name':'Babies',
       'ref':'babies'},
+    {'name':'Pregnancies',
+      'ref':'pregnancies'},
     {'name':'Reporters',
       # 'title' : 'Reporters',
       'ref'   : 'reporters'},
     {'name':'Sanitation',
       'title' : 'Toilets and Water',
       'ref'   : 'sanitation'}
-  ]
-}
-
-OLD_APP_DATA  = {
-  'indicators'  : [
+  ],
+  'rindicators'  : [
     {'name':'Ante-Natal',
       'ref':'anc'},
     {'name':'Birth Reports',
