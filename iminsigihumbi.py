@@ -235,8 +235,9 @@ class ThousandNavigation:
     if not self.kw and not kw:
       return url
     pcs, qrs  = self.pre_link(url)
+    miss      = kw.pop('minus', [])
     qrs.update(kw)
-    return urlparse.urlunsplit((pcs[0], pcs[1], pcs[2], '&'.join(['%s=%s' % (k, urllib2.quote(str(qrs[k]))) for k in qrs if qrs[k]]), pcs[4]))
+    return urlparse.urlunsplit((pcs[0], pcs[1], pcs[2], '&'.join(['%s=%s' % (k, urllib2.quote(str(qrs[k]))) for k in qrs if qrs[k] and (not k in miss)]), pcs[4]))
 
 class Application:
   def __init__(self, templates, statics, static_path, app_data, **kw):
@@ -606,8 +607,10 @@ class Application:
   def dashboards_reporters(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions(None)
-    nat     = orm.ORM.query('ig_reporters', cnds)
-    total   = nat.count()
+    rps     = orm.ORM.query('thousanddays_reports', cnds, cols = ['COUNT(*) AS total'])
+    reptot  = rps[0]['total']
+    nat     = orm.ORM.query('ig_reporters', cnds, cols = ['COUNT(*) AS total'])
+    total   = nat[0]['total']
     return self.dynamised('reporters', mapping = locals(), *args, **kw)
 
   # TODO.
@@ -626,8 +629,22 @@ class Application:
       ('multiples', 'Multiples'),
       ('young_mother', 'Young Mother'),
       ('asm_advice', 'ASM Advice Given'),
-      ('malaria', 'Malaria'),
+      ('malaria', 'With Malaria'),
       ('vomiting', 'Vomiting'),
+      ('coughing', 'Coughing'),
+      ('referred', 'Referred'),
+      ('diarrhoea', u'With Diarrhœa'),
+      ('oedema', u'With Œdema'),
+      ('fever', 'With Fever'),
+      ('stiff_neck', 'With Stiff Neck'),
+      ('jaundice', 'With Jaundice'),
+      ('pneumonia', 'With Pneumonia'),
+      ('hypothermia', 'With Hypothermia'),
+      ('previous_serious_case', 'With History of Serious Cases'),
+      ('severe_anaemia', u'With Severe Anæmia'),
+      ('previous_haemorrhage', u'With History of Hæmorrhage'),
+      ('mother_sick', 'With Unspecifed Sickness'),
+      ('previous_convulsion', 'With History of Convulsions'),
     ]
     nat     = self.civilised_fetch('ig_pregnancies', cnds, attrs)
     total   = nat[0]['total']
@@ -637,15 +654,15 @@ class Application:
   @cherrypy.expose
   def dashboards_babies(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
-    nat     = orm.ORM.query('ig_babies', cnds)
-    total   = nat.count()
+    cnds    = navb.conditions(None)
+    nat     = orm.ORM.query('ig_babies', cnds, cols = ['COUNT(*) AS total'])
+    total   = nat[0]['total']
     return self.dynamised('babies', mapping = locals(), *args, **kw)
 
   def civilised_fetch(self, tbl, cnds, attrs):
     exts    = {}
     for ext in attrs:
-      exts[ext[0]] = ('COUNT(*)', ext[0])
+      exts[ext[0]] = ('COUNT(*)' if len(ext) < 3 else ext[2], ext[0])
     return orm.ORM.query(tbl, cnds, cols = ['COUNT(*) AS total'], extended = exts)
 
   # TODO.
@@ -653,7 +670,7 @@ class Application:
   def dashboards_mothers(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('report_date')
-    pregs   = orm.ORM.query('ig_pregnancies', cnds, cols = ['COUNT(*) AS total'])[0]['total']
+    pregs   = orm.ORM.query('ig_mothers', cnds, cols = ['(SUM(pregnancies) - COUNT(*)) AS total'])[0]['total']
     attrs   = [
       ('young_mother', 'Under 18'),
       ('old', 'Over 35'),

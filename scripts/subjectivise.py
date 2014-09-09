@@ -55,6 +55,7 @@ class R1000Object:
     return self
 
 MOTHER_MIGRATIONS = [
+  ('pregnancies', 0),
   ('patient_id', '1198670116338016'),
   ('handwashing', True),
   ('no_handwashing', True),
@@ -72,8 +73,21 @@ class Mother(R1000Object):
     gat = orm.ORM.query(self.table, {'patient_id = %s': nid}, migrations = MOTHER_MIGRATIONS)
     self['patient_id']  = nid
     if not gat.count():
+      self['pregnancies'] = 1
       self.save()
       return self.load(nid)
+    self['indexcol']    = gat[0]['indexcol']
+    return self
+
+BABY_MIGRATIONS = [
+  ('pregnancy', 0)
+]
+class Baby(R1000Object):
+  def load(self, pid):
+    gat = orm.ORM.query(self.table, {'pregnancy = %s': pid}, migrations = BABY_MIGRATIONS)
+    if not gat.count():
+      self.save()
+      return self.load(pid)
     self['indexcol']    = gat[0]['indexcol']
     return self
 
@@ -118,7 +132,8 @@ PREGNANCY_MIGRATIONS  = [
   ('fever', True),
   ('stiff_neck', True),
   ('jaundice', True),
-  ('pneumonia', True)
+  ('pneumonia', True),
+  ('hypothermia', True)
 ]
 class Pregnancy(R1000Object):
   def load(self, mum, lmp):
@@ -127,6 +142,8 @@ class Pregnancy(R1000Object):
     self['lmp']     = lmp
     if not gat.count():
       self.save()
+      her = orm.ORM.query('ig_mothers', {'indexcol = %s':mum})[0]
+      orm.ORM.store('ig_mothers', {'indexcol': mum, 'pregnancies': her['pregnancies'] + 1})
       return self.load(mum, lmp)
     self['indexcol']    = gat[0]['indexcol']
     return self
@@ -227,7 +244,7 @@ def transfer_objects(reps, tbl):
     hdl.handle(ent, rpt, rdx)
     orm.ORM.store(tbl, {'indexcol':idx, 'objprocess': datetime.today()})
   sys.stderr.write('\n')
-  return 1
+  return 0
 
 def rwabugiri_main(argv):
   if len(argv) < 3:

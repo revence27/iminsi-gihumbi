@@ -18,9 +18,9 @@ APP_DATA  = {
     {'name':'Reporters',
       # 'title' : 'Reporters',
       'ref'   : 'reporters'},
-    {'name':'Sanitation',
-      'title' : 'Toilets and Water',
-      'ref'   : 'sanitation'}
+    # {'name':'Sanitation',
+    #   'title' : 'Toilets and Water',
+    #   'ref'   : 'sanitation'}
   ],
   'rindicators'  : [
     {'name':'Ante-Natal',
