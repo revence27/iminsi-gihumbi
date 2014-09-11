@@ -275,6 +275,28 @@ class Application:
   def index(self, *args, **kw):
     return self.dynamised('index', *args, **kw)
 
+##### START OF ALL LOCATIONS FILTERING
+
+  @cherrypy.expose
+  def locs(self):
+    import json
+    my_locs = []
+    data = orm.ORM.query('chws__healthcentre', {} ).list()
+    for d in data:
+       #print d['name'], d['district'], d['province']
+       dst = orm.ORM.query('chws__district', {'indexcol = %s' : d['district']})[0]
+       prv = orm.ORM.query('chws__province', {'indexcol = %s' : d['province']})[0]
+       if prv and dst:	my_locs.append( 
+			{
+				'id': d['indexcol'], 'name': d['name'], 'code': d['code'],
+			 	'district_name': dst['name'], 'district_id': dst['indexcol'], 'district_code': dst['code'],
+			 	'province_name': prv['name'], 'province_id': prv['indexcol'], 'province_code': prv['code']
+			}
+		      )
+    return json.dumps(my_locs)
+
+##### END OF ALL LOCATIONS FILTERING
+
   @cherrypy.expose
   def charts(self, *args, **kw):
     return ':-\\'
