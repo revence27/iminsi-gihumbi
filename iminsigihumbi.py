@@ -5,6 +5,7 @@ import copy
 from datetime import datetime, timedelta
 from ectomorph import orm
 from jinja2 import Environment, FileSystemLoader
+import json
 import re
 import settings
 import sys
@@ -627,11 +628,15 @@ class Application:
       ('report_type',       'Report Type')
     ], *args, **kw)
     # TODO: optimise
+    desc    = 'Reports'
+    sc      = kw.get('subcat')
+    if sc:
+      cnds.update({'report_type = %s': sc})
+      desc  = '%s (%s Reports)' % (desc, sc)
     nat     = orm.ORM.query('thousanddays_reports', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
       sort  = ('report_date', False)
     )
-    desc    = 'Reports'
     return self.dynamised('reports_table', mapping = locals(), *args, **kw)
 
   # TODO: Handle deep structure and boolean display.
@@ -652,7 +657,7 @@ class Application:
       sort  = ('created_at', False)
     )
     desc  = 'Reports'
-    return self.dynamised('reports_table', mapping = locals(), *args, **kw)
+    return self.dynamised('reporters_table', mapping = locals(), *args, **kw)
 
   def find_descr(self, desc, key):
     for k, d in desc:
@@ -687,14 +692,17 @@ class Application:
 
   # TODO.
   @cherrypy.expose
-  def dashboards_reporters(self, *args, **kw):
+  def dashboards_reporting(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions(None)
-    rps     = orm.ORM.query('thousanddays_reports', cnds, cols = ['COUNT(*) AS total'])
-    reptot  = rps[0]['total']
     nat     = orm.ORM.query('ig_reporters', cnds, cols = ['COUNT(*) AS total'])
     total   = nat[0]['total']
-    return self.dynamised('reporters', mapping = locals(), *args, **kw)
+    rps     = orm.ORM.query('thousanddays_reports', cnds, cols = ['COUNT(*) AS total'])
+    reptot  = rps[0]['total']
+    ncnds   = copy.copy(cnds)
+    ncnds.update({'report_type IS NOT NULL':''})
+    rpts    = orm.ORM.query('thousanddays_reports', ncnds, cols = ['DISTINCT report_type', "(report_type || ' Reports') AS nom"], sort = ('report_type', True)).list()
+    return self.dynamised('reporting', mapping = locals(), *args, **kw)
 
   PREGNANCIES_DESCR = [
       ('at_clinic', 'Confirmed at Clinic'),
@@ -750,9 +758,14 @@ class Application:
 
   def civilised_fetch(self, tbl, cnds, attrs):
     exts    = {}
+    ncnds   = copy.copy(cnds)
     for ext in attrs:
-      exts[ext[0]] = ('COUNT(*)' if len(ext) < 3 else ext[2], ext[0])
-    return orm.ORM.query(tbl, cnds, cols = ['COUNT(*) AS total'], extended = exts)
+      if len(ext) > 3:
+        for cs in ext[3]:
+          ncnds[cs[0]] = cs[1]
+      else:
+        exts[ext[0]] = ('COUNT(*)' if len(ext) < 3 else ext[2], ext[0])
+    return orm.ORM.query(tbl, ncnds, cols = ['COUNT(*) AS total'], extended = exts)
 
   MOTHERS_DESCR = [
       ('young_mother', 'Under 18'),
@@ -875,4 +888,12 @@ class Application:
     lmps  = [{'value' : x, 'pc' : (100.0 * (float(x) / tot)) if tot > 0 else 0, 'rpc': (100.0 * (float(x) / dmax)) if dmax > 0 else 0} for x in ls]
     return self.dynamised('pregnancy', mapping = locals(), *args, **kw)
 
+  @cherrypy.expose
+  def data_reports(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    cnds.update({'report_type = %s':kw.get('subcat')})
+    cherrypy.response.headers['Content-Type'] = 'application/json'
+    reps   = orm.ORM.query('thousanddays_reports', cnds, cols = ['COUNT(*) AS total'])[0]['total']
+    return json.dumps({'total': reps})
 
