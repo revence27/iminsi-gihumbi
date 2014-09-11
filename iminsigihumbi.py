@@ -576,23 +576,106 @@ class Application:
     desc  = 'Pregnancy Reports'
     return self.dynamised('pregnancy_table', mapping = locals(), *args, **kw)
 
-  def tables_in_general(self, sorter = 'report_date', *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions(sorter)
-    cols    = (([
+  # TODO: Handle deep structure and boolean display.
+  @cherrypy.expose
+  def tables_pregnancies(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(basics = [
+      ('indexcol',          'Entry ID'),
+      ('report_date',       'Date'),
+    ], *args, **kw)
+    sc                  = kw.get('subcat')
+    if sc:
+      cnds[sc]  = ''
+    # TODO: optimise
+    nat     = orm.ORM.query('ig_pregnancies', cnds,
+      cols  = [x[0] for x in cols if x[0][0] != '_'],
+    )
+    desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(self.PREGNANCIES_DESCR, sc), ) if sc else '', )
+    return self.dynamised('pregnancies_table', mapping = locals(), *args, **kw)
+
+  # TODO: Handle deep structure and boolean display.
+  @cherrypy.expose
+  def tables_mothers(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(basics = [
+      ('indexcol',          'Entry ID'),
+      ('report_date',       'Date'),
+      ('patient_id',        'Patient ID'),
+      ('reporter',          'Reporter ID'),
+      ('height',            'Height'),
+      ('weight',            'Weight'),
+      ('reporter',          'Reporter ID'),
+      ('pregnancies', 'Pregnancies')
+    ], *args, **kw)
+    sc                  = kw.get('subcat')
+    if sc:
+      cnds[{'withprev':'pregnancies > 1'}.get(sc, sc)]  = ''
+    # TODO: optimise
+    nat     = orm.ORM.query('ig_mothers', cnds,
+      cols  = [x[0] for x in cols if x[0][0] != '_'],
+    )
+    desc  = 'Mothers%s' % (' (%s)' % (self.find_descr(self.MOTHERS_DESCR, sc), ) if sc else '', )
+    return self.dynamised('mothers_table', mapping = locals(), *args, **kw)
+
+  # TODO: Handle deep structure.
+  @cherrypy.expose
+  def tables_reports(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(basics = [
+      ('indexcol',          'Entry ID'),
+      ('report_date',       'Date'),
+      ('reporter_pk',       'Reporter ID'),
+      ('reporter_phone',    'Reporter Phone'),
+      ('report_type',       'Report Type')
+    ], *args, **kw)
+    # TODO: optimise
+    nat     = orm.ORM.query('thousanddays_reports', cnds,
+      cols  = [x[0] for x in cols if x[0][0] != '_'],
+      sort  = ('report_date', False)
+    )
+    desc    = 'Reports'
+    return self.dynamised('reports_table', mapping = locals(), *args, **kw)
+
+  # TODO: Handle deep structure and boolean display.
+  @cherrypy.expose
+  def tables_reporters(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(
+      sorter  = None,
+      basics  = [
+        ('indexcol',          'Entry ID'),
+        ('phone_number',      'Phone Number'),
+        ('province_pk',       'Date'),
+        ('district_pk',       'District'),
+        ('health_center_pk',  'Health Centre')
+      ], *args, **kw)
+    # TODO: optimise
+    nat     = orm.ORM.query('ig_reporters', cnds,
+      cols  = [x[0] for x in cols if x[0][0] != '_'],
+      sort  = ('created_at', False)
+    )
+    desc  = 'Reports'
+    return self.dynamised('reports_table', mapping = locals(), *args, **kw)
+
+  def find_descr(self, desc, key):
+    for k, d in desc:
+      if k == key: return d
+    return None
+
+  def neater_tables(self, sorter = 'report_date', basics = [], extras = [], *args, **kw):
+    return self.tables_in_general(sorter, basics, extras, *args, **kw)
+
+  def tables_in_general(self, sorter = 'report_date', basics = [
       ('indexcol',          'Report ID'),
       ('report_date',       'Date'),
       ('reporter_phone',    'Reporter'),
       ('reporter_pk',       'Reporter ID')
-    ]) +
-
-    (([] if 'province' in kw else [('province_pk',       'Province')]) +
+    ], extras = [
+      ('patient_id',        'Mother ID'),
+      ('lmp',               'LMP')
+    ], *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions(sorter)
+    cols    = (basics + (([] if 'province' in kw else [('province_pk',       'Province')]) +
      ([] if 'district' in kw else [('district_pk',       'District')]) +
-     ([] if 'hc' in kw else [('health_center_pk',  'Health Centre')])) +
-
-    ([('patient_id',        'Mother ID'),
-      ('lmp',               'LMP'),
-    ]))
+     ([] if 'hc' in kw else [('health_center_pk',  'Health Centre')])) + extras)
     return (navb, cnds, cols)
 
   @cherrypy.expose
@@ -613,12 +696,7 @@ class Application:
     total   = nat[0]['total']
     return self.dynamised('reporters', mapping = locals(), *args, **kw)
 
-  # TODO.
-  @cherrypy.expose
-  def dashboards_pregnancies(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
-    attrs   = [
+  PREGNANCIES_DESCR = [
       ('at_clinic', 'Confirmed at Clinic'),
       ('at_home', 'Confirmed at Home'),
       ('at_hospital', 'Confirmed at Hospital'),
@@ -646,16 +724,27 @@ class Application:
       ('mother_sick', 'With Unspecifed Sickness'),
       ('previous_convulsion', 'With History of Convulsions'),
     ]
+  # TODO.
+  @cherrypy.expose
+  def dashboards_pregnancies(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    attrs   = self.PREGNANCIES_DESCR
     nat     = self.civilised_fetch('ig_pregnancies', cnds, attrs)
     total   = nat[0]['total']
     return self.dynamised('pregnancies', mapping = locals(), *args, **kw)
 
+  BABIES_DESCR  = [
+    ('boy', 'Boys'),
+    ('girls', 'Girls')
+  ]
   # TODO.
   @cherrypy.expose
   def dashboards_babies(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions(None)
-    nat     = orm.ORM.query('ig_babies', cnds, cols = ['COUNT(*) AS total'])
+    attrs   = self.BABIES_DESCR
+    nat     = self.civilised_fetch('ig_babies', cnds, attrs)
     total   = nat[0]['total']
     return self.dynamised('babies', mapping = locals(), *args, **kw)
 
@@ -665,13 +754,7 @@ class Application:
       exts[ext[0]] = ('COUNT(*)' if len(ext) < 3 else ext[2], ext[0])
     return orm.ORM.query(tbl, cnds, cols = ['COUNT(*) AS total'], extended = exts)
 
-  # TODO.
-  @cherrypy.expose
-  def dashboards_mothers(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
-    pregs   = orm.ORM.query('ig_mothers', cnds, cols = ['(SUM(pregnancies) - COUNT(*)) AS total'])[0]['total']
-    attrs   = [
+  MOTHERS_DESCR = [
       ('young_mother', 'Under 18'),
       ('old', 'Over 35'),
       ('surgeries', 'With Previous Obstetric Surgery'),
@@ -683,6 +766,13 @@ class Application:
       ('handwashing', 'With Water Tap'),
       ('no_handwashing', 'No Water Tap'),
     ]
+  # TODO.
+  @cherrypy.expose
+  def dashboards_mothers(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    pregs   = orm.ORM.query('ig_mothers', cnds, cols = ['(SUM(pregnancies) - COUNT(*)) AS total'])[0]['total']
+    attrs   = self.MOTHERS_DESCR
     nat     = self.civilised_fetch('ig_mothers', cnds, attrs)
     total   = nat[0]['total']
     return self.dynamised('mothers', mapping = locals(), *args, **kw)

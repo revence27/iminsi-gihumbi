@@ -80,7 +80,20 @@ class Mother(R1000Object):
     return self
 
 BABY_MIGRATIONS = [
-  ('pregnancy', 0)
+  ('pregnancy', 0),
+  ('weight', 0.0),
+  ('height', 0.0),
+  ('cnumber', 0.0),
+  ('cnumber', 0.0),
+  ('girl', True),
+  ('boy', True),
+  ('abnormal_fontanelle', True),
+  ('cord_infection', True),
+  ('congenital_malformation', True),
+  ('ibibari', True),
+  ('disabled', True),
+  ('stillborn', True),
+  ('no_problem', True)
 ]
 class Baby(R1000Object):
   def load(self, pid):
@@ -136,6 +149,12 @@ PREGNANCY_MIGRATIONS  = [
   ('hypothermia', True)
 ]
 class Pregnancy(R1000Object):
+  def load_latest(self, mum):
+    gat = orm.ORM.query(self.table, {'mother = %s': mum}, cols = ['lmp'], sort = ('lmp', False), migrations = PREGNANCY_MIGRATIONS)
+    if not gat.count():
+      raise Exception, ('No recorded pregnancy for %s#%d' % (self.table, mum))
+    return self.load(mum, gat[0]['lmp'])
+
   def load(self, mum, lmp):
     gat = orm.ORM.query(self.table, {'mother = %s': mum, 'lmp = %s': lmp}, migrations = PREGNANCY_MIGRATIONS)
     self['mother']  = mum
@@ -148,23 +167,29 @@ class Pregnancy(R1000Object):
     self['indexcol']    = gat[0]['indexcol']
     return self
 
+GENERAL_ATTRIBUTES  = [
+]
+LOCATION_ATTRIBUTES = [
+  ('cl_bool', 'at_clinic'),
+  ('ho_bool', 'at_home'),
+  ('hp_bool', 'at_hospital'),
+  ('or_bool', 'en_route')
+  # TODO: Always collapse the above into an enum? XXX
+]
 class Pregancies:
   def handle(self, entry, row, hst):
     mum = Mother('ig_mothers')
     mum.load(entry['patient_id'])
+    mum.save()
     rep = Reporter('ig_reporters')
-    rep.copy(entry, ['province_pk', 'district_pk', 'health_center_pk'])
     rep.load(entry['reporter_phone'])
+    rep.copy(entry, ['province_pk', 'district_pk', 'health_center_pk'])
+    rep.save()
     mum['reporter'] = rep['indexcol']
     prg = Pregnancy('ig_pregnancies')
     prg.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date', 'lmp'])
     prg.load(mum['indexcol'], entry['lmp'])
-    prg.copy_presence(row, [
-      ('cl_bool', 'at_clinic'),
-      ('ho_bool', 'at_home'),
-      ('hp_bool', 'at_hospital'),
-      ('or_bool', 'en_route'),
-      # TODO: Collapse the above? XXX
+    prg.copy_presence(row, LOCATION_ATTRIBUTES + [
       ('np_bool', 'no_problem'),
       ('nr_bool', 'no_prev_risks'),
       ('rb_bool', 'rapid_breathing'),
@@ -189,6 +214,7 @@ class Pregancies:
       ('pc_bool', 'pneumonia'),
       ('hy_bool', 'hypothermia'),
     ])
+    prg.save()
     mum.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date', 'lmp']).copy(row,   [
       ('mother_weight_float', 'weight'),
       ('mother_height_float', 'height'),
@@ -219,7 +245,32 @@ class InterventionResult:
 
 class Birth:
   def handle(self, entry, row, hst):
-    raise Exception, row['report_date']
+    mum = Mother('ig_mothers')
+    mum.load(entry['patient_id'])
+    prg = Pregnancy('ig_pregnancies')
+    prg.load_latest(mum['indexcol'])
+    bub = Baby('ig_babies')
+    bub.load(prg['indexcol'])
+    bub.copy(entry, ['province_pk', 'district_pk', 'health_center_pk']).copy(row, [
+      ('child_weight_float', 'weight'),
+      ('child_number_float', 'cnumber'),
+      ('ht_float', 'height'),
+      # ('wt_float', 'weight'),
+      ('muac_float', 'muac')
+    ]).copy_presence(row, [
+      ('gi_bool', 'girl'),
+      ('bo_bool', 'boy')
+    ] + LOCATION_ATTRIBUTES + [
+      ('af_bool', 'abnormal_fontanelle'),
+      ('ci_bool', 'cord_infection'),
+      ('cm_bool', 'congenital_malformation'),
+      ('ib_bool', 'ibibari'),
+      ('db_bool', 'disabled'),
+      ('sb_bool', 'stillborn'),
+      ('np_bool', 'no_problem')
+      # TODO: Get from DB list.
+    ])
+    bub.save()
 
 HANDLERS  = {
   'PRE' : Pregancies(),
@@ -232,7 +283,9 @@ def transfer_objects(reps, tbl):
   rdx = None
   qry = orm.ORM.query(tbl, {'report_type IS NOT NULL': ''}, sort = ('report_date', True))
   # sys.stderr.write('%d: %s\n' % (qry.count(), qry.query))
+  pos = 0
   for rpt in qry.list():
+    pos = pos + 1
     idx = rpt['indexcol']
     ltp = rpt['report_type']
     ent = orm.ORM.query(reps, {'indexcol = %s': rpt['log_id']})[0]
@@ -242,6 +295,8 @@ def transfer_objects(reps, tbl):
     except KeyError:
       raise Exception, ('Who handles "%s" reports?' % (ltp, ))
     hdl.handle(ent, rpt, rdx)
+    sys.stderr.write('\r%d: %s#%d' % (pos, tbl, idx))
+    sys.stderr.flush()
     orm.ORM.store(tbl, {'indexcol':idx, 'objprocess': datetime.today()})
   sys.stderr.write('\n')
   return 0
@@ -250,7 +305,11 @@ def rwabugiri_main(argv):
   if len(argv) < 3:
     sys.stderr.write('%s log_table report_table\n' % (argv[0], ))
     return 1
-  return transfer_objects(argv[1], argv[2])
+  ans = 0
+  for tbl in argv[2:]:
+    ans = transfer_objects(argv[1], tbl)
+    if ans != 0: break
+  return ans
 
 if __name__ == '__main__':
   bottom  = sys.exit(rwabugiri_main(sys.argv))
