@@ -766,7 +766,14 @@ class Application:
 
   BABIES_DESCR  = [
     ('boy', 'Boys'),
-    ('girls', 'Girls')
+    ('girl', 'Girls'),
+    ('abnormal_fontanelle', 'Abnormal Fontanelle'),
+    ('cord_infection', 'With Cord Infection'),
+    ('congenital_malformation', 'With Congenital Malformation'),
+    # ('ibirari', 'Bafite Ibibari'),
+    ('disabled', 'With Disability'),
+    ('stillborn', 'Stillborn'),
+    ('no_problem', 'With No Problem')
   ]
   # TODO.
   @cherrypy.expose
@@ -917,5 +924,5 @@ class Application:
     cnds.update({'report_type = %s':kw.get('subcat')})
     cherrypy.response.headers['Content-Type'] = 'application/json'
     reps   = orm.ORM.query('thousanddays_reports', cnds, cols = ['COUNT(*) AS total'])[0]['total']
-    return json.dumps({'total': reps})
+    return json.dumps({'total': neat_numbers(reps)})
 
