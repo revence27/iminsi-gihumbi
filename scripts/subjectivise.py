@@ -165,7 +165,7 @@ class Pregnancy(R1000Object):
     if not gat.count():
       self.save()
       her = orm.ORM.query('ig_mothers', {'indexcol = %s':mum})[0]
-      orm.ORM.store('ig_mothers', {'indexcol': mum, 'pregnancies': her['pregnancies'] + 1})
+      # orm.ORM.store('ig_mothers', {'indexcol': mum, 'pregnancies': her['pregnancies'] + 1})
       return self.load(mum, lmp)
     self['indexcol']    = gat[0]['indexcol']
     return self
@@ -256,6 +256,11 @@ class Birth:
     except Exception, e:
       prg.load(mum['indexcol'], entry['lmp'] - timedelta(days = settings.GESTATION))
       return self.handle(entry, row, hst)
+    mum.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date'])
+    mum.save()
+    prg.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date'])
+    prg.copy_presence(row, LOCATION_ATTRIBUTES)
+    prg.save()
     bub = Baby('ig_babies')
     bub.load(prg['indexcol'])
     bub.copy(entry, ['province_pk', 'district_pk', 'health_center_pk']).copy(row, [
@@ -263,7 +268,7 @@ class Birth:
       ('child_number_float', 'cnumber'),
       ('ht_float', 'height'),
       # ('wt_float', 'weight'),
-      ('birth_date', 'lmp'),
+      ('lmp', 'birth_date'),
       ('muac_float', 'muac')
     ]).copy_presence(row, [
       ('gi_bool', 'girl'),
