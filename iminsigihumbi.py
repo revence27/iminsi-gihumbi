@@ -617,6 +617,28 @@ class Application:
     return self.dynamised('pregnancies_table', mapping = locals(), *args, **kw)
 
   # TODO: Handle deep structure and boolean display.
+  # TODO: List and link the mother.
+  @cherrypy.expose
+  def tables_babies(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
+      ('indexcol',          'Entry ID'),
+      ('birth_date',        'Birth Date'),
+      # ('height',            'Height'),
+      ('weight',            'Weight'),
+      ('cnumber',           'Child Number'),
+      # ('muac',              'MUAC')
+    ], *args, **kw)
+    sc                  = kw.get('subcat')
+    if sc:
+      cnds[sc]  = ''
+    # TODO: optimise
+    nat     = orm.ORM.query('ig_babies', cnds,
+      cols  = [x[0] for x in cols if x[0][0] != '_'],
+    )
+    desc  = 'Babies%s' % (' (%s)' % (self.find_descr(self.BABIES_DESCR, sc), ) if sc else '', )
+    return self.dynamised('babies_table', mapping = locals(), *args, **kw)
+
+  # TODO: Handle deep structure and boolean display.
   @cherrypy.expose
   def tables_mothers(self, *args, **kw):
     navb, cnds, cols    = self.neater_tables(basics = [
@@ -779,7 +801,7 @@ class Application:
   @cherrypy.expose
   def dashboards_babies(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions(None)
+    cnds    = navb.conditions('birth_date')
     attrs   = self.BABIES_DESCR
     nat     = self.civilised_fetch('ig_babies', cnds, attrs)
     total   = nat[0]['total']
