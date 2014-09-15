@@ -6,6 +6,7 @@ BMI_MIN         = 19
 BMI_MAX         = 25
 MIN_WEIGHT      = 45
 MAX_WEIGHT      = 65
+SALT_STRENGTH   = 2
 
 APP_DATA  = {
   'indicators'  : [
@@ -18,6 +19,10 @@ APP_DATA  = {
       'ref':'babies'},
     {'name':'Pregnancies',
       'ref':'pregnancies'},
+    {'name':'Red Alerts',
+      'ref':'alerts'},
+    {'name':'Admins',
+      'ref':'admins'},
     # {'name':'Sanitation',
     #   'title' : 'Toilets and Water',
     #   'ref'   : 'sanitation'}

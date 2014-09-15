@@ -6,8 +6,10 @@ from datetime import datetime, timedelta
 from ectomorph import orm
 from jinja2 import Environment, FileSystemLoader
 import json
+import random
 import re
 import settings
+import sha
 import sys
 import urllib2, urlparse
 
@@ -860,6 +862,39 @@ class Application:
     nat     = self.civilised_fetch('ig_babies', cnds, attrs)
     total   = nat[0]['total']
     return self.dynamised('babies', mapping = locals(), *args, **kw)
+
+  ADMIN_MIGRATIONS  = [
+    ('province_pk',       0),
+    ('district_pk',       0),
+    ('health_center_pk',  0)
+  ]
+  @cherrypy.expose
+  def dashboards_admins(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    naddr   = kw.get('addr')
+    dadmin  = kw.get('del')
+    if dadmin:
+      orm.ORM.delete('ig_admins', dadmin)
+      raise cherrypy.HTTPRedirect(cherrypy.request.headers.get('Referer') or '/dashboards/admins')
+    prv   = kw.get('province')
+    dst   = kw.get('district')
+    hc    = kw.get('hc')
+    if naddr:
+      npwd  = kw.get('pwd')
+      salt  = str(random.random()).join([str(random.random()) for x in range(settings.SALT_STRENGTH)])
+      rslt  = sha.sha('%s%s' % (salt, npwd))
+      thing = {'salt': salt, 'address': naddr, 'sha1_pass': rslt.hexdigest(), 'district_pk': dst, 'province_pk': prv, 'health_center_pk': hc}
+      orm.ORM.store('ig_admins', thing, migrations  = self.ADMIN_MIGRATIONS)
+      raise cherrypy.HTTPRedirect(cherrypy.request.headers.get('Referer') or '/dashboards/admins')
+    cnds    = navb.conditions(None)
+    if not prv:
+      cnds['province_pk IS NULL'] = ''
+    if not dst:
+      cnds['district_pk IS NULL'] = ''
+    if not hc:
+      cnds['health_center_pk IS NULL'] = ''
+    nat     = orm.ORM.query('ig_admins', cnds, sort = ('address', True), migrations = self.ADMIN_MIGRATIONS)
+    return self.dynamised('admins', mapping = locals(), *args, **kw)
 
   def civilised_fetch(self, tbl, cnds, attrs):
     exts    = {}
