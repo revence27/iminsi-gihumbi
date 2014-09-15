@@ -12,7 +12,7 @@ import sys
 import urllib2, urlparse
 
 PREGNANCY_MATCHES  = {
-  'coughing'  : ('COUNT(*)', 'ch_bool IS NOT NULL'),
+  'coughing'  : ('COUNT(*)',  'ch_bool IS NOT NULL'),
   'diarrhoea' : ('COUNT(*)',  'di_bool IS NOT NULL'),
   'fever'     : ('COUNT(*)',  'fe_bool IS NOT NULL'),
   'oedema'    : ('COUNT(*)',  'oe_bool IS NOT NULL'),
@@ -251,6 +251,18 @@ class Application:
     self.jinja.filters.update({
       'neat_numbers'  : neat_numbers
     })
+    self.__set_locations()
+
+  def __set_locations(self):
+    self.provinces  = {}
+    self.districts  = {}
+    self.hcs        = {}
+    for prv in orm.ORM.query('chws__province', {}).list():
+      self.provinces[str(prv['indexcol'])]  = prv['name']
+    for dst in orm.ORM.query('chws__district', {}).list():
+      self.districts[str(dst['indexcol'])]  = dst['name']
+    for hc in orm.ORM.query('chws__healthcentre', {}).list():
+      self.hcs[str(hc['indexcol'])]  = hc['name']
 
   def match(self, url):
     got = url[1:].replace('/', '_') or 'index'
@@ -605,13 +617,23 @@ class Application:
     navb, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('report_date',       'Date'),
+      ('mother',            'Mother ID'),
     ], *args, **kw)
-    sc                  = kw.get('subcat')
+    sc      = kw.get('subcat')
+    markup  = {
+      'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
+      'patient_id': lambda x, _, __: '<a href="/tables/mothers?pid=%s">%s</a>' % (x, x),
+      'mother': lambda x, _, __: '<a href="/tables/mothers?id=%s">%s</a>' % (x, x),
+      'province_pk': lambda x, _, __: '%s' % (self.provinces[str(x)], ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts[str(x)], ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs[str(x)], )
+    }
     if sc:
       cnds[sc]  = ''
     # TODO: optimise
+    attrs = self.PREGNANCIES_DESCR
     nat     = orm.ORM.query('ig_pregnancies', cnds,
-      cols  = [x[0] for x in cols if x[0][0] != '_'],
+      cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
     )
     desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(self.PREGNANCIES_DESCR, sc), ) if sc else '', )
     return self.dynamised('pregnancies_table', mapping = locals(), *args, **kw)
@@ -626,14 +648,23 @@ class Application:
       # ('height',            'Height'),
       ('weight',            'Weight'),
       ('cnumber',           'Child Number'),
-      # ('muac',              'MUAC')
+      ('pregnancy',         'Pregnancy ID')
     ], *args, **kw)
-    sc                  = kw.get('subcat')
+    sc      = kw.get('subcat')
+    markup  = {
+      'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
+      'patient_id': lambda x, _, __: '<a href="/tables/mothers?pid=%s">%s</a>' % (x, x),
+      'pregnancy': lambda x, _, __: '<a href="/tables/pregnancies?id=%s">%s</a>' % (x, x),
+      'province_pk': lambda x, _, __: '%s' % (self.provinces[str(x)], ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts[str(x)], ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs[str(x)], )
+    }
     if sc:
       cnds[sc]  = ''
     # TODO: optimise
+    attrs   = self.BABIES_DESCR
     nat     = orm.ORM.query('ig_babies', cnds,
-      cols  = [x[0] for x in cols if x[0][0] != '_'],
+      cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
     )
     desc  = 'Babies%s' % (' (%s)' % (self.find_descr(self.BABIES_DESCR, sc), ) if sc else '', )
     return self.dynamised('babies_table', mapping = locals(), *args, **kw)
@@ -648,15 +679,23 @@ class Application:
       ('reporter',          'Reporter ID'),
       ('height',            'Height'),
       ('weight',            'Weight'),
-      ('reporter',          'Reporter ID'),
-      ('pregnancies', 'Pregnancies')
+      # ('reporter',          'Reporter ID'),
+      ('pregnancies',       'Pregnancies')
     ], *args, **kw)
-    sc                  = kw.get('subcat')
+    sc      = kw.get('subcat')
+    markup  = {
+      'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
+      'patient_id': lambda x, _, __: '<a href="/tables/mothers?pid=%s">%s</a>' % (x, x),
+      'province_pk': lambda x, _, __: '%s' % (self.provinces[str(x)], ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts[str(x)], ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs[str(x)], )
+    }
     if sc:
       cnds[{'withprev':'pregnancies > 1'}.get(sc, sc)]  = ''
     # TODO: optimise
+    attrs   = self.MOTHERS_DESCR
     nat     = orm.ORM.query('ig_mothers', cnds,
-      cols  = [x[0] for x in cols if x[0][0] != '_'],
+      cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
     )
     desc  = 'Mothers%s' % (' (%s)' % (self.find_descr(self.MOTHERS_DESCR, sc), ) if sc else '', )
     return self.dynamised('mothers_table', mapping = locals(), *args, **kw)
@@ -674,6 +713,7 @@ class Application:
     # TODO: optimise
     desc    = 'Reports'
     sc      = kw.get('subcat')
+    markup  = {}
     if sc:
       cnds.update({'report_type = %s': sc})
       desc  = '%s (%s Reports)' % (desc, sc)
@@ -692,16 +732,22 @@ class Application:
         ('indexcol',          'Entry ID'),
         ('phone_number',      'Phone Number'),
         ('province_pk',       'Date'),
-        ('district_pk',       'District'),
-        ('health_center_pk',  'Health Centre')
+        ('district_pk',       'District')
+        # ('health_center_pk',  'Health Centre')
       ], *args, **kw)
+    markup  = {
+      'indexcol': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
+      'province_pk': lambda x, _, __: '%s' % (self.provinces[str(x)], ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts[str(x)], ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs[str(x)], )
+    }
     # TODO: optimise
     nat     = orm.ORM.query('ig_reporters', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
       sort  = ('created_at', False)
     )
     desc  = 'Reports'
-    return self.dynamised('reporters_table', mapping = locals(), *args, **kw)
+    return self.dynamised('reporter_table', mapping = locals(), *args, **kw)
 
   def find_descr(self, desc, key):
     for k, d in desc:
@@ -721,8 +767,16 @@ class Application:
       ('lmp',               'LMP')
     ], *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions(sorter)
-    cols    = (basics + (([] if 'province' in kw else [('province_pk',       'Province')]) +
+    cnds    = {}
+    pid     = kw.get('pid')
+    tid     = kw.get( 'id')
+    if pid:
+      cnds  = {'patient_id = %s': pid}
+    elif tid:
+      cnds  = {'indexcol  = %s':  tid}
+    else:
+      cnds  = navb.conditions(sorter)
+    cols  = (basics + (([] if 'province' in kw else [('province_pk',       'Province')]) +
      ([] if 'district' in kw else [('district_pk',       'District')]) +
      ([] if 'hc' in kw else [('health_center_pk',  'Health Centre')])) + extras)
     return (navb, cnds, cols)
@@ -787,8 +841,8 @@ class Application:
     return self.dynamised('pregnancies', mapping = locals(), *args, **kw)
 
   BABIES_DESCR  = [
-    ('boy', 'Boys'),
-    ('girl', 'Girls'),
+    ('boy', 'Boy'),
+    ('girl', 'Girl'),
     ('abnormal_fontanelle', 'Abnormal Fontanelle'),
     ('cord_infection', 'With Cord Infection'),
     ('congenital_malformation', 'With Congenital Malformation'),
