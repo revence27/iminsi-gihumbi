@@ -1,0 +1,27 @@
+{%  extends "basicreporting.html" %}
+{%  block mainpart  %}
+  <div class="smallcontainer">
+    <div class="infoname">Total Reporters</div>
+    <div class="infodata goodnum playable">
+      <a href="{{ nav.link("/tables/reporters") }}">{{  display.total|neat_numbers }}</a>
+    </div>
+    <div class="graphicard">
+      <img style="width: 75%; margin-left: 12.5%;" src="{{  static_path }}/images/phonepic.png" />
+    </div>
+  </div>
+  <div class="humblecontainer">
+    <div class="datapoint">
+      <div class="number playable"><a href="{{  nav.link("/tables/reports") }}">{{  display.reptot|neat_numbers  }}</a></div>
+      <div class="descr">Total Reports Sent</div>
+    </div>
+    <div class="datapoint">
+      <table class="participant dimensioned">
+        {%  for rpt in display.rpts %}
+          <tr>
+            <td partname="{{  rpt['report_type'] }}">{{  rpt['nom'] }}</td>
+          </tr>
+        {%  endfor  %}
+      </table>
+    </div>
+  </div>
+{%  endblock  %}

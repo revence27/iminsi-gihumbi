@@ -1,0 +1,111 @@
+{%  extends "basicpreg.html" %}
+{%  block mainpart  %}
+  <div class="smallcontainer">
+    <div class="infoname">Total Pregnancies Confirmed</div>
+    <div class="infodata goodnum">
+      <a href="{{ nav.link("/tables/pregnancy") }}">{{  display.total|neat_numbers }}</a>
+    </div>
+  </div>
+  <div class="humblecontainer">
+    <div class="explanation"><!-- Graphs  --></div>
+    <div class="charter">
+      <div class="chart">
+        <div class="title">LMP Relative to Pregnancy Confirmation</div>
+        <div class="data">
+          {%  for lmp in display.lmps  %}
+            <div class="datapoint" style="height: {{  "%.2f" % lmp.rpc  }}%">
+              <div class="value">{{  lmp.value|neat_numbers  }}</div>
+              <div class="label">Month {{  loop.index  }}</div>
+            </div>
+          {%  endfor  %}
+        </div>
+      </div>
+      <div class="chart">
+        <div class="title">Monthly Pregnancy Average: {{  "%.2f" % display.monthavg }}</div>
+        <div class="data">
+          {%  for ma in display.monthavgs  %}
+            <div class="datapoint" style="height: {{  "%.2f" % ma.rpc }}%">
+              <div class="value">{{  ma.value|neat_numbers  }}</div>
+              <div class="label">{{  ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][loop.index]  }}</div>
+            </div>
+          {%  endfor  %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="largecontainer">
+    <div class="infopair">
+      <div class="prem">
+        <div class="infoname">Reported Risks</div>
+        <div class="sum"><a href="/tables/{{  nav.link("risks")  }}">{{  display.risks|neat_numbers }}</a></div>
+        <div class="percent">{{  "%.2f" % display.riskpc }}</div>
+      </div>
+      <div class="scnd">
+        <div class="infoname">Results Reported</div>
+        <div class="sum">{{  display.rezes|neat_numbers }}</div>
+        <div class="percent">{{  "%.2f" % display.rezpc }}</div>
+          
+      </div>
+    </div>
+    <div class="infopair">
+      <div class="prem">
+        <div class="infoname">Recoveries due to Intervention</div>
+        <div class="sum">{{  display.aa|neat_numbers }}</div>
+        <div class="percent">{{  "%.2f" % display.aapc }}</div>
+      </div>
+      <div class="scnd">
+        <div class="infoname">Recoveries due to Referral</div>
+        <div class="sum">{{  display.pr|neat_numbers }}</div>
+        <div class="percent">{{  "%.2f" % display.prpc }}</div>
+          
+      </div>
+    </div>
+  </div>
+  <div class="humblecontainer">
+    <div class="explanation">Mothers’ Symptoms</div>
+    <div class="vals">
+      {%  for nom, cle, lk in [
+        ('Coughing', 'coughing', 'pregcough'),
+        ('Diarrhœa', 'diarrhoea', 'pregdiarrhea'),
+        ('Fever', 'fever', 'pregfever'),
+        ('Malaria', 'malaria', 'pregmalaria'),
+        ('Vomiting', 'vomiting', 'pregvomit'),
+        ('Œdema', 'oedema', 'pregedema'),
+        ('Jaundice', 'jaun', 'pregjaundice'),
+        ('Pneumonia', 'pneumo', 'pregpneumonia'),
+        ('Anaemia', 'anaemia', 'preganemia'),
+        ('Neck Stiffness', 'necks', 'pregneck')
+    ] %}
+      <div class="dispval">
+        <div class="ttl">{{ nom }}</div>
+        <div class="dat">{% if  display.info[cle] %}<a href="/tables/{{  nav.link(lk)  }}">{{  display.info[cle]  }}</a>{%  else  %}{{  display.info[cle] }}{%  endif %}</div>
+      </div>
+    {%  endfor  %}
+    </div>
+  </div>
+  <div class="largecontainer">
+    <div class="infopair">
+      <div class="prem">
+        <div class="infoname">Hand-washing Facilities</div>
+        <div class="sum">{{  display.handw|neat_numbers }}</div>
+        <div class="percent">{{  "%.2f" % display.handpc }}</div>
+      </div>
+      <div class="scnd">
+        <div class="infoname">Toilet Facilities</div>
+        <div class="sum">{{  display.toilets|neat_numbers }}</div>
+        <div class="percent">{{  "%.2f" % display.toilpc }}</div>
+          
+      </div>
+    </div>
+    <div class="infopair">
+      <div class="prem">
+        <div class="infoname">Underweight</div>
+        <div class="sum">{{  display.thins|neat_numbers }}</div>
+      </div>
+      <div class="scnd">
+        <div class="infoname">Overweight</div>
+        <div class="sum">{{  display.fats|neat_numbers }}</div>
+      </div>
+    </div>
+  </div>
+{%  endblock  %}

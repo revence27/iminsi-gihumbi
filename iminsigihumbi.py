@@ -626,9 +626,9 @@ class Application:
       'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
       'patient_id': lambda x, _, __: '<a href="/tables/mothers?pid=%s">%s</a>' % (x, x),
       'mother': lambda x, _, __: '<a href="/tables/mothers?id=%s">%s</a>' % (x, x),
-      'province_pk': lambda x, _, __: '%s' % (self.provinces[str(x)], ),
-      'district_pk': lambda x, _, __: '%s' % (self.districts[str(x)], ),
-      'health_center_pk': lambda x, _, __: '%s' % (self.hcs[str(x)], )
+      'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), )
     }
     if sc:
       cnds[sc]  = ''
@@ -657,9 +657,9 @@ class Application:
       'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
       'patient_id': lambda x, _, __: '<a href="/tables/mothers?pid=%s">%s</a>' % (x, x),
       'pregnancy': lambda x, _, __: '<a href="/tables/pregnancies?id=%s">%s</a>' % (x, x),
-      'province_pk': lambda x, _, __: '%s' % (self.provinces[str(x)], ),
-      'district_pk': lambda x, _, __: '%s' % (self.districts[str(x)], ),
-      'health_center_pk': lambda x, _, __: '%s' % (self.hcs[str(x)], )
+      'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), )
     }
     if sc:
       cnds[sc]  = ''
@@ -688,9 +688,9 @@ class Application:
     markup  = {
       'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
       'patient_id': lambda x, _, __: '<a href="/tables/mothers?pid=%s">%s</a>' % (x, x),
-      'province_pk': lambda x, _, __: '%s' % (self.provinces[str(x)], ),
-      'district_pk': lambda x, _, __: '%s' % (self.districts[str(x)], ),
-      'health_center_pk': lambda x, _, __: '%s' % (self.hcs[str(x)], )
+      'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), )
     }
     if sc:
       cnds[{'withprev':'pregnancies > 1'}.get(sc, sc)]  = ''
@@ -739,9 +739,9 @@ class Application:
       ], *args, **kw)
     markup  = {
       'indexcol': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
-      'province_pk': lambda x, _, __: '%s' % (self.provinces[str(x)], ),
-      'district_pk': lambda x, _, __: '%s' % (self.districts[str(x)], ),
-      'health_center_pk': lambda x, _, __: '%s' % (self.hcs[str(x)], )
+      'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), )
     }
     # TODO: optimise
     nat     = orm.ORM.query('ig_reporters', cnds,
@@ -805,11 +805,12 @@ class Application:
     return self.dynamised('reporting', mapping = locals(), *args, **kw)
 
   PREGNANCIES_DESCR = [
-      ('at_clinic', 'Confirmed at Clinic'),
-      ('at_home', 'Confirmed at Home'),
-      ('at_hospital', 'Confirmed at Hospital'),
-      ('en_route', 'Confirmed en route'),
-      ('no_problem', 'Problem-Free'),
+      # ('soon', 'Clinic'),
+      # ('at_clinic', 'Confirmed at Clinic'),
+      # ('at_home', 'Confirmed at Home'),
+      # ('at_hospital', 'Confirmed at Hospital'),
+      # ('en_route', 'Confirmed en route'),
+      ('no_problem', 'Pregnancy Without Risk'),
       ('no_prev_risks', 'No Previous Risks'),
       ('rapid_breathing', 'Rapid Breathing'),
       ('multiples', 'Multiples'),
@@ -843,8 +844,8 @@ class Application:
     return self.dynamised('pregnancies', mapping = locals(), *args, **kw)
 
   BABIES_DESCR  = [
-    ('boy', 'Boy'),
-    ('girl', 'Girl'),
+    ('boy', 'Male'),
+    ('girl', 'Female'),
     ('abnormal_fontanelle', 'Abnormal Fontanelle'),
     ('cord_infection', 'With Cord Infection'),
     ('congenital_malformation', 'With Congenital Malformation'),
@@ -862,6 +863,17 @@ class Application:
     nat     = self.civilised_fetch('ig_babies', cnds, attrs)
     total   = nat[0]['total']
     return self.dynamised('babies', mapping = locals(), *args, **kw)
+
+  # TODO.
+  @cherrypy.expose
+  def dashboards_delivs(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('lmp')
+    cnds[("""(lmp + '%d DAYS')""" % (settings.GESTATION, )) + """ >= %s"""] = navb.finish
+    attrs   = self.PREGNANCIES_DESCR
+    nat     = self.civilised_fetch('ig_pregnancies', cnds, attrs)
+    total   = nat[0]['total']
+    return self.dynamised('pregnancies', mapping = locals(), *args, **kw)
 
   ADMIN_MIGRATIONS  = [
     ('province_pk',       0),
