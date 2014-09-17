@@ -1,0 +1,107 @@
+{%  extends "deliverybase.html" %}
+{%  block mainpart  %}
+  <div class="smallcontainer">
+    <div class="infoname">Registered Deliveries</div>
+    <div class="infodata goodnum">
+      <a href="{{ nav.link("/tables/delivery") }}">{{  display.births|neat_numbers }}</a>
+    </div>
+  </div>
+  <div class="humblecontainer">
+    <div class="explanation">Delivery Locations</div>
+    <div class="vals">
+      {%  for nom, loc in [('Home', 'home'), ('Clinic', 'clinic'), ('Hospital', 'hospital'), ('En Route', 'enroute')] %}
+        <div class="dispval">
+          <div class="ttl">{{ nom }}</div>
+          <div class="dat">{{ display.locations[loc]|neat_numbers }}</div>
+        </div>
+      {%  endfor  %}
+    </div>
+  </div>
+  <div class="largecontainer">
+    <div class="infopair">
+      <div class="prem">
+        <div class="infoname">Male</div>
+        <div class="sum">{{  display.boys|neat_numbers }}</div>
+        <div class="percent">{{  "%.2f" % display.boyspc }}</div>
+      </div>
+      <div class="scnd">
+        <div class="infoname">Female</div>
+        <div class="sum">{{  display.girls|neat_numbers }}</div>
+        <div class="percent">{{  "%.2f" % display.girlspc }}</div>
+      </div>
+    </div>
+    <!--  
+  </div>
+  <div class="largecontainer">
+          -->
+    <div class="infopair">
+      <div class="prem">
+        <div class="infoname">Expected Deliveries</div>
+        <div class="sum">{{  display.expected|neat_numbers }}</div>
+      </div>
+      <div class="scnd">
+        <div class="infoname">Untracked Deliveries</div>
+        <div class="sum">{{  display.unknowns|neat_numbers }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="humblecontainer">
+    <div class="explanation"><!-- Pregnant Mother’s Weight  --></div>
+    <div class="charter">
+      <div class="chart">
+        <div class="title">Pregnant Mother’s Weight</div>
+        <div class="data">
+          <div class="datapoint" style="height: {{  "%.2f" % display.thinpc}}%">
+            <div class="value">{{ display.thins|neat_numbers }}</div>
+            <div class="label">Under 45kg</div>
+          </div>
+          <div class="datapoint" style="height: {{  "%.2f" % display.midpc}}%">
+            <div class="value">{{ display.midweight|neat_numbers }}</div>
+            <div class="label"></div>
+          </div>
+          <div class="datapoint" style="height: {{  "%.2f" % display.fatpc}}%">
+            <div class="value">{{ display.fats|neat_numbers }}</div>
+            <div class="label">Over 45kg</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart">
+        <div class="title">ANC Attendance: {{  display.tous|neat_numbers  }}</div>
+        <div class="data">
+          {%  for anc in display.ancs %}
+            <div class="datapoint" style="height: {{  "%.2f" % anc.rpc  }}%">
+              <div class="value">{{ anc.total|neat_numbers }}</div>
+              <div class="label">ANC {{ loop.index }}</div>
+            </div>
+          {%  endfor  %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="largecontainer">
+    <div class="infopair">
+      <div class="prem">
+        <div class="infoname">Breast-feeding</div>
+        <div class="sum">{{  display.delivs[0].bfeed|neat_numbers }}</div>
+      </div>
+      <div class="scnd">
+        <div class="infoname">Not Breast-feeding</div>
+        <div class="sum">{{  display.delivs[0].nbfeed|neat_numbers }}</div>
+      </div>
+    </div>
+  </div>
+    <!--  
+  <div class="largecontainer">
+    <div class="infopair">
+      <div class="prem">
+        <div class="infoname">Expected Deliveries</div>
+        <div class="sum">{{  display.expected|neat_numbers }}</div>
+      </div>
+      <div class="scnd">
+        <div class="infoname">Untracked Deliveries</div>
+        <div class="sum">{{  display.unknowns|neat_numbers }}</div>
+      </div>
+    </div>
+  </div>
+          -->
+{%  endblock  %}

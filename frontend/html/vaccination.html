@@ -1,0 +1,63 @@
+{%  extends "novabase.html" %}
+{%  block title %}{{  nav.listing[-1].name  }} {{  nav.listing[-1].title }} Vaccinations {%  endblock  %}
+{%  block subtitle %} Vaccinations {%  endblock  %}
+{%  block trunkstyle  %} style="background: url('{{ static_path }}/images/vacc.jpg') no-repeat fixed center"{%  endblock  %}
+{%  block mainpart  %}
+  <div class="smallcontainer">
+    <div class="infoname">Fully-Vaccinated Children</div>
+    <div class="infodata goodnum">
+      <a href="/tables/pregnancy">{{  display.fully|neat_numbers }}</a>
+    </div>
+  </div>
+  <div class="humblecontainer">
+    <div class="explanation"><!-- Graphs  --></div>
+    <div class="charter">
+      <div class="chart">
+        <div class="title">Vaccination Rate</div>
+        <div class="data">
+          <div class="datapoint" style="height: {{  "%.2f" % display.fullypc  }}%">
+            <div class="value">{{  display.fully|neat_numbers  }}</div>
+            <div class="label">Fully Vaccinated</div>
+          </div>
+          <div class="datapoint" style="height: {{  "%.2f" % display.partlypc  }}%">
+            <div class="value">{{  display.partly|neat_numbers  }}</div>
+            <div class="label">Partially Vaccinated</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart">
+        <div class="title">Vaccination Series Completion</div>
+        <div class="data">
+          {%  for vac in display.vaccs  %}
+            <div class="datapoint" style="height: {{  "%.2f" % vac.rpc  }}%">
+              <div class="value">{{  vac.value|neat_numbers  }}</div>
+              <div class="label">V{{  loop.index  }}</div>
+            </div>
+          {%  endfor  %}
+        </div>
+      </div>
+  </div>
+  <div class="humblecontainer">
+    <div class="charter">
+      <div class="chart">
+        <div class="title">Drop-Out Rate</div>
+        <div class="data">
+          {%  for vac in display.vaccs[1:]  %}
+            <div class="datapoint" style="height: {{  "%.2f" % vac.dpc  }}%">
+              <div class="value">{{  vac.diff|neat_numbers  }}</div>
+              <div class="label">V{{  loop.index + 1  }}</div>
+            </div>
+          {%  endfor  %}
+        </div>
+      </div>
+      <!--
+      <div class="chart">
+        <div class="title">Unimmunised Children</div>
+        <div class="informer">
+          <div class="maindata">{{  display.never|neat_numbers  }}</div>
+        </div>
+      </div>
+      -->
+    </div>
+  </div>
+{%  endblock  %}

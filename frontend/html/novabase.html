@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RapidSMS • {%  block title %}  Welcome {%  endblock  %}</title>
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+    {#  <link rel="stylesheet" type="text/css" href="{{ static_path }}/stylesheets/{%  if  nav.kw.get('format') == 'reports' %}samples{%  else  %}subjectivised{%  endif %}.css" /> #}
+    
+  </head>
+  <body>
+    <div id="main">
+      <div id="header">
+        <div id="nom">
+          <div id="primary">
+            <img src="{{  static_path }}/images/rwanda.png" />
+          </div>
+          <div id="secondary">
+            <img src="{{  static_path }}/images/rapid.png" />
+            <img src="{{  static_path }}/images/unicef.png" />
+          </div>
+          <div id="motto"></div>
+        </div>
+        <div id="langs">
+          <ul>
+            <li>English</li>
+            <li>Kinyarwanda</li>
+            <li>Français</li>
+          </ul>
+        </div>
+        {%  block topstrip  %}
+        {#
+        <div id="rindicators">
+          {%  for ind in rindicators  %}
+            <div class="indicator{%  if  ind.ref == ref %} activeindicator{%  endif %}"{% if ind.title  %}  title="{{ ind.title }}{%  endif %}">
+              <a href="/dashboards/{{ nav.link(ind.ref, format = 'reports') }}">{{ ind.name  }}</a>
+            </div>
+          {%  endfor  %}
+        </div>
+        #}
+        <div id="indicators">
+          <div class="homelink">
+            <a href="/">Home</a>
+          </div>
+          {%  for ind in indicators  %}
+            <div class="indicator{%  if  ind.ref == ref %} activeindicator{%  endif %}"{% if ind.title  %}  title="{{ ind.title }}{%  endif %}">
+              <a href="/dashboards/{{ nav.link(ind.ref, minus = ['format', 'page', 'subcat']) }}">{{ ind.name  }}</a>
+            </div>
+          {%  endfor  %}
+        </div>
+        <div id="subtitle">
+          <div class="mainhead"><a href="/dashboards/{{ ref }}">{%  block subtitle %}{% endblock  %}</a></div>
+          <div class="extrainfo">{%  block extrainfo %}
+            <a href="{{ nav.link(ref)  }}"><div class="location">{{ nav }}</div>
+            <div class="times">
+              <div class="start">
+                {{  nav.start.strftime("%A %d %B %Y") }}
+              </div>
+              <div class="finish">
+                {{  nav.finish.strftime("%A %d %B %Y") }}
+              </div>
+            </div>
+            </a>
+            <div class="count">{{  (1 + (nav.finish - nav.start).days)|neat_numbers }}</div>
+          {% endblock  %}</div>
+        </div>
+        <div id="navbar"{%  if nav.kw.get('format') != 'reports'  %} class="collapsiblenav"{%  endif %}>
+          <form id="dateranges">
+            <fieldset id="period">
+              <legend>Period</legend>
+              {%  include "dater.html"  %}
+              {%  include "hlocator.html"  %}
+            </fieldset>
+            <input type="submit" />
+          </form>
+          <form id="locations">
+            <fieldset id="location">
+              <legend>Location</legend>
+              {%  include "hdater.html"  %}
+              {%  include "locator.html"  %}
+              <div class="listing">
+                {%  for el in nav.listing %}
+                  <div class="loc"><a href="./{{  el.link(ref) }}">{{ el.name }} {{ el.title  }}</a></div>
+                {%  endfor  %}
+              </div>
+              {%  set ca  = nav.childareas  %}
+              {%  if  ca  %}
+                <select name="{{  nav.child  }}">
+                  {%  for area in ca %}
+                    <option{% if area.selected  %} selected="selected"{%  endif %} value="{{ area.indexcol }}">{{  area.name  }}</option>
+                  {%  endfor  %}
+                </select>
+              {%  endif %}
+            </fieldset>
+            {%  if  ca  %}<input type="submit" />{% endif %}
+          </form>
+        </div>
+      </div>
+      {%  endblock  %}
+      <div id="trunk"{% block trunkstyle  %}  style="background: url('{{  static_path }}/images/preg.jpg') fixed center no-repeat"{% endblock  %}>
+        {%  block mainpart  %}
+          {{  static_path }}
+        {%  endblock  %}
+      </div>
+      <div id="footer">
+        &copy; 2014
+      </div>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+    <script src="{{ static_path }}/javascripts/clientside.js" type="text/javascript"></script>
+    <script src="{{ static_path }}/javascripts/samples.js" type="text/javascript"></script>
+  </body>
+</html>

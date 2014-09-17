@@ -1,0 +1,57 @@
+{%  set cpg, rng, pgs = nav.pages(display.nat) %}
+<div class="tdesc"><a href="">{{ display.desc  }} (Page {{  cpg + 1 }})</a></div>
+<div class="paginant">
+  <div class="total">
+    {{  display.nat.count()|neat_numbers }}
+  </div>
+  <div class="exinf">
+    {{  nav.listing[-1].name  }}  {{  nav.listing[-1].title }}
+  </div>
+  <div class="exporter">
+    <form method="POST" action="/exports/{{  ref }}">
+      {%  include "hlocator.html"  %}
+      {%  include "hdater.html"  %}
+      <input type="hidden" value="export" name="wanna" />
+      <input type="submit" value="Export" />
+    </form>
+  </div>
+</div>
+<table class="largetable">
+  <thead>
+    <tr>
+      <th>#</th>
+      {%  for col in display.cols %}
+        <th>{{  col[1] }}</th>
+      {%  endfor  %}
+      {%  if  display.attrs %}<th>Attributes</th>{% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {#  {%  for row in display.nat.list() %}  #}
+    {%  for row in display.nat[rng[0]:rng[1]] %}
+      <tr class="{{ loop.cycle('even', 'odd')  }}">
+        <td class="cnt">{{  rng[0] + loop.index  }}</td>
+        {%  for col in display.cols %}
+          {%  set mkp = display.markup[col[0]] %}
+          <td>{%  if  mkp %}{{  mkp(row[col[0]], row, col)  }}{%  else  %}{{  row[col[0]]  }}{% endif %}</td>
+        {%  endfor  %}
+        {%  if  display.attrs %}
+        <td>
+          {%  for bc in display.attrs %}
+          {%  if  row[bc[0]] == True %}<div class="boolval">{{  bc[1] }}</div>{% endif %}
+          {%  endfor  %}
+        </td>
+        {%  endif %}
+      </tr>
+    {%  endfor  %}
+  </tbody>
+</table>
+<div class="paginant">
+  <div class="navigant">
+    <ul>
+      {%  for page  in pgs  %}
+        <li>{%  if cpg == page  %}{{  loop.index  }}{%  else  %}<a href="./{{ nav.link(ref, page = page)  }}">{{ loop.index  }}</a>{% endif %}</li>
+      {%  endfor  %}
+    </ul>
+  </div>
+</div>
