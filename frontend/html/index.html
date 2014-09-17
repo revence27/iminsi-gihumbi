@@ -1,0 +1,20 @@
+{%  extends "novabase.html" %}
+{%  block topstrip  %}{%  endblock  %}
+{%  block trunkstyle %}{% endblock  %}
+{%  block mainpart  %}
+
+<form class="mainlogin">
+  <fieldset>
+    <legend>Log In</legend>
+    <input type="text" placeholder="E-Mail" /><br />
+    <input type="text" placeholder="Password" /><br />
+    <input type="submit" />
+  </fieldset>
+</form>
+<div class="indicators">
+  {%  for indicator in indicators %}
+    <div class="indicator"><a href="/dashboards/{{  indicator.ref }}">{{  indicator.name  }}</a></div>
+  {%  endfor  %}
+</div>
+
+{%  endblock  %}

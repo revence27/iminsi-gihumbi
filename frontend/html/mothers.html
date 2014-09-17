@@ -1,0 +1,21 @@
+{%  extends "basicmothers.html" %}
+{%  block mainpart  %}
+  <div class="smallcontainer">
+    <div class="infoname">Total Mothers</div>
+    <div class="infodata goodnum playable">
+      <a href="{{ nav.link("/tables/mothers") }}">{{  display.total|neat_numbers }}</a>
+    </div>
+    <div class="graphicard">
+      <img src="{{  static_path }}/images/mum-and-baby.png" />
+    </div>
+  </div>
+  <div class="humblecontainer">
+    {%  include "basicdisplay.html" %}
+    {%  if display.pregs  %}
+    <div class="datapoint">
+      <div class="number playable"><a href="{{  nav.link("/tables/mothers", subcat = 'withprev')  }}">{{  display.pregs|neat_numbers  }}</a></div>
+      <div class="descr">With Previous Pregnancies</div>
+    </div>
+    {%  endif %}
+  </div>
+{%  endblock  %}

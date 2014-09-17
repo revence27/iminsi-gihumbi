@@ -1,0 +1,455 @@
+@import url(http://fonts.googleapis.com/css?family=Playfair+Display:400,700,900,400italic,700italic,900italic|Kaushan+Script|Playfair+Display+SC:400,400italic,700,700italic,900,900italic|Roboto+Condensed:300italic,400italic,700italic,400,300,700|Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic&subset=latin,latin-ext);
+body {
+  font-family: "Playfair Display", "Liberation Serif", serif;
+  font-size: 14pt;
+  font-weight: 100;
+  font-variant-settings: "dlig", "diag";
+  background: #ececec;
+  color: #131313; }
+  body #main {
+    padding-top: 0em;
+    padding-bottom: 0em;
+    margin-top: 0em; }
+    body #main a {
+      color: inherit;
+      text-decoration: underline; }
+      body #main a:hover {
+        text-decoration: none; }
+    body #main #header {
+      font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif; }
+      body #main #header #nom {
+        background: linear-gradient(to bottom, #4a7188, #7fa4b9, #ececec);
+        vertical-align: top; }
+        body #main #header #nom #primary {
+          vertical-align: top;
+          text-align: justify;
+          text-justify: distribute-all-lines; }
+          body #main #header #nom #primary img {
+            margin-left: 2.5%;
+            margin-right: 1em;
+            display: inline-block; }
+          body #main #header #nom #primary:after {
+            content: " ";
+            width: 100%;
+            display: inline-block; }
+      body #main #header #navbar {
+        margin: 0.5em;
+        padding: 0.5em;
+        text-align: right; }
+        body #main #header #navbar #dateranges {
+          background: linear-gradient(to top, #ececec, #bfcce0, #385667);
+          color: #9db1cf;
+          border: solid 1px #989898;
+          border-top: solid 1px #ececec;
+          box-shadow: 0px -2px 5px #9db1cf;
+          text-align: right;
+          padding-right: 0.25em;
+          margin-right: 0.25em; }
+          body #main #header #navbar #dateranges input[type="text"], body #main #header #navbar #dateranges input[type="date"] {
+            border-radius: 0.5em 0.5em 0.5em 0.5em;
+            font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif !important;
+            border: solid #ececec 1px;
+            box-shadow: 1px 1px 2px #131313;
+            padding: 0.25em;
+            padding-left: 0.5em;
+            padding-right: 0.5em;
+            margin-right: 0.75em;
+            width: 15em; }
+          body #main #header #navbar #dateranges fieldset {
+            border: solid 1px white;
+            border-radius: 0.25em 0.25em 0.25em 0.25em;
+            padding: 0.125em;
+            margin: 0.125em;
+            display: inline-block; }
+            body #main #header #navbar #dateranges fieldset legend {
+              font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+              font-size: 75%;
+              color: #131313;
+              text-shadow: 1px 1px 2px white; }
+            body #main #header #navbar #dateranges fieldset .listing {
+              color: #131313;
+              font-size: 60%;
+              font-weight: 500;
+              text-align: left; }
+      body #main #header #subtitle {
+        padding-left: 3em; }
+        body #main #header #subtitle .mainhead {
+          font-family: "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+          font-size: 300%;
+          color: #385667;
+          text-shadow: 0.1em 0.1em 0.125em #989898; }
+          body #main #header #subtitle .mainhead a, body #main #header #subtitle .mainhead a:hover {
+            text-decoration: inherit;
+            color: inherit;
+            font: inherit; }
+        body #main #header #subtitle .extrainfo {
+          font-family: "Playfair Display", "Liberation Serif", serif;
+          font-weight: 100;
+          font-size: 80%; }
+          body #main #header #subtitle .extrainfo a {
+            text-decoration: none;
+            color: inherit; }
+            body #main #header #subtitle .extrainfo a:hover {
+              text-decoration: none; }
+          body #main #header #subtitle .extrainfo div {
+            display: inline; }
+            body #main #header #subtitle .extrainfo div.location {
+              margin-right: 0.5em; }
+              body #main #header #subtitle .extrainfo div.location:after {
+                content: ":"; }
+            body #main #header #subtitle .extrainfo div.times .start:after {
+              content: " - "; }
+      body #main #header #indicators, body #main #header .indicators, body #main #header #rindicators {
+        width: 100%;
+        text-align: center;
+        box-shadow: 0px 1px 5px #131313;
+        padding-top: 0.5em;
+        padding-bottom: 0.5em;
+        font-family: "Roboto Condensed", "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+        border-radius: 0.25em 0.25em 0.25em 0.25em;
+        font-weight: 100; }
+        body #main #header #indicators .homelink, body #main #header .indicators .homelink, body #main #header #rindicators .homelink {
+          display: inline;
+          font-weight: 500;
+          font-size: 75%;
+          font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+          float: left;
+          margin: 0.25em;
+          border-radius: 0.25em 0.25em 0.25em 0.25em;
+          color: #4a7188;
+          box-shadow: 1px 1px 2px #676767; }
+          body #main #header #indicators .homelink a, body #main #header .indicators .homelink a, body #main #header #rindicators .homelink a {
+            padding: 0.25em;
+            text-decoration: none;
+            color: inherit; }
+        body #main #header #indicators .indicator, body #main #header .indicators .indicator, body #main #header #rindicators .indicator {
+          display: inline;
+          width: 100% / 15;
+          background: linear-gradient(to bottom, #385667, #4a7188, #385667, #385667, #385667);
+          border-radius: 0.125em 0.125em 0.125em 0.125em;
+          margin-left: 0.125em;
+          margin-right: 0.125em;
+          padding: 0.25em;
+          text-shadow: 0px 1px 2px #131313; }
+          body #main #header #indicators .indicator a, body #main #header .indicators .indicator a, body #main #header #rindicators .indicator a {
+            color: #ececec;
+            text-decoration: none; }
+          body #main #header #indicators .indicator:hover, body #main #header #indicators .indicator.activeindicator, body #main #header .indicators .indicator:hover, body #main #header .indicators .indicator.activeindicator, body #main #header #rindicators .indicator:hover, body #main #header #rindicators .indicator.activeindicator {
+            background: linear-gradient(to bottom, #676767, #989898, #676767, #676767, #676767); }
+      body #main #header #rindicators {
+        font-size: 75%; }
+      body #main #header #langs {
+        font-size: 50%;
+        font-weight: 500;
+        margin-bottom: 0.5em;
+        margin-right: 2.5%; }
+        body #main #header #langs ol, body #main #header #langs ul {
+          list-style: none;
+          margin: 0px;
+          padding: 0px;
+          text-align: right; }
+          body #main #header #langs ol li, body #main #header #langs ul li {
+            list-style: none;
+            margin: 0px;
+            padding: 0px;
+            display: inline;
+            margin-left: 0.25em;
+            margin-right: 0.25em; }
+    body #main .mainlogin {
+      width: 50%;
+      margin-left: 25%;
+      margin-bottom: 5%;
+      background: #ececec;
+      text-align: center; }
+      body #main .mainlogin fieldset {
+        border-radius: 1em 1em 1em 1em;
+        border: 1px solid #9db1cf;
+        box-shadow: 2px 2px 2px #9db1cf;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.65); }
+        body #main .mainlogin fieldset legend {
+          font-size: 75%; }
+        body #main .mainlogin fieldset input[type="text"], body #main .mainlogin fieldset input[type="password"] {
+          font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+          width: 20em; }
+    body #main #trunk {
+      width: 95%;
+      margin: 2%;
+      padding: 0.5%;
+      background: radial-gradient(circle, lightgray, #ececec, white);
+      padding-top: 0.125em;
+      padding-bottom: 0.125em;
+      color: #4e4e4e;
+      font-weight: 100; }
+      body #main #trunk .humblecontainer, body #main #trunk .smallcontainer, body #main #trunk .largecontainer {
+        margin-bottom: 0.5em;
+        margin-top: 0.5em;
+        margin-bottom: 0.25em; }
+      body #main #trunk .humblecontainer {
+        text-align: center;
+        width: 100%;
+        padding-top: 1em; }
+        body #main #trunk .humblecontainer .explanation {
+          font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+          font-weight: 100;
+          font-size: 250%;
+          margin: 0px;
+          font-style: italic;
+          color: white;
+          margin-top: 0.125em;
+          text-shadow: 0px 0px 3px #131313; }
+        body #main #trunk .humblecontainer .breaker {
+          width: 100%;
+          height: 7em;
+          overflow: hide; }
+        body #main #trunk .humblecontainer .vals {
+          text-align: justify;
+          text-justify: distribute-all-lines;
+          width: 75%;
+          margin-left: 12.5%; }
+          body #main #trunk .humblecontainer .vals:after {
+            content: " ";
+            display: inline-block;
+            width: 100%; }
+          body #main #trunk .humblecontainer .vals .dispval {
+            float: center;
+            display: inline-block;
+            border-radius: 2em 2em 2em 2em;
+            padding: 0.5em;
+            border: solid 1px #9db1cf;
+            width: 5em;
+            text-align: center;
+            background: radial-gradient(circle, white, white, lightgray);
+            box-shadow: 0em 0em 1em #131313; }
+            body #main #trunk .humblecontainer .vals .dispval .ttl {
+              line-height: 0.8em;
+              text-align: center;
+              font-size: 75%;
+              color: #6a88b6;
+              text-shadow: 0px 0px 2px #385667;
+              font-size: 120%;
+              font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+              font-weight: 300;
+              padding-top: 0.25em;
+              hyphens: auto; }
+            body #main #trunk .humblecontainer .vals .dispval .dat {
+              font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+              font-size: 175%;
+              font-style: italic;
+              line-height: 1em; }
+        body #main #trunk .humblecontainer .charter {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          text-justify: distribute-all-lines;
+          vertical-align: top;
+          margin-bottom: 2em; }
+          body #main #trunk .humblecontainer .charter .chart {
+            display: inline-block;
+            width: 45%;
+            height: 8em;
+            padding-bottom: 2em; }
+            body #main #trunk .humblecontainer .charter .chart .title {
+              font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+              font-weight: 500;
+              color: #ececec;
+              text-shadow: -1px 1px 2px #131313;
+              text-align: center; }
+            body #main #trunk .humblecontainer .charter .chart .informer, body #main #trunk .humblecontainer .charter .chart .data {
+              width: 100%;
+              height: 100%;
+              text-align: center;
+              text-justify: distribute-all-lines;
+              vertical-align: top;
+              border: #4a7188 solid 1px;
+              background: rgba(255, 255, 255, 0.65);
+              padding-bottom: 1em; }
+            body #main #trunk .humblecontainer .charter .chart .informer .maindata {
+              color: #131313;
+              vertical-align: middle;
+              font-family: "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+              font-style: italic;
+              height: 100%; }
+            body #main #trunk .humblecontainer .charter .chart .data .datapoint {
+              font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+              font-size: 75%;
+              display: inline-block;
+              background: linear-gradient(to left, #45628e, #7b96be, #9db1cf, #bfcce0, #ececec);
+              width: 2.5em;
+              border: #9db1cf solid 1px;
+              color: #131313;
+              vertical-align: top; }
+              body #main #trunk .humblecontainer .charter .chart .data .datapoint .value {
+                font-family: "Roboto Condensed", "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+                font-weight: 500; }
+              body #main #trunk .humblecontainer .charter .chart .data .datapoint .label {
+                font-size: 85%;
+                font-family: "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+                padding-top: 0.75em;
+                transform: rotate(90deg);
+                -webkit-transform: rotate(90deg); }
+          body #main #trunk .humblecontainer .charter:after {
+            display: inline-block;
+            width: 100%; }
+      body #main #trunk .smallcontainer, body #main #trunk .largecontainer {
+        border-radius: 0.125em 0.125em 0.125em 0.125em;
+        border: solid 3px white;
+        background: radial-gradient(circle, white, white, white, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.65)); }
+        body #main #trunk .smallcontainer .infoname, body #main #trunk .largecontainer .infoname {
+          font-size: 170%;
+          color: #4a7188;
+          text-shadow: 2px 1px 3px #4a7188;
+          /*
+          color: $mainwarm;
+          text-shadow: 2px 1px 3px $subwarm;
+          */
+          font-style: italic;
+          line-height: 0.55em; }
+        body #main #trunk .smallcontainer .infodata, body #main #trunk .largecontainer .infodata {
+          font-family: "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+          font-size: 220%;
+          font-weight: 900;
+          text-shadow: 1px 1px 3px #131313;
+          margin-left: 5em;
+          /*
+          &:before
+          {
+            color: $sublight;
+            content: " =";
+            font-size: 50%;
+          }
+          */ }
+          body #main #trunk .smallcontainer .infodata a, body #main #trunk .smallcontainer .infodata a:hover, body #main #trunk .largecontainer .infodata a, body #main #trunk .largecontainer .infodata a:hover {
+            color: inherit;
+            text-decoration: none; }
+      body #main #trunk .smallcontainer {
+        font-family: "Playfair Display", "Liberation Serif", serif;
+        width: 68.2%;
+        margin-left: 15.9%;
+        padding: 1em;
+        font-size: 150%; }
+      body #main #trunk .largecontainer {
+        width: 95%;
+        margin-left: 2.5%;
+        font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+        font-weight: 500; }
+        body #main #trunk .largecontainer .infopair {
+          text-align: justify;
+          text-justify: distribute-all-lines;
+          height: 5em;
+          margin-top: 1em;
+          margin-bottom: 2em; }
+          body #main #trunk .largecontainer .infopair:after {
+            width: 100%;
+            display: inline-block; }
+          body #main #trunk .largecontainer .infopair .prem {
+            display: inline-block;
+            width: 45%;
+            margin-left: 2.5%; }
+          body #main #trunk .largecontainer .infopair .scnd {
+            display: inline-block;
+            width: 45%;
+            margin-left: 2.5%; }
+          body #main #trunk .largecontainer .infopair .prem, body #main #trunk .largecontainer .infopair .scnd {
+            text-align: center;
+            background: linear-gradient(to right, white, #ececec, white);
+            padding-top: 0.25em;
+            padding-bottom: 0.25em; }
+            body #main #trunk .largecontainer .infopair .prem .infoname, body #main #trunk .largecontainer .infopair .scnd .infoname {
+              color: #4a7188;
+              margin-bottom: 0.25em;
+              font-family: "Playfair Display", "Liberation Serif", serif; }
+            body #main #trunk .largecontainer .infopair .prem .sum, body #main #trunk .largecontainer .infopair .scnd .sum {
+              font-size: 200%;
+              font-family: "Playfair Display", "Liberation Serif", serif;
+              font-weight: 700; }
+            body #main #trunk .largecontainer .infopair .prem .percent, body #main #trunk .largecontainer .infopair .scnd .percent {
+              font-weight: 100;
+              font-size: 120%; }
+              body #main #trunk .largecontainer .infopair .prem .percent:after, body #main #trunk .largecontainer .infopair .scnd .percent:after {
+                content: "%"; }
+      body #main #trunk .tdesc {
+        font-family: "Playfair Display", "Liberation Serif", serif;
+        font-style: italic;
+        text-align: center;
+        font-size: 200%;
+        color: #bfcce0;
+        text-shadow: #385667 2px 2px 2px; }
+        body #main #trunk .tdesc a, body #main #trunk .tdesc a:hover {
+          color: inherit;
+          text-decoration: none;
+          font: inherit; }
+      body #main #trunk .paginant {
+        text-align: justify;
+        text-justify: distribute-all-lines;
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 0.5em 0.5em 0.5em 0.5em;
+        font-weight: 700;
+        font-family: "Roboto Condensed", "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+        margin: 0.25em;
+        padding: 0.25em;
+        margin-left: 10%;
+        margin-right: 10%;
+        padding-left: 1em;
+        padding-right: 1em; }
+        body #main #trunk .paginant div {
+          display: inline-block; }
+          body #main #trunk .paginant div.total:before {
+            content: "Total: "; }
+          body #main #trunk .paginant div.navigant ul {
+            display: inline-block;
+            list-style: none;
+            margin: 0px;
+            padding: 0px; }
+            body #main #trunk .paginant div.navigant ul li {
+              display: inline-block; }
+          body #main #trunk .paginant div.navigant:before {
+            content: "Pages: "; }
+          body #main #trunk .paginant div.total:before, body #main #trunk .paginant div.navigant:before {
+            font-family: "Playfair Display", "Liberation Serif", serif;
+            font-weight: normal;
+            font-style: italic; }
+          body #main #trunk .paginant div.exinf {
+            font-family: "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+            font-size: 120%; }
+        body #main #trunk .paginant:after {
+          content: " ";
+          width: 100%;
+          display: inline-block; }
+      body #main #trunk table {
+        border-collapse: collapse;
+        font: inherit;
+        background: rgba(255, 255, 255, 0.85);
+        color: inherit;
+        margin: 0px;
+        padding: 0px;
+        width: 100%;
+        border: solid 1px white;
+        font-size: 85%;
+        font-size: 300; }
+        body #main #trunk table thead {
+          font-family: "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif; }
+          body #main #trunk table thead th .hider {
+            font-family: "Roboto Condensed", "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif !important; }
+        body #main #trunk table tbody {
+          font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+          font-weight: 300; }
+          body #main #trunk table tbody tr {
+            border-bottom: solid 1px white; }
+            body #main #trunk table tbody tr.odd {
+              background: rgba(255, 255, 255, 0.85); }
+            body #main #trunk table tbody tr.even {
+              background: rgba(255, 255, 255, 0.65); }
+            body #main #trunk table tbody tr td.cnt {
+              font-family: "Playfair Display", "Liberation Serif", serif;
+              font-style: italic; }
+              body #main #trunk table tbody tr td.cnt:after {
+                content: ". "; }
+    body #main #footer {
+      font-family: "Roboto", "Kaushan Script", "Playfair Display SC", "Playfair Display", "Liberation Serif", serif, sans-serif;
+      font-size: 50%;
+      font-weight: 500;
+      text-align: center;
+      margin-left: 25%;
+      margin-top: 3em;
+      width: 50%; }

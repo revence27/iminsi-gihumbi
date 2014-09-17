@@ -85,6 +85,8 @@ BABY_MIGRATIONS = [
   ('height', 0.0),
   ('cnumber', 0.0),
   ('cnumber', 0.0),
+  ('muac', 0.0),
+  ('birth_date', datetime.today()),
   ('girl', True),
   ('boy', True),
   ('abnormal_fontanelle', True),
@@ -98,6 +100,7 @@ BABY_MIGRATIONS = [
 class Baby(R1000Object):
   def load(self, pid):
     gat = orm.ORM.query(self.table, {'pregnancy = %s': pid}, migrations = BABY_MIGRATIONS)
+    self['pregnancy'] = pid
     if not gat.count():
       self.save()
       return self.load(pid)
@@ -162,7 +165,7 @@ class Pregnancy(R1000Object):
     if not gat.count():
       self.save()
       her = orm.ORM.query('ig_mothers', {'indexcol = %s':mum})[0]
-      orm.ORM.store('ig_mothers', {'indexcol': mum, 'pregnancies': her['pregnancies'] + 1})
+      # orm.ORM.store('ig_mothers', {'indexcol': mum, 'pregnancies': her['pregnancies'] + 1})
       return self.load(mum, lmp)
     self['indexcol']    = gat[0]['indexcol']
     return self
@@ -248,7 +251,16 @@ class Birth:
     mum = Mother('ig_mothers')
     mum.load(entry['patient_id'])
     prg = Pregnancy('ig_pregnancies')
-    prg.load_latest(mum['indexcol'])
+    try:
+      prg.load_latest(mum['indexcol'])
+    except Exception, e:
+      prg.load(mum['indexcol'], entry['lmp'] - timedelta(days = settings.GESTATION))
+      return self.handle(entry, row, hst)
+    mum.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date'])
+    mum.save()
+    prg.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date'])
+    prg.copy_presence(row, LOCATION_ATTRIBUTES)
+    prg.save()
     bub = Baby('ig_babies')
     bub.load(prg['indexcol'])
     bub.copy(entry, ['province_pk', 'district_pk', 'health_center_pk']).copy(row, [
@@ -256,6 +268,7 @@ class Birth:
       ('child_number_float', 'cnumber'),
       ('ht_float', 'height'),
       # ('wt_float', 'weight'),
+      ('lmp', 'birth_date'),
       ('muac_float', 'muac')
     ]).copy_presence(row, [
       ('gi_bool', 'girl'),
@@ -265,7 +278,7 @@ class Birth:
       ('ci_bool', 'cord_infection'),
       ('cm_bool', 'congenital_malformation'),
       ('ib_bool', 'ibibari'),
-      ('db_bool', 'disabled'),
+      # ('db_bool', 'disabled'),
       ('sb_bool', 'stillborn'),
       ('np_bool', 'no_problem')
       # TODO: Get from DB list.

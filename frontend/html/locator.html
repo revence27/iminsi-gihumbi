@@ -1,0 +1,5 @@
+{%  for hie in nav.hierarchy  %}
+  {%  for k in hie %}
+    <input type="hidden" value="{{  hie[k].indexcol }}" name="{{  k }}" />
+  {%  endfor  %}
+{%  endfor %}
