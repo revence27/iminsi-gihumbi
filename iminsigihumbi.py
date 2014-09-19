@@ -700,6 +700,7 @@ class Application:
     nat     = orm.ORM.query('ig_mothers', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
     )
+    raise Exception, nat.query
     desc  = 'Mothers%s' % (' (%s)' % (self.find_descr(self.MOTHERS_DESCR, sc), ) if sc else '', )
     return self.dynamised('mothers_table', mapping = locals(), *args, **kw)
 

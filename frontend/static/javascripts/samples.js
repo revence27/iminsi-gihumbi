@@ -6,7 +6,7 @@ $(function() {
   clt = new ClientSide(document);
   clt.activateDates('activedate');
   deleteableColumns();
-  condenseNavBar('.collapsiblenav');
+ // condenseNavBar('.collapsiblenav');
   return participatingTable('.participant');
 });
 

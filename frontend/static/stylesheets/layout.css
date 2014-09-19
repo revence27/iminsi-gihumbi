@@ -1,0 +1,333 @@
+/**********************************************/
+body{
+	
+	margin:0px;	
+}
+
+a{
+	text-decoration: none;
+	color: inherit;
+}
+
+
+#top{
+	width: 100%;
+background: #5bb8f9;
+	
+}
+
+ #header 
+{ 
+	
+    left: 0px; 
+	 top: 0px; 
+	 position: relative; 
+	 margin-left: auto; 
+	 margin-right: auto; 
+	 width: 1000px;
+	 overflow: hidden;
+}
+
+ #main 
+{ 
+	padding-top: 30px;
+	 margin-left: auto; 
+	 margin-right: auto; 
+	 width: 1100px;
+	 overflow: hidden;
+}
+
+
+
+
+/*********************************************/
+
+#nom{
+	height: 70px;
+	width: 50%;
+	float: left;
+}
+
+#ministry{
+	width:20%;
+	float: left;
+}
+
+#rapid{
+	width:30%;
+	float: left;
+}
+#unicef{
+	width:30%;
+	float: left;
+}
+
+
+
+#langs{
+	height: 70px;
+	width: 50%;
+	float: left;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 15px;
+	color: #fff;
+}
+
+#langs ul li {
+	display: inline-block;
+	padding-left: 10px;
+}
+
+#indicators div{
+	display: inline-block;
+	padding-bottom: 20px;
+}
+
+
+/*********************************************/
+#mainhead{
+	width: 40%;
+	float: left;
+	padding-left: 20px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:bold;
+	font-size: 22px;
+	color: #fff;
+
+}
+
+#extrainfo{
+	width: 50%;
+	float: left;
+color: #fff;
+font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+}
+
+#filteredLocation{
+
+font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 20px;
+}
+#filteredDate{
+
+font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 12px;
+}
+/*********************************************/
+
+
+.infoname{
+	
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 28px;
+	color: #16b494;
+}
+
+.infodata{
+	
+	font-family: 'Open Sans', sans-serif;
+	font-size: 30px;
+	text-align: center;
+	width: 150px;
+	padding-bottom: 20px;
+}
+
+
+
+#subtitle{
+	height: 80px;
+background: #5bb8f9;
+}
+
+#filter{
+	
+height: 45px;
+background: #5bb8f9;
+}
+
+
+#dateranges{
+	width: 40%;
+	float: left;
+}
+
+#myform{
+	width: 60%;
+	float: left;
+}
+
+.loc{
+	display: inline-block;
+}
+
+.humblecontainer{
+	width:70%;
+	float:left;
+padding-top: 20px;
+	
+}
+
+.smallcontainer{
+	width:30%;
+	float:left;
+
+}
+
+.icon{
+	max-width:200px;
+}
+
+.datapoint{
+	width: 130px;
+	height: 150px;
+	display: inline-block;
+	float: left;
+	padding-left:15px;
+	background: url(../images/circle.png);
+}
+
+.number{ 
+	font-family: 'Open Sans', sans-serif;
+	font-size: 28px;
+	color: #000;
+	cursor: pointer;
+	text-align: center;
+}
+.number:hover{ 
+	color: #1f89bf;
+}
+.descr{
+	padding-top: 35px;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 14px;
+	color: #fff;
+}
+.moreoptions{
+	text-align: centre;
+	width: 150px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+}
+.startshidden
+{
+	display: none;
+}
+/****************************************/
+
+.largetable{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+font-size: 15px;
+}
+
+.largetable a{
+	color: #16b494;
+}
+
+/****************************************/
+
+ #footer 
+{ 
+ 
+	margin-top:50px;
+	 position: relative; 
+	 margin-left: auto; 
+	 margin-right: auto; 
+	 width: 1000px;
+	 height:300px;
+	 
+	 
+}
+
+ #footerblueline 
+{ 
+	 left: 0px; 
+	 top: 0px; 
+	 position: absolute; 
+	 width: 996px;
+	 height: 6px;
+	 z-index:4;
+} 
+
+ #ContactUsReachouttou 
+{ 
+	 left: 276px; 
+	 top: 51px; 
+	 position: absolute; 
+	 width: 162px;
+	 height: 170px;
+	 z-index:4;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 11px;
+	
+} 
+
+ #FollowusonSocialNetw 
+{ 
+	 left: 540px; 
+	 top: 59px; 
+	 position: absolute; 
+	 width: 183px;
+	 height: 59px;
+	 z-index:4;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 11px;
+}
+ #ContactUsReachouttou > strong
+{ 
+	font-size: 15px;
+}
+ #FollowusonSocialNetw > strong
+{ 
+	font-size: 15px;
+} 
+
+ #social 
+{ 
+	 left: 540px; 
+	 top: 133px; 
+	 position: absolute; 
+	 width: 98px;
+	 height: 29px;
+	 z-index:4;
+} 
+
+ #uniceflogo 
+{ 
+	 left: 513px; 
+	 top: 186px; 
+	 position: absolute; 
+	 width: 118px;
+	 height: 29px;
+	 z-index:4;
+} 
+
+ #rapidsmsfooterlogo 
+{ 
+	 left: 375px; 
+	 top: -21px; 
+	 position: absolute; 
+	 width: 261px;
+	 height: 65px;
+	 z-index:4;
+} 
+
+ #ministrylogo 
+{ 
+	 left: 658px; 
+	 top: 154px; 
+	 position: absolute; 
+	 width: 61px;
+	 height: 64px;
+	 z-index:4;
+} 
+
+/****************************************/
