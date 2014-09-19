@@ -12,6 +12,7 @@ import settings
 import sha
 import sys
 import urllib2, urlparse
+from summarize import *
 
 PREGNANCY_MATCHES  = {
   'coughing'  : ('COUNT(*)',  'ch_bool IS NOT NULL'),
