@@ -1,0 +1,61 @@
+
+/* Variant : top
+------------------------------------------ */
+.triangle-border {
+  position:relative;
+  padding:15px;
+  margin:1em 0 3em;
+  border:2px solid #5a8f00;
+  color:#333;
+  background:#fff1ce;
+
+}
+
+
+
+
+.triangle-border:before {
+  content:"";
+  position:absolute;
+  bottom:-20px; /* value = - border-top-width - border-bottom-width */
+  left:40px; /* controls horizontal position */
+  border-width:20px 20px 0;
+  border-style:solid;
+  border-color:#fff1ce transparent;
+
+}
+
+/* creates the smaller  triangle */
+.triangle-border:after {
+  content:"";
+  position:absolute;
+  bottom:-13px; /* value = - border-top-width - border-bottom-width */
+  left:47px; /* value = (:before left) + (:before border-left) - (:after border-left) */
+  border-width:13px 13px 0;
+  border-style:solid;
+  border-color:#5a8f00 transparent;
+
+}
+
+
+
+
+/* creates the larger triangle */
+.triangle-border.top:before {
+  top:-20px; /* value = - border-top-width - border-bottom-width */
+  bottom:auto;
+  left:auto;
+  right:40px; /* controls horizontal position */
+  border-width:0 20px 20px;
+}
+
+
+
+/* creates the smaller  triangle */
+.triangle-border.top:after {
+  top:-13px; /* value = - border-top-width - border-bottom-width */
+  bottom:auto;
+  left:auto;
+  right:47px; /* value = (:before right) + (:before border-right) - (:after border-right) */
+  border-width:0 13px 13px;
+}
