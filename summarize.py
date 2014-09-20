@@ -101,8 +101,8 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
   group_by.append('province_name')
   group_by.append('province_id')
   if province:
-    if where_clause == []: where_clause.append(' WHERE %s.province_pk = %d ' % ( primary_table, province))
-    else: where_clause.append(' AND %s.province_pk = %d ' % ( primary_table, province))
+    if where_clause == []: where_clause.append(' WHERE %s.province_pk = %d ' % ( primary_table, int(province)))
+    else: where_clause.append(' AND %s.province_pk = %d ' % ( primary_table, int(province)))
 
  if province:
   fields.append( {'value': 'indexcol', 'alias': 'district_id', 'table': 'chws__district'})
@@ -111,8 +111,8 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
   group_by.append('district_name')
   group_by.append('district_id')
   if district:
-    if where_clause == []: where_clause.append(' WHERE %s.district_pk = %d ' % ( primary_table, district))
-    else: where_clause.append(' AND %s.district_pk = %d ' % ( primary_table, district))
+    if where_clause == []: where_clause.append(' WHERE %s.district_pk = %d ' % ( primary_table, int(district)))
+    else: where_clause.append(' AND %s.district_pk = %d ' % ( primary_table, int(district)))
 
  if district:
   fields.append( {'value': 'indexcol', 'alias': 'location_id', 'table': 'chws__healthcentre'})
@@ -121,8 +121,8 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
   group_by.append('location_name')
   group_by.append('location_id')
   if location:
-    if where_clause == []: where_clause.append(' WHERE %s.health_center_pk = %d ' % ( primary_table, location))
-    else: where_clause.append(' AND %s.health_center_pk = %d ' % ( primary_table, location))
+    if where_clause == []: where_clause.append(' WHERE %s.health_center_pk = %d ' % ( primary_table, int(location)))
+    else: where_clause.append(' AND %s.health_center_pk = %d ' % ( primary_table, int(location)))
 
  fields.append( {'value': 'COUNT(*)', 'alias': 'total'} )
  
