@@ -936,10 +936,16 @@ class Application:
   def dashboards_mothers(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('report_date')
+    sc      = kw.get('subcat')
+    if sc:
+      cnds[sc]  = ''
     pregs   = orm.ORM.query('ig_mothers', cnds, cols = ['(SUM(pregnancies) - COUNT(*)) AS total'])[0]['total']
     attrs   = self.MOTHERS_DESCR
     nat     = self.civilised_fetch('ig_mothers', cnds, attrs)
     total   = nat[0]['total']
+    if 'summary' in kw:
+      cherrypy.response.headers['Content-Type']  = 'application/json'
+      return json.dumps({'total': neat_numbers(total)})
     return self.dynamised('mothers', mapping = locals(), *args, **kw)
 
   @cherrypy.expose

@@ -2,6 +2,6 @@
   <div class="datapoint">
     {%  set num = display.nat[0][attr[0]] %}
     <div class="number playable">{% if  num %}<a href="/tables/{{  nav.link(ref, subcat = attr[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>{% else  %}  {{  num|neat_numbers }}  {%  endif %}</div>
-    <div class="descr">{{  attr[1] }}</div>
+    <div keyword="{{  attr[0] }}" class="descr">{{  attr[1] }}</div>
   </div>
 {%  endfor  %}
