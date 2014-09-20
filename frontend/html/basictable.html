@@ -1,5 +1,38 @@
 {% if display.nat.count() < 2 %}
-lkgkuyf
+<div class="final">
+<div class="intro"></div>
+<div class="firstsection">
+{%  for row in display.nat.list() %} 
+	{%  for col in display.cols %}
+      <div class="property">
+			<div class="name">
+        {%  set mkp = display.markup[col[0]] %}
+        {{ col[1] }} : 
+        {%  if  mkp %}
+        {{  mkp(row[col[0]], row, col)  }}
+        {%  else  %}
+        {{  row[col[0]]  }}
+        {% endif %}
+           </div>
+  </div>
+        {%  endfor  %}
+ 
+</div>
+        
+        {%  if  display.attrs %}
+          {%  for bc in display.attrs %}
+          {%  if  row[bc[0]] == True %}
+          {{ bc[0]}} ({{  bc[1] }})<br>
+          {% endif %}
+          
+          {%  endfor  %}
+        
+        {%  endif %}
+      
+    {%  endfor  %}
+<br><br>
+</div>
+
 {% endif %}
                                                                                           {%  set cpg, rng, pgs = nav.pages(display.nat) %}
 <div class="tdesc"><a href="">{{ display.desc  }} (Page {{  cpg + 1 }})</a></div>

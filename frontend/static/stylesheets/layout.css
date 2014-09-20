@@ -232,6 +232,29 @@ font-size: 15px;
 	color: #16b494;
 }
 
+
+
+/*****************************************/
+
+
+.firstsection{
+	width:70%;
+	float: right;
+	border-bottom: 5px #000;
+}
+
+.into{
+	width: 30%;
+	
+}
+
+.property{
+	width: 33%;
+	float: left;
+}
+
+
+
 /****************************************/
 
  #footer 
