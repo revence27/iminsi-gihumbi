@@ -35,7 +35,7 @@
 									}
 
 						// IS There a location selected, then apply
-						sel_loc = getQueryParameter ( "location" );
+						sel_loc = getQueryParameter ( "hc" );
 						if (sel_loc != '' && sel_dist != '') { 
 									changeLocation(sel_dist);
 								loc_index = fetch_index_from_option_value(document.getElementById('locchoose').options, sel_loc);
@@ -117,7 +117,46 @@
 						  return "";
 
 						} 
-
-
+				function make_location_of_parent(name, url){
+						var prv = getQueryParameter ( "province" );
+						var dst = getQueryParameter ( "district" );
+						var loc = getQueryParameter ( "hc" );
+						if (name == 'province' && dst != ''){ 
+											url = url.replace( "&district="+dst, "");
+											if (loc != '') url = url.replace( "&hc="+loc, "");
+											}
+						if (name == 'district' && loc != '') url = url.replace( "&hc="+loc, ""); 
+						
+						return url;
+							
+						}
+				function addInURL(name, value){
+						var param = getQueryParameter ( name );
+						var url  = document.URL ;
+						if (param == "") url += "&"+ name + "=" + value; 
+						url = make_location_of_parent(name, url);
+						url = url.replace("#", '');
+						window.location.href = url;
+							
+						}
+				
+				function getTotal(province, district, location){
+							
+							var prv = getQueryParameter ( "province" );
+							var dst = getQueryParameter ( "district" );
+							var loc = getQueryParameter ( "hc" );
+							var param = getQueryParameter ( "summary" );
+							var url  = document.URL ;
+							
+							if (param != "") url = url.replace("&summary=on", "");
+							if (province != '' && prv == '' ) url = url + "&province="+ province;
+							if (district != '' && dst == '' ) url = url + "&district="+ district;
+							if (location != '' && loc == '' ) url = url + "&hc="+ location;
+							url = url.replace("#", '');
+							//alert(province + "," + district + "," + location + "," + url) ;
+							window.location.href = url; 
+						}
+				
+				
 				// END FILTERING
 				
