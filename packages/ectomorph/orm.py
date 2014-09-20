@@ -667,3 +667,12 @@ Keywords:
       return tbl
     except Exception, e:
       raise Exception, ('Table creation: ' + str(e))
+
+  @classmethod
+  def connection(self):
+    'Returns the current connection.'
+    return self.postgres
+  @classmethod
+  def cursor(self):
+    'Returns a cursor for the current connection.'
+    return self.connection().cursor()   

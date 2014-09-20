@@ -1,4 +1,24 @@
 {%  extends "basicmothers.html" %}
 {%  block mainpart  %}
+  {% if display.locateds %} 
+	<div>
+		<table> 
+		   <theader>
+			{% if display.locateds[0].province_name %}<th>Province</th> {% endif %}
+			{% if display.locateds[0].district_name %}<th>District</th> {% endif %}
+			{% if display.locateds[0].location_name %}<th>HealthCentre</th> {% endif %}   
+			<th>Total</th>
+		   </theader>
+			{% for lc in display.locateds %} 
+				<tr>
+					{% if lc.province_name %}<td>{{lc.province_name}}</td> {% endif %}
+					{% if lc.district_name %}<td>{{lc.district_name}}</td> {% endif %}
+					{% if lc.location_name %}<td>{{lc.location_name}}</td> {% endif %}   
+					<td>{{lc.total}}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+  {%endif%}
   {%  include "basictable.html"  %}
 {%  endblock  %}
