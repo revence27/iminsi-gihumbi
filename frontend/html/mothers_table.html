@@ -2,7 +2,7 @@
 {%  block mainpart  %}
   {% if display.locateds %} 
 	<div>
-		<table> 
+		<table class="locationtable"> 
 		   <theader>
 			{% if display.locateds[0].province_name %}<th>Province</th> {% endif %}
 			{% if display.locateds[0].district_name %}<th>District</th> {% endif %}
@@ -19,6 +19,7 @@
 			{% endfor %}
 		</table>
 	</div>
-  {%endif%}
+  {%else%}
   {%  include "basictable.html"  %}
+  {% endif %}
 {%  endblock  %}

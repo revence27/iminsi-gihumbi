@@ -232,7 +232,17 @@ font-size: 15px;
 	color: #16b494;
 }
 
+.locationtable{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+	margin-left:auto;
+	margin-right:auto;
+}
 
+.locationtable td{
+		padding-left:50px;
+	}
 
 /*****************************************/
 
@@ -251,6 +261,23 @@ font-size: 15px;
 .property{
 	width: 33%;
 	float: left;
+}
+
+.name{
+	padding-top: 35px;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 18px;
+	color:#1f89bf;
+}
+
+.value{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 20px;
+	color: #000;
+	cursor: pointer;
+	
 }
 
 
