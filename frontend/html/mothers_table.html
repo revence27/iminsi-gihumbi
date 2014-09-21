@@ -10,16 +10,22 @@
 			<th>Total</th>
 		   </theader>
 			{% for lc in display.locateds %} 
-				<tr>
-					{% if lc.province_name %}<td>{{lc.province_name}}</td> {% endif %}
-					{% if lc.district_name %}<td>{{lc.district_name}}</td> {% endif %}
-					{% if lc.location_name %}<td>{{lc.location_name}}</td> {% endif %}   
-					<td>{{lc.total}}</td>
-				</tr>
+			   <tr>
+				{% if lc.province_name %}<td><a href="#" onclick="addInURL('province', {{lc.province_id}});">{{lc.province_name}}</a></td> {% endif %}
+				{% if lc.district_name %}<td><a href="#" onclick="addInURL('district', {{lc.district_id}});">{{lc.district_name}}</a></td> {% endif %}
+				{% if lc.location_name %}<td><a href="#" onclick="addInURL('hc', {{lc.location_id}});">{{lc.location_name}}</a></td> {% endif %}   
+				<td><a href="#" onclick="getTotal( {%if lc.province_id %}{{lc.province_id }} {%else%}''{%endif%}, {%if lc.district_id %}{{lc.district_id }} {%else%}''{%endif%}, {%if lc.location_id %}{{lc.location_id }} {%else%}''{%endif%} );">{{lc.total}}</a></td>
+			   </tr>
 			{% endfor %}
 		</table>
 	</div>
+<<<<<<< HEAD
   {%else%}
   {%  include "basictable.html"  %}
   {% endif %}
+=======
+  {% else %}
+  {%  include "basictable.html"  %}
+  {%endif%}
+>>>>>>> dc1f37ab67701812dad05b8db849d70ab669c370
 {%  endblock  %}
