@@ -134,7 +134,7 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
                     inner_joins = inner_joins, where_clause = '', group_by = group_by, order_by = [])
 
  if qs != '':
-  print qs
+  #print qs
   curz = fetch_data_cursor(orm, qs)
   data = fetch_data(curz)
   return data
