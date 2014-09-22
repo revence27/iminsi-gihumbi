@@ -1,6 +1,6 @@
-{% if display.nat.count() < 2 %}
+{% if pid %}
 <div class="final">
-<div class="intro"></div>
+
 <div class="firstsection">
 {%  for row in display.nat.list() %} 
 	{%  for col in display.cols %}
@@ -20,27 +20,34 @@
         {%  endfor  %}
  
 </div>
+        <div class="intro">
         
         {%  if  display.attrs %}
+       <h3>More Information:</h3>
           {%  for bc in display.attrs %}
           {%  if  row[bc[0]] == True %}
-          {{ bc[0]}} ({{  bc[1] }})<br>
+          <div class="more">
+         {{  bc[1] }}<br>
+          </div>
           {% endif %}
           
           {%  endfor  %}
         
         {%  endif %}
-      
+      </div>
     {%  endfor  %}
 <br><br>
 </div>
 
 {% else %}
                                                                                           {%  set cpg, rng, pgs = nav.pages(display.nat) %}
-<div class="tdesc"><a href="">{{ display.desc  }} (Page {{  cpg + 1 }})</a></div>
+<div class="tdesc">
+<a href="">{{ display.desc  }} (Page {{  cpg + 1 }})</a>
+</div>
+
 <div class="paginant">
   <div class="total">
-    {{  display.nat.count()|neat_numbers }}
+    {{  display.nat.count()|neat_numbers }} Total
   </div>
   <div class="exinf">
     {{  nav.listing[-1].name  }}  {{  nav.listing[-1].title }}

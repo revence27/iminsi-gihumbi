@@ -19,7 +19,7 @@ background: #5bb8f9;
  #header 
 { 
 	
-    left: 0px; 
+     left: 0px; 
 	 top: 0px; 
 	 position: relative; 
 	 margin-left: auto; 
@@ -191,6 +191,19 @@ padding-top: 20px;
 	background: url(../images/circle.png);
 }
 
+.datapointreport{
+	
+	
+	display: inline-block;
+	float: left;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 14px;
+}
+
+
+
 .number{ 
 	font-family: 'Open Sans', sans-serif;
 	font-size: 28px;
@@ -209,6 +222,14 @@ padding-top: 20px;
 	font-size: 14px;
 	color: #fff;
 }
+.descrreport{
+	padding-top: 10px;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 14px;
+	
+}
 .moreoptions{
 	text-align: centre;
 	width: 150px;
@@ -216,16 +237,67 @@ padding-top: 20px;
 	font-weight:lighter;
 	font-size: 15px;
 }
+.moreoptions:hover{
+	color: #fff;
+}
+
+.moretotal{
+	padding-left:30px;
+	text-align: centre;
+	width: 150px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+}
+.moretotal:hover{
+	color: #16b494;
+	cursor: pointer;
+}
+
+
+
+
 .startshidden
 {
 	display: none;
 }
+
+
+
 /****************************************/
+
+
+.tdesc{
+	
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 16px;
+	width:300px;
+	margin-left:auto;
+	margin-right: auto;
+}
+
+.total{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:normal;
+	font-size: 17px;
+}
+
+.exinf{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:normal;
+	font-size: 17px;
+}
+
+
+
+
 
 .largetable{
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
-font-size: 15px;
+	font-size: 15px;
+	width: 100%;
 }
 
 .largetable a{
@@ -249,14 +321,33 @@ font-size: 15px;
 
 .firstsection{
 	width:70%;
-	float: right;
+	float: left;
 	border-bottom: 5px #000;
 }
 
-.into{
+.intro{
+	margin-top: 30px;
 	width: 30%;
-	
+	float: left;
 }
+
+.intro h3   {
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 22px;
+	margin-bottom: 5px;§
+}
+
+
+.more{
+	padding-top: 5px;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 18px;
+	color:#1f89bf;
+}
+
 
 .property{
 	width: 33%;
@@ -264,7 +355,7 @@ font-size: 15px;
 }
 
 .name{
-	padding-top: 35px;
+	padding-top: 25px;
 	padding-left:15px;
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;

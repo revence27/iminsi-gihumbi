@@ -98,9 +98,9 @@
           </ul>
         </div>
         <div id="subtitle">
-          <div id="mainhead">{%  block subtitle %}{% endblock  %}</div>
+          <div id="mainhead"><a href="/dashboards/{{ ref }}">{%  block subtitle %}{% endblock  %}</a></div>
           <div id="extrainfo">{%  block extrainfo %}
-            <div id="filteredLocation">{{ nav }}</div>
+           <a href="{{ nav.link(ref)  }}"> <div id="filteredLocation">{{ nav }}</div></a>
             <div id="filteredDate">
                 {{  nav.start.strftime("%A %d %B %Y") }}-{{  nav.finish.strftime("%A %d %B %Y") }}
               </div>
