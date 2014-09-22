@@ -148,7 +148,10 @@
 							var param = getQueryParameter ( "summary" );
 							var url  = document.URL ;
 							
-							if (param != "") url = url.replace("&summary=on", "");
+							if (param != "") {	
+										if (url.indexOf('?summary') > -1 )  url = url.replace("?summary="+param, "?");
+										else url = url.replace("&summary="+param, "");
+										}
 							if (province != '' && prv == '' ) url = url + "&province="+ province;
 							if (district != '' && dst == '' ) url = url + "&district="+ district;
 							if (location != '' && loc == '' ) url = url + "&hc="+ location;

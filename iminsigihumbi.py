@@ -679,7 +679,8 @@ class Application:
      province = kw.get('province') or None
      district = kw.get('district') or None
      location = kw.get('hc') or None
-     locateds = summarize_by_location(primary_table = 'ig_mothers', where_clause = ['WHERE %s' % kw.get('subcat')], 
+     wcl = ['WHERE %s' % kw.get('subcat')] if kw.get('subcat') else []
+     locateds = summarize_by_location(primary_table = 'ig_mothers', where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location 
