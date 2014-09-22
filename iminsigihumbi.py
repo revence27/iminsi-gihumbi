@@ -617,6 +617,18 @@ class Application:
   # TODO: Handle deep structure and boolean display.
   @cherrypy.expose
   def tables_pregnancies(self, *args, **kw):
+    if kw.get('summary'):
+     province = kw.get('province') or None
+     district = kw.get('district') or None
+     location = kw.get('hc') or None
+     wcl = ['WHERE %s' % kw.get('subcat')] if kw.get('subcat') else []
+     locateds = summarize_by_location(primary_table = 'ig_pregnancies', where_clause = wcl, 
+						province = province,
+						district = district,
+						location = location 
+											
+						);
+
     navb, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('report_date',       'Date'),
