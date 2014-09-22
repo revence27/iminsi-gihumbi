@@ -16,7 +16,14 @@
     <div class="descr">{{  attr[1] }}</div>
     <div class="moreoptions startshidden" > <a href="/tables/{{  nav.link(ref, subcat = attr[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a></div>
     <div class="number">{% if  num %}<a href="/tables/{{  nav.link(ref, subcat = attr[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>{% else  %}  {{  num|neat_numbers }}  {%  endif %}</div>
-     <div class="triangle-border top startshidden">For example,</div>
+     <div class="triangle-border top startshidden">
+     <table>
+<tr><td>WESTERN PROVINCE</td><td>	9</td></tr>
+<tr><td>EASTERN PROVINCE	</td><td>49</td></tr>
+<tr><td>SOUTHEN PROVINCE	</td><td>14</td></tr>
+<tr><td>NORTHERN PROVINCE	</td><td>17</td></tr>
+	</table>
+	</div>
     
   </div>
 {%  endfor  %}
