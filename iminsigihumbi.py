@@ -662,7 +662,7 @@ class Application:
      district = kw.get('district') or None
      location = kw.get('hc') or None
      wcl = ['WHERE %s' % kw.get('subcat')] if kw.get('subcat') else []
-     locateds = summarize_by_location(primary_table = 'ig_pregnancies', where_clause = wcl, 
+     locateds = summarize_by_location(primary_table = 'ig_babies', where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location 
