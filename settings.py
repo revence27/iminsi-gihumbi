@@ -23,8 +23,8 @@ APP_DATA  = {
       'ref':'delivs'},
     # {'name':'Red Alerts',
     #   'ref':'alerts'},
-    {'name':'Admins',
-      'ref':'admins'},
+    #{'name':'Admins',
+    #  'ref':'admins'},
     # {'name':'Sanitation',
     #   'title' : 'Toilets and Water',
     #   'ref'   : 'sanitation'}
