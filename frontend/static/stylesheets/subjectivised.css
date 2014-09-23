@@ -458,6 +458,11 @@ body {
           font-weight: 900; }
           body #main #trunk .humblecontainer .datapoint .number:last-child {
             margin-right: 0; }
+        body #main #trunk .humblecontainer .datapoint .disper {
+          font-size: 75%; }
+        body #main #trunk .humblecontainer .datapoint .numbered {
+          font-family: "Exo", sans-serif;
+          font-weight: 900; }
         body #main #trunk .humblecontainer .datapoint .descr {
           float: left;
           display: block;

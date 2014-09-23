@@ -342,6 +342,17 @@ body
             font-weight: 900;
           }
 
+          .disper
+          {
+            font-size: 75%;
+          }
+
+          .numbered
+          {
+            font-family: $sans1;
+            font-weight: 900;
+          }
+
           .descr
           {
             @include span-columns(3 of 6);

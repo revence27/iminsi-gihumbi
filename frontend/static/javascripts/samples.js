@@ -28,12 +28,16 @@ makeDrillable = function(dr, apdg) {
   drill = $(dr);
   return drill.click(function() {
     var dstd, dstr, finu, limb, nmtd, nom, nwtbl, opt, option, requ, sel, _i, _len, _ref, _results;
+    if (this.cluck != null) {
+      return;
+    }
+    this.cluck = true;
     requ = document.location.toString();
     limb = requ.match(/\?/) ? '&' : '?';
     sel = $($('#locations select')[0]);
     nom = sel.attr('name');
     nwtbl = $('<table></table>');
-    nwtbl.addClass('participant');
+    nwtbl.addClass('disper');
     $(this).append(nwtbl);
     _ref = $('option', sel);
     _results = [];
@@ -41,7 +45,7 @@ makeDrillable = function(dr, apdg) {
       opt = _ref[_i];
       option = $(opt);
       finu = "" + requ + limb + nom + "=" + (option.val()) + "&" + apdg;
-      dstd = $('<td></td>');
+      dstd = $('<td class="numbered"></td>');
       nmtd = $("<td>" + (option.html()) + "</td>");
       dstr = $('<tr></tr>');
       dstr.append(dstd);

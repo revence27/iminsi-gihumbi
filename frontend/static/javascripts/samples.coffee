@@ -16,17 +16,19 @@ drFridaysDrillDown = (dest) ->
 makeDrillable = (dr, apdg) ->
   drill = $(dr)
   drill.click(() ->
+    return if this.cluck?
+    this.cluck = true
     requ  = document.location.toString()
     limb  = if requ.match(/\?/) then '&' else '?'
     sel   = $($('#locations select')[0])
     nom   = sel.attr('name')
     nwtbl = $('<table></table>')
-    nwtbl.addClass 'participant'
+    nwtbl.addClass 'disper'
     $(this).append nwtbl
     for opt in $('option', sel)
       option  = $(opt)
       finu    = "#{requ}#{limb}#{nom}=#{option.val()}&#{apdg}"
-      dstd    = $('<td></td>')
+      dstd    = $('<td class="numbered"></td>')
       nmtd    = $("<td>#{option.html()}</td>")
       dstr    = $('<tr></tr>')
       dstr.append dstd
