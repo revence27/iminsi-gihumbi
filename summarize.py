@@ -4,8 +4,6 @@
 
 from ectomorph import orm
 
-orm.ORM.connect(dbname  = 'thousanddays', user = 'thousanddays', host = 'localhost', password = 'thousanddays')
-
 class Record(object):
  def __init__(self, cursor, registro):
   for (attr, val) in zip((d[0] for d in cursor.description), registro) :
@@ -27,6 +25,8 @@ def fetch_data_cursor(orm, query_string):
 def build_fields(fields):
  fs = []
  for f in fields:
+  for k in f.keys():
+   if f[k].__contains__(' '): raise Exception('Invalid Query')
   if 'alias' and 'table' in f.keys(): fs.append("%s.%s AS %s" % (f['table'], f['value'], f['alias']))
   elif 'alias' in f.keys() and 'table' not in f.keys(): fs.append("%s AS %s" % (f['value'], f['alias']))
   elif 'alias' and 'table' not in f.keys(): fs.append("%s" % (f['value']))
@@ -101,8 +101,7 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
   group_by.append('province_name')
   group_by.append('province_id')
   if province:
-    if where_clause == []: where_clause.append(' WHERE %s.province_pk = %d ' % ( primary_table, int(province)))
-    else: where_clause.append(' AND %s.province_pk = %d ' % ( primary_table, int(province)))
+    where_clause.append({'field_name': '%s.province_pk' % primary_table, 'compare': '=', 'value': int(province)})
 
  if province:
   fields.append( {'value': 'indexcol', 'alias': 'district_id', 'table': 'chws__district'})
@@ -111,8 +110,7 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
   group_by.append('district_name')
   group_by.append('district_id')
   if district:
-    if where_clause == []: where_clause.append(' WHERE %s.district_pk = %d ' % ( primary_table, int(district)))
-    else: where_clause.append(' AND %s.district_pk = %d ' % ( primary_table, int(district)))
+    where_clause.append({'field_name': '%s.district_pk' % primary_table, 'compare':'=', 'value': int(district)})
 
  if district:
   fields.append( {'value': 'indexcol', 'alias': 'location_id', 'table': 'chws__healthcentre'})
@@ -121,23 +119,38 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
   group_by.append('location_name')
   group_by.append('location_id')
   if location:
-    if where_clause == []: where_clause.append(' WHERE %s.health_center_pk = %d ' % ( primary_table, int(location)))
-    else: where_clause.append(' AND %s.health_center_pk = %d ' % ( primary_table, int(location)))
+    where_clause.append({'field_name': '%s.health_center_pk' % primary_table, 'compare': '=', 'value': int(location)})
 
  fields.append( {'value': 'COUNT(*)', 'alias': 'total'} )
  
  if where_clause != []:
+  wcl = ''
+  index = 0
+  while index < len(where_clause):
+
+    field_name = where_clause[index]['field_name'] 
+    if field_name.__contains__(' '): raise Exception ('Invalid Query')
+
+    if index == 0:
+      wcl += " %s %s %s %s " %  ( "WHERE", field_name, where_clause[index]['compare'], where_clause[index]['value'])
+    else:
+      wcl += " AND %s %s %s " %  ( field_name, where_clause[index]['compare'], where_clause[index]['value'])
+
+    index += 1
+    
   qs = build_query( fields = fields, extracts = [], primary_table = primary_table, tables = [],
-                  inner_joins = inner_joins, where_clause = ''.join( ' %s' % w for w in where_clause), group_by = group_by, order_by = [])
+                  inner_joins = inner_joins, where_clause = wcl, group_by = group_by, order_by = [])
  else:
   qs = build_query( fields = fields, extracts = [], primary_table = primary_table, tables = [],
                     inner_joins = inner_joins, where_clause = '', group_by = group_by, order_by = [])
 
  if qs != '':
-  #print qs
-  curz = fetch_data_cursor(orm, qs)
-  data = fetch_data(curz)
-  return data
- 
+  print qs
+  try: 
+    curz = fetch_data_cursor(orm, qs)
+    data = fetch_data(curz)
+    return data
+  except Exception, e:
+    return [] 
  return []
 
