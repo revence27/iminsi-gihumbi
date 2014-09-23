@@ -2,7 +2,10 @@
 # encoding: utf-8
 # vim: ts=2 expandtab
 
-from ectomorph import orm
+import psycopg2
+import settings
+
+conn = psycopg2.connect( host = settings.DBHOST, port = settings.DBPORT, dbname = settings.DBNAME, user = settings.DBUSER, password = settings.DBPASSWORD)
 
 class Record(object):
  def __init__(self, cursor, registro):
@@ -17,8 +20,8 @@ def fetch_data(cursor):
   ans.append(r)
  return ans
 
-def fetch_data_cursor(orm, query_string):
- curseur = orm.ORM.cursor()
+def fetch_data_cursor(conn, query_string):
+ curseur = conn.cursor()
  curseur.execute(query_string)
  return curseur
 
@@ -147,7 +150,7 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
  if qs != '':
   print qs
   try: 
-    curz = fetch_data_cursor(orm, qs)
+    curz = fetch_data_cursor(conn, qs)
     data = fetch_data(curz)
     return data
   except Exception, e:
