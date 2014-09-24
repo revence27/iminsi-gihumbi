@@ -1,5 +1,74 @@
 {%  extends "basicmothers.html" %}
 {%  block mainpart  %}
+
+<div class="dropdownlink">
+View By Location
+</div>
+<div class="triangle-border top">
+<table class="largetable"> 
+		   <theader>
+			<th>Province</th>
+			<th>Under 18</th>
+			<th>over 35</th>   
+			<th>Previous Pregnancy</th>
+			<th>Previous Home Delivery</th>
+			<th>Previous Miscarriage</th>
+			<th>Previous Obstetric Survery</th>
+			<th>Chronic Disease</th>
+			<th>With Toilet Facility</th>
+			<th>With Handwash Facility</th>
+		   </theader>
+			   <tr>
+				<td><a href="#">Northern Province</a></td>
+				<td>23</td>
+				<td>32</td>   
+				<td>65</td>
+				<td>2</td>
+				<td>563</td>
+				<td>13</td>
+				<td>545</td>
+				<td>676</td>
+				<td>11</td>
+			   </tr>
+			   <tr>
+				<td><a href="#">Southern Province</a></td>
+				<td>54</td>
+				<td>221</td>   
+				<td>11</td>
+				<td>81</td>
+				<td>0</td>
+				<td>0</td>
+				<td>0</td>
+				<td>58</td>
+				<td>55</td>
+			   </tr>
+			   <tr>
+				<td><a href="#">Eastern Province</a></td>
+				<td>1</td>
+				<td>23</td>   
+				<td>87</td>
+				<td>96</td>
+				<td>25</td>
+				<td>36</td>
+				<td>54</td>
+				<td>0</td>
+				<td>0</td>
+			   </tr>
+			   <tr>
+				<td><a href="#">Western Province</a></td>
+				<td>98</td>
+				<td>15</td>   
+				<td>13</td>
+				<td>35</td>
+				<td>82</td>
+				<td>19</td>
+				<td>22</td>
+				<td>22</td>
+				<td>36</td>
+			   </tr>
+			
+		</table>
+	</div>
   <div class="smallcontainer">
     <div class="infoname">Total Mothers</div>
      <div class="moretotal" ><a href="{{ nav.link('/tables/mothers', summary = 'on')}}">View by Location</a></div>
@@ -9,6 +78,13 @@
     <div class="graphicard">
       <img class="icon" src="{{  static_path }}/images/mothers.png" />
     </div>
+    <div class="risk">
+    Low risk Mothers: <strong>654</strong><br>
+    No Risk Mothers:<strong>315</strong><br>
+    High Risk Mothers: <strong>5456</strong><br>
+    
+    </div>
+    
   </div>
   <div class="humblecontainer">
     {%  include "basicdisplay.html" %}

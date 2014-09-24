@@ -1,26 +1,6 @@
 {%  extends "basicbabies.html" %}
 {%  block mainpart  %}
-  {% if display.locateds %} 
-	<div>
-		<table class="locationtable"> 
-		   <theader>
-			{% if display.locateds[0].province_name %}<th>Province</th> {% endif %}
-			{% if display.locateds[0].district_name %}<th>District</th> {% endif %}
-			{% if display.locateds[0].location_name %}<th>HealthCentre</th> {% endif %}   
-			<th>Total</th>
-		   </theader>
-			{% for lc in display.locateds %} 
-			   <tr>
-				{% if lc.province_name %}<td><a href="#" onclick="addInURL('province', {{lc.province_id}});">{{lc.province_name}}</a></td> {% endif %}
-				{% if lc.district_name %}<td><a href="#" onclick="addInURL('district', {{lc.district_id}});">{{lc.district_name}}</a></td> {% endif %}
-				{% if lc.location_name %}<td><a href="#" onclick="addInURL('hc', {{lc.location_id}});">{{lc.location_name}}</a></td> {% endif %}   
-				<td><a href="#" onclick="getTotal( {%if lc.province_id %}{{lc.province_id }} {%else%}''{%endif%}, {%if lc.district_id %}{{lc.district_id }} {%else%}''{%endif%}, {%if lc.location_id %}{{lc.location_id }} {%else%}''{%endif%} );">{{lc.total}}</a></td>
-			   </tr>
-			{% endfor %}
-		</table>
-	</div>
 
-  {%else%}
   {%  include "basictable.html"  %}
-  {% endif %}
+  
 {%  endblock  %}
