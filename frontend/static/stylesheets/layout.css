@@ -30,7 +30,7 @@ background: #5bb8f9;
 
  #main 
 { 
-	padding-top: 30px;
+	padding-top: 0px;
 	 margin-left: auto; 
 	 margin-right: auto; 
 	 width: 1100px;
@@ -165,6 +165,29 @@ background: #5bb8f9;
 	display: inline-block;
 }
 
+
+
+/********************************/
+
+.dropdownlink{
+	background: #91daef;
+	width:200px;
+	margin-left:auto;
+	margin-right:auto;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 20px;
+	
+	text-align: center;
+}
+
+.dropdownlink:hover{
+	color:#fff;
+	cursor: pointer;
+}
+
+
+
 .humblecontainer{
 	width:70%;
 	float:left;
@@ -181,6 +204,21 @@ padding-top: 20px;
 .icon{
 	max-width:200px;
 }
+
+.risk{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 20px;
+	color: #d12b27;
+}
+
+.risk>strong{
+	font-size: 28px;
+	color:#000;
+}
+
+
+
 
 .datapoint{
 	width: 130px;
@@ -296,12 +334,12 @@ padding-top: 20px;
 .largetable{
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
-	font-size: 15px;
+	font-size: 12px;
 	width: 100%;
 }
 
 .largetable a{
-	color: #16b494;
+	color: #128870;
 }
 
 .locationtable{
@@ -316,6 +354,10 @@ padding-top: 20px;
 		padding-left:50px;
 	}
 
+.locationtable a{
+	color: #128870;
+}
+	
 /*****************************************/
 
 

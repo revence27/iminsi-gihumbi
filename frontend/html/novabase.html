@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{{ static_path }}/stylesheets/layout.css" />
     <link rel="stylesheet" type="text/css" href="{{ static_path }}/stylesheets/menu.css" />
     <link rel="stylesheet" type="text/css" href="{{ static_path }}/stylesheets/deeper.css" />
+    <link rel="stylesheet" type="text/css" href="{{ static_path }}/stylesheets/table.css" />
     
        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
@@ -39,6 +40,24 @@
     					  });
 				
 			});
+    		
+    		$('.dropdownlink').click(function(evt){
+    			swaps   = {none: 'block', block:'none'},
+    			now	    = $('.triangle-border ').css('display');
+    			if(now == 'none')
+    			{
+  			  $('.triangle-border ').css({'display':swaps[now]});
+    			}
+    			else $('.triangle-border ').css({'display':swaps[now]});
+			 });
+    		
+    		$('tbody tr').hover(function() {
+    			  $(this).addClass('odd');
+    			}, function() {
+    			  $(this).removeClass('odd');
+    			});
+    		
+    		
     	});
 
 
