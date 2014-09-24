@@ -1,5 +1,11 @@
 import os
 
+DBHOST = 'localhost'
+DBPORT = 5432
+DBNAME = 'thousanddays'
+DBUSER = 'thousanddays'
+DBPASSWORD = 'thousanddays'
+
 WEBAPP          = 'iminsigihumbi'
 GESTATION       = 270
 BMI_MIN         = 19
