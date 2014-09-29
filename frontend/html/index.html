@@ -1,20 +1,247 @@
-{%  extends "novabase.html" %}
-{%  block topstrip  %}{%  endblock  %}
-{%  block trunkstyle %}{% endblock  %}
-{%  block mainpart  %}
+<!DOCTYPE html>
+<html lang="en">
+     <head>
+     <title>Home</title>
+     <meta charset="utf-8">
+     <link rel="icon" href="images/favicon.png">
+     <link rel="shortcut icon" href="images/favicon.png" />
+     <link rel="stylesheet" href="../static/stylesheets/style.css">
+     <link rel="stylesheet" href="css/camera.css">
+      <!--[if !IE]>-->
+     <link rel="stylesheet" href="css/blur.css">
+      <!--<![endif]-->
+     <script src="js/jquery.js"></script>
+     <script src="js/jquery-migrate-1.1.1.js"></script>
+     <script src="js/superfish.js"></script>
+     <script src="js/jquery.equalheights.js"></script>
+     <script src="js/jquery.easing.1.3.js"></script>
+     <script src="js/jquery.ui.totop.js"></script>
+     <script src="js/camera.js"></script>
+     <!--[if (gt IE 9)|!(IE)]><!-->
+     <script src="js/jquery.mobile.customized.min.js"></script>
+     <!--<![endif]-->
+     <script>
+     $(document).ready(function(){
+      jQuery('#camera_wrap').camera({
+        loader: false,
+        pagination: false ,
+        thumbnails: false,
+        height: '48.82978723404255%',
+        caption: false,
+        navigation: true,
+        fx: 'mosaic'
+      });
 
-<form class="mainlogin">
-  <fieldset>
-    <legend>Log In</legend>
-    <input type="text" placeholder="E-Mail" /><br />
-    <input type="text" placeholder="Password" /><br />
-    <input type="submit" />
-  </fieldset>
-</form>
-<div class="indicators">
-  {%  for indicator in indicators %}
-    <div class="indicator"><a href="/dashboards/{{  indicator.ref }}">{{  indicator.name  }}</a></div>
-  {%  endfor  %}
+    });
+      
+      
+    $(document).ready(function(){
+      $().UItoTop({ easingType: 'easeOutQuart' });
+    });  
+      
+      
+      $(function() {
+        
+        var $container  = $('#ib-container'),
+          $articles = $container.children('article'),
+          timeout;
+        
+        $articles.on( 'mouseenter', function( event ) {
+            
+          var $article  = $(this);
+          clearTimeout( timeout );
+          timeout = setTimeout( function() {
+            
+            if( $article.hasClass('active') ) return false;
+            
+            $articles.not( $article.removeClass('blur').addClass('active') )
+                 .removeClass('active')
+                 .addClass('blur');
+            
+          }, 65 );
+          
+        });
+        
+        $container.on( 'mouseleave', function( event ) {
+          
+          clearTimeout( timeout );
+          $articles.removeClass('active blur');
+          
+        });
+      
+      });
+     </script>
+     <!--[if lt IE 8]>
+       <div style=' clear: both; text-align:center; position: relative;'>
+         <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+           <img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0000_us.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." />
+         </a>
+      </div>
+    <![endif]-->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+      <link rel="stylesheet" media="screen" href="css/ie.css">
+
+    <![endif]-->
+     </head>
+
+    <link rel="stylesheet" type="text/css" href="../static/stylesheets/layout.css" />
+    <link rel="stylesheet" type="text/css" href="../static/stylesheets/menu.css" />
+
+	
+     </head>
+  <body>
+    <div id="top1">
+   
+      <div id="header">
+        
+        <div id="langs" style="width:100%;">
+          <ul>
+            <li>English</li>
+            <li>Kinyarwanda</li>
+            <li>Fran√ßais</li>
+          </ul>
+        </div>
+        
+       <div style="font-family: 'Open Sans', sans-serif; font-size:40px; font-weight: lighter; color:#fff; text-align:center;">Welcome to Rapid SMS Rwanda</div>
+      
+          <div id="rapid" style="text-align:center; width:100%;">
+            <img src="../static/images/rapid.png" />
+            </div>
+         <div id="nom" style="width:100%; padding-top:30px;">
+          <div id="ministry" style="width:50%;">
+            <img style="float:right;padding-right:40px;" src="../static/images/rwanda.png" />
+          </div>
+         
+            <div id="unicef" style="width:50%;">
+            <img style="float:left; padding-left:25px;" src="../static/images/unicef.png" />
+          </div>
+         <div id="motto"></div>
+        </div>
+      
+      </div>
+      </div>
+      <div id="main">
+      
+      
+       <body  class="page1">
+<!--==============================header=================================-->
+
+  
+<!--=======content================================-->
+
+<div class="content"><div class="ic"></div>
+  <div class="container_12">
+    <div class="grid_12">
+      <h3 style="text-align: center; padding-bottom: 30px; font-family: 'Open Sans', sans-serif; font-size:40px; font-weight: lighter;">DashBoards</h3>
+      
+    </div>
+    <div class="grid_4">
+      <div class="cwrap">
+        <div class="circle" style="background: url(../static/images/newborns.jpg) 0 0 no-repeat;">
+          <div class="info">
+            <div class="title">Pregnancies </div>
+           	<p>
+           	Information on Mothers and thier Pregnancies
+           
+           </p> <br>
+            <a href="/dashboards/pregnancies">View Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid_4">
+      <div class="cwrap">
+        <div class="circle" style="background: url(../static/images/pregs.jpg) 0 0 no-repeat;">
+           <div class="info">
+            <div class="title">New Borns</div>
+            <p>
+            Information on newborns
+            </p>
+            <br>
+            <a href="/dashboards/babies">View Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid_4" >
+      <div class="cwrap">
+        <div class="circle" style="background: url(../static/images/nutrition.jpg) 0 0 no-repeat;">
+           <div class="info">
+            <div class="title">Nutrition </div>
+            <p>
+            Child nutrtion information
+            </p>
+            <br>
+            <a href="#">View Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid_4" style="padding-left:150px;">
+      <div class="cwrap">
+        <div class="circle" style="background: url(../static/images/vaccination.jpg) 0 0 no-repeat;">
+           <div class="info">
+            <div class="title">Vaccination </div>
+            <p>Vaccination Completions and Incompletions</p>
+            <br>
+            <a href="#">View Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid_4">
+      <div class="cwrap">
+        <div class="circle" style="background: url(../static/images/pnc.jpg) 0 0 no-repeat;">
+           <div class="info">
+            <div class="title">Postal Natal Care </div>
+            <p>
+            Mothers statuses after child birth
+            </p>
+            <br>
+            <a href="#">View Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
 </div>
+<!--==============================footer=================================-->
+      
+      
+      
+      
+      
+      </div>
+      </div>
+      <div id="footer">
+        <div id="footerblueline"><img src="../static/images/Layer16.png"></div>
+			<div id="ContactUsReachouttou">
+			<strong>Contact Us</strong>
+			<br/>Reach out to us if you have any 
+			questions or queries regarding 
+			information on rapid SMS 
+			contact us using the information
+			below:
+			<br><br>
+			+250 78123456<br>
+			+250 73123456
+			<br><br>
+			info@rapidsms.gov.rw
+			rapidsms@unicef.com
+			</div>
+			<div id="FollowusonSocialNetw">
+			<strong>Follow us</strong>
+			<br></>Follow us on our soical networks and comment, interact and socailise with our community
+			</div>
+			<div id="social"><img src="../static/images/Layer17.png"></div>
+			<div id="uniceflogo"><img src="../static/images/Layer18.png"></div>
+			<div id="rapidsmsfooterlogo"><img src="../static/images/Layer19.png"></div>
+			<div id="ministrylogo"><img src="../static/images/Layer20.png"></div>
+			<!--  -->
+        
+      </div>
 
-{%  endblock  %}
+</body>
+</html>
