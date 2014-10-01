@@ -3,9 +3,9 @@ $(() ->
   clt.activateDates 'activedate'
   deleteableColumns()
   # jigTheElements('.graphicard img', 20)
-  condenseNavBar '.collapsiblenav'
+  # condenseNavBar '.collapsiblenav'
   participatingTable '.participant'
-  drFridaysDrillDown(document)
+  # drFridaysDrillDown(document)
 )
 
 drFridaysDrillDown = (dest) ->
