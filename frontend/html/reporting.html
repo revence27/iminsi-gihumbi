@@ -6,17 +6,18 @@
       <a href="{{ nav.link("/tables/reporters") }}">{{  display.total|neat_numbers }}</a>
     </div>
     <div class="graphicard">
-      <img style="width: 75%; margin-left: 12.5%;" src="{{  static_path }}/images/phonepic.png" />
+      <img class="icon" src="{{  static_path }}/images/phonepic.png" />
     </div>
   </div>
   <div class="humblecontainer">
-    <div class="datapoint">
+    <div class="datapointreport">
+      <div class="descrreport">Total Reports Sent</div>
       <div class="number playable"><a href="{{  nav.link("/tables/reports") }}">{{  display.reptot|neat_numbers  }}</a></div>
-      <div class="descr">Total Reports Sent</div>
+     
     </div>
-    <div class="datapoint">
+    <div class="datapointreport">
       <table class="participant dimensioned">
-        {%  for rpt in display.rpts %}
+         {%  for rpt in display.rpts %}
           <tr>
             <td partname="{{  rpt['report_type'] }}">{{  rpt['nom'] }}</td>
           </tr>

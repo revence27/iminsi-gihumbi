@@ -1,5 +1,11 @@
 import os
 
+DBHOST = 'localhost'
+DBPORT = 5432
+DBNAME = 'thousanddays'
+DBUSER = 'thousanddays'
+DBPASSWORD = 'thousanddays'
+
 WEBAPP          = 'iminsigihumbi'
 GESTATION       = 270
 BMI_MIN         = 19
@@ -23,8 +29,8 @@ APP_DATA  = {
       'ref':'delivs'},
     # {'name':'Red Alerts',
     #   'ref':'alerts'},
-    {'name':'Admins',
-      'ref':'admins'},
+    #{'name':'Admins',
+    #  'ref':'admins'},
     # {'name':'Sanitation',
     #   'title' : 'Toilets and Water',
     #   'ref'   : 'sanitation'}

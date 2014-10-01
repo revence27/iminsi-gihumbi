@@ -12,6 +12,7 @@ import settings
 import sha
 import sys
 import urllib2, urlparse
+from summarize import *
 
 PREGNANCY_MATCHES  = {
   'coughing'  : ('COUNT(*)',  'ch_bool IS NOT NULL'),
@@ -616,6 +617,18 @@ class Application:
   # TODO: Handle deep structure and boolean display.
   @cherrypy.expose
   def tables_pregnancies(self, *args, **kw):
+    if kw.get('summary'):
+     province = kw.get('province') or None
+     district = kw.get('district') or None
+     location = kw.get('hc') or None
+     wcl = [{'field_name': '%s' % kw.get('subcat'), 'compare': '', 'value': ''}] if kw.get('subcat') else []
+     locateds = summarize_by_location(primary_table = 'ig_pregnancies', where_clause = wcl, 
+						province = province,
+						district = district,
+						location = location 
+											
+						);
+
     navb, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('report_date',       'Date'),
@@ -644,6 +657,17 @@ class Application:
   # TODO: List and link the mother.
   @cherrypy.expose
   def tables_babies(self, *args, **kw):
+    if kw.get('summary'):
+     province = kw.get('province') or None
+     district = kw.get('district') or None
+     location = kw.get('hc') or None
+     wcl = [{'field_name': '%s' % kw.get('subcat'), 'compare': '', 'value': ''}] if kw.get('subcat') else []
+     locateds = summarize_by_location(primary_table = 'ig_babies', where_clause = wcl, 
+						province = province,
+						district = district,
+						location = location 
+											
+						);
     navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
@@ -674,6 +698,18 @@ class Application:
   # TODO: Handle deep structure and boolean display.
   @cherrypy.expose
   def tables_mothers(self, *args, **kw):
+    if kw.get('summary'):
+     province = kw.get('province') or None
+     district = kw.get('district') or None
+     location = kw.get('hc') or None
+     wcl = [{'field_name': '%s' % kw.get('subcat'), 'compare': '', 'value': ''}] if kw.get('subcat') else []
+     locateds = summarize_by_location(primary_table = 'ig_mothers', where_clause = wcl, 
+						province = province,
+						district = district,
+						location = location 
+											
+						);
+
     navb, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('report_date',       'Date'),
@@ -699,6 +735,7 @@ class Application:
     nat     = orm.ORM.query('ig_mothers', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
     )
+    #raise Exception, nat.query
     desc  = 'Mothers%s' % (' (%s)' % (self.find_descr(self.MOTHERS_DESCR, sc), ) if sc else '', )
     return self.dynamised('mothers_table', mapping = locals(), *args, **kw)
 

@@ -6,9 +6,9 @@ $(function() {
   clt = new ClientSide(document);
   clt.activateDates('activedate');
   deleteableColumns();
-  condenseNavBar('.collapsiblenav');
+  //  condenseNavBar('.collapsiblenav');
   participatingTable('.participant');
-  return drFridaysDrillDown(document);
+  //  return drFridaysDrillDown(document);
 });
 
 drFridaysDrillDown = function(dest) {

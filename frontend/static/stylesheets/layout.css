@@ -1,0 +1,516 @@
+/**********************************************/
+body{
+	
+	margin:0px;	
+}
+
+a{
+	text-decoration: none;
+	color: inherit;
+}
+
+
+#top{
+	width: 100%;
+background: #5bb8f9;
+	
+}
+
+ #header 
+{ 
+	
+     left: 0px; 
+	 top: 0px; 
+	 position: relative; 
+	 margin-left: auto; 
+	 margin-right: auto; 
+	 width: 1000px;
+	 overflow: hidden;
+}
+
+ #main 
+{ 
+	padding-top: 0px;
+	 margin-left: auto; 
+	 margin-right: auto; 
+	 width: 1100px;
+	 overflow: hidden;
+}
+
+
+
+
+/*********************************************/
+
+#nom{
+	height: 70px;
+	width: 50%;
+	float: left;
+}
+
+#ministry{
+	width:20%;
+	float: left;
+}
+
+#rapid{
+	width:30%;
+	float: left;
+}
+#unicef{
+	width:30%;
+	float: left;
+}
+
+
+
+#langs{
+	height: 70px;
+	width: 50%;
+	float: left;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 15px;
+	color: #fff;
+}
+
+#langs ul li {
+	display: inline-block;
+	padding-left: 10px;
+}
+
+#indicators div{
+	display: inline-block;
+	padding-bottom: 20px;
+}
+
+
+/*********************************************/
+#mainhead{
+	width: 40%;
+	float: left;
+	padding-left: 20px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:bold;
+	font-size: 22px;
+	color: #fff;
+
+}
+
+#extrainfo{
+	width: 50%;
+	float: left;
+color: #fff;
+font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+}
+
+#filteredLocation{
+
+font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 20px;
+}
+#filteredDate{
+
+font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 12px;
+}
+/*********************************************/
+
+
+.infoname{
+	
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 28px;
+	color: #16b494;
+}
+
+.infodata{
+	
+	font-family: 'Open Sans', sans-serif;
+	font-size: 30px;
+	text-align: center;
+	width: 150px;
+	padding-bottom: 20px;
+}
+
+
+
+#subtitle{
+	height: 80px;
+background: #5bb8f9;
+}
+
+#filter{
+	
+height: 45px;
+background: #5bb8f9;
+}
+
+
+#dateranges{
+	width: 40%;
+	float: left;
+}
+
+#myform{
+	width: 60%;
+	float: left;
+}
+
+.loc{
+	display: inline-block;
+}
+
+
+
+/********************************/
+
+.dropdownlink{
+	background: #91daef;
+	width:200px;
+	margin-left:auto;
+	margin-right:auto;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 20px;
+	
+	text-align: center;
+}
+
+.dropdownlink:hover{
+	color:#fff;
+	cursor: pointer;
+}
+
+
+
+.humblecontainer{
+	width:70%;
+	float:left;
+padding-top: 20px;
+	
+}
+
+.smallcontainer{
+	width:30%;
+	float:left;
+
+}
+
+.icon{
+	max-width:200px;
+}
+
+.risk{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 20px;
+	color: #d12b27;
+}
+
+.risk>strong{
+	font-size: 28px;
+	color:#000;
+}
+
+
+
+
+.datapoint{
+	width: 130px;
+	height: 150px;
+	display: inline-block;
+	float: left;
+	padding-left:15px;
+	background: url(../images/circle.png);
+}
+
+.datapointreport{
+	
+	
+	display: inline-block;
+	float: left;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 14px;
+}
+
+
+
+.number{ 
+	font-family: 'Open Sans', sans-serif;
+	font-size: 28px;
+	color: #000;
+	cursor: pointer;
+	text-align: center;
+}
+.number:hover{ 
+	color: #1f89bf;
+}
+.descr{
+	padding-top: 35px;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 14px;
+	color: #fff;
+}
+.descrreport{
+	padding-top: 10px;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 14px;
+	
+}
+.moreoptions{
+	text-align: centre;
+	width: 150px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+}
+.moreoptions:hover{
+	color: #fff;
+}
+
+.moretotal{
+	padding-left:30px;
+	text-align: centre;
+	width: 150px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+}
+.moretotal:hover{
+	color: #16b494;
+	cursor: pointer;
+}
+
+
+
+
+.startshidden
+{
+	display: none;
+}
+
+
+
+/****************************************/
+
+
+.tdesc{
+	
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 16px;
+	width:300px;
+	margin-left:auto;
+	margin-right: auto;
+}
+
+.total{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:normal;
+	font-size: 17px;
+}
+
+.exinf{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:normal;
+	font-size: 17px;
+}
+
+
+
+
+
+.largetable{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 12px;
+	width: 100%;
+}
+
+.largetable a{
+	color: #128870;
+}
+
+.locationtable{
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+.locationtable td{
+		padding-left:50px;
+	}
+
+.locationtable a{
+	color: #128870;
+}
+	
+/*****************************************/
+
+
+.firstsection{
+	width:70%;
+	float: left;
+	border-bottom: 5px #000;
+}
+
+.intro{
+	margin-top: 30px;
+	width: 30%;
+	float: left;
+}
+
+.intro h3   {
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 22px;
+	margin-bottom: 5px;§
+}
+
+
+.more{
+	padding-top: 5px;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 18px;
+	color:#1f89bf;
+}
+
+
+.property{
+	width: 33%;
+	float: left;
+}
+
+.name{
+	padding-top: 25px;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 18px;
+	color:#1f89bf;
+}
+
+.value{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 20px;
+	color: #000;
+	cursor: pointer;
+	
+}
+
+
+
+/****************************************/
+
+ #footer 
+{ 
+ 
+	margin-top:50px;
+	 position: relative; 
+	 margin-left: auto; 
+	 margin-right: auto; 
+	 width: 1000px;
+	 height:300px;
+	 
+	 
+}
+
+ #footerblueline 
+{ 
+	 left: 0px; 
+	 top: 0px; 
+	 position: absolute; 
+	 width: 996px;
+	 height: 6px;
+	 z-index:4;
+} 
+
+ #ContactUsReachouttou 
+{ 
+	 left: 276px; 
+	 top: 51px; 
+	 position: absolute; 
+	 width: 162px;
+	 height: 170px;
+	 z-index:4;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 11px;
+	
+} 
+
+ #FollowusonSocialNetw 
+{ 
+	 left: 540px; 
+	 top: 59px; 
+	 position: absolute; 
+	 width: 183px;
+	 height: 59px;
+	 z-index:4;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 11px;
+}
+ #ContactUsReachouttou > strong
+{ 
+	font-size: 15px;
+}
+ #FollowusonSocialNetw > strong
+{ 
+	font-size: 15px;
+} 
+
+ #social 
+{ 
+	 left: 540px; 
+	 top: 133px; 
+	 position: absolute; 
+	 width: 98px;
+	 height: 29px;
+	 z-index:4;
+} 
+
+ #uniceflogo 
+{ 
+	 left: 513px; 
+	 top: 186px; 
+	 position: absolute; 
+	 width: 118px;
+	 height: 29px;
+	 z-index:4;
+} 
+
+ #rapidsmsfooterlogo 
+{ 
+	 left: 375px; 
+	 top: -21px; 
+	 position: absolute; 
+	 width: 261px;
+	 height: 65px;
+	 z-index:4;
+} 
+
+ #ministrylogo 
+{ 
+	 left: 658px; 
+	 top: 154px; 
+	 position: absolute; 
+	 width: 61px;
+	 height: 64px;
+	 z-index:4;
+} 
+
+/****************************************/
