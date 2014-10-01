@@ -25,6 +25,7 @@ background: #5bb8f9;
 	 margin-left: auto; 
 	 margin-right: auto; 
 	 width: 1000px;
+	height:350px;
 	 overflow: hidden;
 }
 
@@ -78,10 +79,20 @@ background: #5bb8f9;
 	padding-left: 10px;
 }
 
+#langs ul li:hover {
+	color: #f9ff01;
+	cursor: pointer;
+font-size: 17px;
+}
+
 #indicators div{
 	display: inline-block;
 	padding-bottom: 20px;
 }
+
+
+
+
 
 
 /*********************************************/
@@ -177,7 +188,6 @@ background: #5bb8f9;
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
 	font-size: 20px;
-	
 	text-align: center;
 }
 
