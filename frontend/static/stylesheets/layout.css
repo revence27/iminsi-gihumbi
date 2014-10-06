@@ -25,6 +25,19 @@ background: #5bb8f9;
 	 margin-left: auto; 
 	 margin-right: auto; 
 	 width: 1000px;
+	
+	 overflow: hidden;
+}
+ #header1 
+{ 
+	
+     left: 0px; 
+	 top: 0px; 
+	 position: relative; 
+	 margin-left: auto; 
+	 margin-right: auto; 
+	 width: 1000px;
+	height:350px;
 	 overflow: hidden;
 }
 
@@ -78,10 +91,20 @@ background: #5bb8f9;
 	padding-left: 10px;
 }
 
+#langs ul li:hover {
+	color: #f9ff01;
+	cursor: pointer;
+font-size: 17px;
+}
+
 #indicators div{
 	display: inline-block;
 	padding-bottom: 20px;
 }
+
+
+
+
 
 
 /*********************************************/
@@ -171,19 +194,19 @@ background: #5bb8f9;
 
 .dropdownlink{
 	background: #91daef;
-	width:200px;
+	width:400px;
 	margin-left:auto;
 	margin-right:auto;
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
 	font-size: 20px;
-	
 	text-align: center;
 }
 
-.dropdownlink:hover{
+.dropdownlink a:hover{
 	color:#fff;
 	cursor: pointer;
+	
 }
 
 
@@ -229,6 +252,15 @@ padding-top: 20px;
 	background: url(../images/circle.png);
 }
 
+.datapointrisks{
+	width: 130px;
+	height: 150px;
+	display: inline-block;
+	float: left;
+	padding-left:15px;
+	
+}
+
 .datapointreport{
 	
 	
@@ -260,6 +292,16 @@ padding-top: 20px;
 	font-size: 14px;
 	color: #fff;
 }
+
+.descrrisk{
+	padding-top: 35px;
+	padding-left:15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 20px;
+	color: #fff;
+}
+
 .descrreport{
 	padding-top: 10px;
 	padding-left:15px;
