@@ -186,11 +186,11 @@ class Pregancies:
     mum.save()
     rep = Reporter('ig_reporters')
     rep.load(entry['reporter_phone'])
-    rep.copy(entry, ['province_pk', 'district_pk', 'health_center_pk'])
+    rep.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'sector_pk', 'cell_pk', 'village_pk'])
     rep.save()
     mum['reporter'] = rep['indexcol']
     prg = Pregnancy('ig_pregnancies')
-    prg.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date', 'lmp'])
+    prg.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'sector_pk', 'cell_pk', 'village_pk', 'report_date', 'lmp'])
     prg.load(mum['indexcol'], entry['lmp'])
     prg.copy_presence(row, LOCATION_ATTRIBUTES + [
       ('np_bool', 'no_problem'),
@@ -218,7 +218,7 @@ class Pregancies:
       ('hy_bool', 'hypothermia'),
     ])
     prg.save()
-    mum.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date', 'lmp']).copy(row,   [
+    mum.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'sector_pk', 'cell_pk', 'village_pk', 'report_date', 'lmp']).copy(row,   [
       ('mother_weight_float', 'weight'),
       ('mother_height_float', 'height'),
       ('parity_float', 'parity'),
@@ -256,14 +256,14 @@ class Birth:
     except Exception, e:
       prg.load(mum['indexcol'], entry['lmp'] - timedelta(days = settings.GESTATION))
       return self.handle(entry, row, hst)
-    mum.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date'])
+    mum.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'sector_pk', 'cell_pk', 'village_pk', 'report_date'])
     mum.save()
-    prg.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'report_date'])
+    prg.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'sector_pk', 'cell_pk', 'village_pk', 'report_date'])
     prg.copy_presence(row, LOCATION_ATTRIBUTES)
     prg.save()
     bub = Baby('ig_babies')
     bub.load(prg['indexcol'])
-    bub.copy(entry, ['province_pk', 'district_pk', 'health_center_pk']).copy(row, [
+    bub.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'sector_pk', 'cell_pk', 'village_pk']).copy(row, [
       ('child_weight_float', 'weight'),
       ('child_number_float', 'cnumber'),
       ('ht_float', 'height'),
