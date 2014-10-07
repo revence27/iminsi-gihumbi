@@ -256,6 +256,27 @@ class Application:
     })
     self.__set_locations()
 
+  def village(self, pk):
+    try:
+     num = int(pk) if pk else 'IS NULL'
+     gat = orm.ORM.query('chws__village', {'indexcol = %s': num})[0]
+     return gat
+    except: return None
+
+  def cell(self, pk):
+    try:
+     num = int(pk) if pk else 'IS NULL'
+     gat = orm.ORM.query('chws__cell', {'indexcol = %s': num})[0]
+     return gat
+    except: return None
+
+  def sector(self, pk):
+    try:
+     num = int(pk) if pk else 'IS NULL'
+     gat = orm.ORM.query('chws__sector', {'indexcol = %s': num})[0]
+     return gat
+    except: return None
+
   def __set_locations(self):
     self.provinces  = {}
     self.districts  = {}
@@ -880,6 +901,112 @@ class Application:
     total   = nat[0]['total']
     return self.dynamised('pregnancies', mapping = locals(), *args, **kw)
 
+  @cherrypy.expose
+  def dashboards_predash(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    exts = {}
+    total = orm.ORM.query(  'pre_table', 
+			  cnds,
+                          cols = ['COUNT(*) AS total'],
+			)[0]['total']
+    if kw.get('group') == 'no_risk':
+      title = 'No Risk'
+      group = 'no_risk'
+      cnds.update({settings.NO_RISK['query_str']: ''})
+      nat = orm.ORM.query(  'pre_table', 
+			  cnds,
+                          cols = ['COUNT(*) AS total'],
+			)
+    elif kw.get('group') == 'at_risk':
+      title = 'At Risk'
+      group = 'at_risk'
+      cnds.update({settings.RISK['query_str']: ''})
+      attrs = [(x.split()[0], dict(settings.RISK['attrs'])[x]) for x in dict (settings.RISK['attrs'])]
+      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.RISK['attrs'])]))
+      nat = orm.ORM.query(  'pre_table', 
+			  cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = exts,
+			)
+    elif kw.get('group') == 'high_risk':
+      title = 'High Risk'
+      group = 'high_risk'
+      cnds.update({settings.RISK['query_str']: ''})
+      attrs = [(x.split()[0], dict(settings.HIGH_RISK['attrs'])[x]) for x in dict (settings.HIGH_RISK['attrs'])]
+      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.HIGH_RISK['attrs'])]))
+      nat = orm.ORM.query(  'pre_table', 
+			  cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = exts,
+			)
+    else:
+      nat = orm.ORM.query(  'pre_table', 
+			  cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = {'no_risk': ('COUNT(*)', settings.NO_RISK['query_str']), 
+					'at_risk': ('COUNT(*)', settings.RISK['query_str']),
+					'high_risk': ('COUNT(*)', settings.HIGH_RISK['query_str']),
+					}
+			)
+    return self.dynamised('predash', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def tables_predash(self, *args, **kw):
+    if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
+     if kw.get('group'):
+      if kw.get('group') == 'no_risk':
+       pass
+      else:
+       kw.update({'compare': ' IS NOT '})
+       kw.update({'value': ' NULL '})
+    if kw.get('summary'):
+     province = kw.get('province') or None
+     district = kw.get('district') or None
+     location = kw.get('hc') or None
+     wcl = [{'field_name': '%s' % kw.get('subcat'), 
+		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
+		'value': '%s' % kw.get('value') if kw.get('value') else '' 
+	   }] if kw.get('subcat') else []
+     locateds = summarize_by_location(primary_table = 'pre_table', where_clause = wcl, 
+						province = province,
+						district = district,
+						location = location 
+											
+						);
+
+    navb, cnds, cols    = self.neater_tables(basics = [
+      ('indexcol',          'Entry ID'),
+      ('report_date',       'Date'),
+      ('patient_id',            'Mother ID'),
+      ('reporter_phone',            'Reporter Phone'),
+    ] + settings.PREGNANCY_DATA , *args, **kw)
+    sc      = kw.get('subcat')
+    if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
+    markup  = {
+      'patient_id': lambda x, _, __: '<a href="/tables/mothers?pid=%s">%s</a>' % (x, x),
+      'gravity_float': lambda x, _, __: '%s' % (int(x) if x else ''),
+      'parity_float': lambda x, _, __: '%s' % (int(x) if x else ''),
+      'lmp': lambda x, _, __: '%s' % (datetime.date(x) if x else ''),
+      'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), ),
+      'sector_pk': lambda x, _, __: '%s' % (self.sector(str(x))['name'] if self.sector(str(x)) else '', ),
+      'cell_pk': lambda x, _, __: '%s' % (self.cell(str(x))['name'] if self.cell(str(x)) else '', ),
+      'village_pk': lambda x, _, __: '%s' % (self.village(str(x))['name'] if self.village(str(x)) else '', ),
+    }
+    if sc:
+      cnds[sc]  = ''
+    # TODO: optimise
+    attrs = []
+    cols +=  settings.LOCATION_INFO 
+    nat     = orm.ORM.query('pre_table', cnds,
+      cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
+    )
+    desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(settings.PREGNANCY_DATA, sc), ) if sc else '', )
+    return self.dynamised('predash_table', mapping = locals(), *args, **kw)
+
+
   BABIES_DESCR  = [
     ('boy', 'Male'),
     ('girl', 'Female'),
@@ -951,6 +1078,7 @@ class Application:
     for ext in attrs:
       if len(ext) > 3:
         for cs in ext[3]:
+	  print cs
           ncnds[cs[0]] = cs[1]
       else:
         exts[ext[0]] = ('COUNT(*)' if len(ext) < 3 else ext[2], ext[0])
