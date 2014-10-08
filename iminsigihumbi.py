@@ -956,7 +956,7 @@ class Application:
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      if kw.get('group'):
       if kw.get('group') == 'no_risk':
-       pass
+       cnds.update({settings.NO_RISK['query_str']: ''})
       else:
        kw.update({'compare': ' IS NOT '})
        kw.update({'value': ' NULL '})
@@ -968,6 +968,9 @@ class Application:
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
+     if kw.get('group') == 'no_risk': wcl.append({'field_name': settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+     if kw.get('group') == 'at_risk': wcl.append({'field_name': settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+     if kw.get('group') == 'high_risk': wcl.append({'field_name': settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
      locateds = summarize_by_location(primary_table = 'pre_table', where_clause = wcl, 
 						province = province,
 						district = district,
@@ -999,6 +1002,10 @@ class Application:
       cnds[sc]  = ''
     # TODO: optimise
     attrs = []
+    if kw.get('group') == 'no_risk': cnds.update({settings.NO_RISK['query_str']: ''})
+    if kw.get('group') == 'at_risk': cnds.update({settings.RISK['query_str']: ''})
+    if kw.get('group') == 'high_risk': cnds.update({settings.HIGH_RISK['query_str']: ''})
+       
     cols +=  settings.LOCATION_INFO 
     nat     = orm.ORM.query('pre_table', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
