@@ -132,7 +132,7 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
   while index < len(where_clause):
 
     field_name = where_clause[index]['field_name'] 
-    if field_name.__contains__(' '): raise Exception ('Invalid Query')
+    if field_name.__contains__(' ') and 'extra' not in where_clause[index].keys(): raise Exception ('Invalid Query')
 
     if index == 0:
       wcl += " %s %s %s %s " %  ( "WHERE", field_name, where_clause[index]['compare'], where_clause[index]['value'])
@@ -148,7 +148,7 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
                     inner_joins = inner_joins, where_clause = '', group_by = group_by, order_by = [])
 
  if qs != '':
-  print qs
+  #print qs
   try: 
     curz = fetch_data_cursor(conn, qs)
     data = fetch_data(curz)
