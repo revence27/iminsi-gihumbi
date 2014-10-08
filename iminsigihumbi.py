@@ -968,9 +968,10 @@ class Application:
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
-     if kw.get('group') == 'no_risk': wcl.append({'field_name': settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-     if kw.get('group') == 'at_risk': wcl.append({'field_name': settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-     if kw.get('group') == 'high_risk': wcl.append({'field_name': settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+     if kw.get('subcat') is None:
+      if kw.get('group') == 'no_risk': wcl.append({'field_name': settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+      if kw.get('group') == 'at_risk': wcl.append({'field_name': settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+      if kw.get('group') == 'high_risk': wcl.append({'field_name': settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
      locateds = summarize_by_location(primary_table = 'pre_table', where_clause = wcl, 
 						province = province,
 						district = district,
