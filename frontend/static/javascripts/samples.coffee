@@ -3,47 +3,9 @@ $(() ->
   clt.activateDates 'activedate'
   deleteableColumns()
   # jigTheElements('.graphicard img', 20)
-  # condenseNavBar '.collapsiblenav'
+  condenseNavBar '.collapsiblenav'
   participatingTable '.participant'
-  # drFridaysDrillDown(document)
 )
-
-drFridaysDrillDown = (dest) ->
-  for pl in $('.descr')
-    play  = $(pl)
-    makeDrillable(pl, "subcat=#{play.attr('keyword')}")
-
-makeDrillable = (dr, apdg) ->
-  drill = $(dr)
-  drill.click(() ->
-    return if this.cluck?
-    this.cluck = true
-    requ  = document.location.toString()
-    limb  = if requ.match(/\?/) then '&' else '?'
-    sel   = $($('#locations select')[0])
-    nom   = sel.attr('name')
-    nwtbl = $('<table></table>')
-    nwtbl.addClass 'disper'
-    $(this).append nwtbl
-    for opt in $('option', sel)
-      option  = $(opt)
-      finu    = "#{requ}#{limb}#{nom}=#{option.val()}&#{apdg}"
-      dstd    = $('<td class="numbered"></td>')
-      nmtd    = $("<td>#{option.html()}</td>")
-      dstr    = $('<tr></tr>')
-      dstr.append dstd
-      dstr.append nmtd
-      nwtbl.append dstr
-      makeDrillable nmtd
-      $.ajax("#{finu}&summary=on", {
-        context: dstd
-        success: (dat, stt, xhr) ->
-          lk  = $("<a></a>")
-          lk.attr 'href', finu.replace('/dashboards/', '/tables/')
-          lk.text dat.total
-          this.append lk
-      })
-  )
 
 participatingTable  = (seeker)  ->
   tbl = $(seeker)
