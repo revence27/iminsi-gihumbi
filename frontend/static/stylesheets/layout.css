@@ -56,10 +56,11 @@ background: #5bb8f9;
 /*********************************************/
 
 #nom{
-	height: 70px;
+	height: 100px;
 	width: 50%;
 	float: left;
 }
+
 
 #ministry{
 	width:20%;
@@ -78,7 +79,15 @@ background: #5bb8f9;
 
 
 #langs{
-	height: 70px;
+	height: 40px;
+	width: 50%;
+	float: left;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 15px;
+	color: #fff;
+}
+#langs1{
+	height: 100px;
 	width: 50%;
 	float: left;
 	font-family: 'Open Sans', sans-serif;
@@ -260,6 +269,13 @@ padding-top: 20px;
 	padding-left:15px;
 	
 }
+.space{
+	width: 300px;
+	height: 150px;
+
+	padding-left:15px;
+	
+}
 
 .datapointreport{
 	
@@ -281,7 +297,20 @@ padding-top: 20px;
 	cursor: pointer;
 	text-align: center;
 }
+
+.risknumber{ 
+	padding-top: 55px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 28px;
+	color: #000;
+	cursor: pointer;
+	text-align: center;
+}
+
 .number:hover{ 
+	color: #1f89bf;
+}
+.risknumber:hover{ 
 	color: #1f89bf;
 }
 .descr{
@@ -294,12 +323,12 @@ padding-top: 20px;
 }
 
 .descrrisk{
-	padding-top: 35px;
-	padding-left:15px;
+	padding-top: 55px;
+	padding-left:160px;
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
-	font-size: 20px;
-	color: #fff;
+	font-size: 25px;
+	color: #000;
 }
 
 .descrreport{
