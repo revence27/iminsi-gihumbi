@@ -157,3 +157,6 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
     return [] 
  return []
 
+def get_indexed_value(field, table, indexfieldname, indexfield, alias = 'MyName'):
+  return "(SELECT %s AS %s FROM %s WHERE %s = %s)" % (field, alias, table, indexfieldname, indexfield)
+

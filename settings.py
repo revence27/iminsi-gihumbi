@@ -14,6 +14,30 @@ MIN_WEIGHT      = 45
 MAX_WEIGHT      = 65
 SALT_STRENGTH   = 2
 
+
+LOCATION_INFO = [
+			('province_pk', 'Province'),
+			('district_pk', 'District'),
+			('health_center_pk', 'HealthCentre'),
+			('sector_pk',            'Sector'),
+			('cell_pk',            'Cell'),
+			('village_pk',            'Village'),
+		]
+
+PATIENT_DETAILS = [
+			('patient_id','Patient/Mother ID'),	
+			('reporter_phone','Reporter Phone'),
+		  ] + LOCATION_INFO
+
+INDEXED_VALS = {'location': [('province_pk', 'indexcol', 'chws__province', 'Province'),
+					('district_pk', 'indexcol',  'chws__district', 'District'),
+					('health_center_pk', 'indexcol', 'chws__healthcentre', 'HealthCentre'),
+					('sector_pk',  'indexcol',   'chws__sector',        'Sector'),
+					('cell_pk',     'indexcol',  'chws__cell' ,     'Cell'),
+					('village_pk',  'indexcol',  'chws__village'  ,       'Village'),
+			     ]
+		}
+
 NO_RISK = {'attrs': 
 			[('gs_bool IS NOT NULL', 'Previous Obstetric Surgery'), 
 			 ('mu_bool IS NOT NULL', 'Multiples'),
@@ -79,13 +103,9 @@ PREGNANCY_DATA = [
       ('parity_float', 'Parity'),
       ('mother_weight_float', 'Weight'),
       ('mother_height_float', 'Height'),
+      ('report_date', 'Date'),
     ]
 
-LOCATION_INFO = [
-			('sector_pk',            'Sector'),
-			('cell_pk',            'Cell'),
-			('village_pk',            'Village'),
-		]
 
 APP_DATA  = {
   'indicators'  : [

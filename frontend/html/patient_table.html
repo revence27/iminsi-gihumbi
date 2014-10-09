@@ -1,0 +1,58 @@
+{%  extends "basicmothers.html" %}
+{%  block mainpart  %}
+<h2>Patient</h2>
+<table width="100%">
+  <thead>
+    <tr>
+      <th>Patient ID</th>
+      <th>Reporter Phone</th>
+      <th>Province</th>
+      <th>District</th>
+      <th>HealthCentre</th>
+      <th>Sector</th>
+      <th>Cell</th>
+      <th>Village</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  
+    <td>{{display.patient.patient_id}}</td>
+    <td>{{display.patient.reporter_phone}}</td>
+    <td>{{display.patient.province}}</td>
+    <td>{{display.patient.district}}</td>
+    <td>{{display.patient.healthcentre}}</td>
+    <td>{{display.patient.sector}}</td>
+    <td>{{display.patient.cell}}</td>
+    <td>{{display.patient.village}}</td>
+  
+  </tr>
+ </tbody>
+</table>
+
+<h2>Reminders</h2>
+<table width="100%">
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Date</th>
+      <th>Reporter Phone</th>
+    </tr>
+  </thead>
+{% if display.reminders %}
+  {% for reminder in reminders %}
+  <tr>
+    <td></td>
+    <td></td>
+    <td><a href=""></a></td>
+  </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan=3><center>No reminders sent yet.</center></td>
+  </tr>
+{% endif %}
+</table>
+<h2>Reports</h2>
+{% include 'report_table.html' %} 
+{%  endblock  %}
