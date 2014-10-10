@@ -988,7 +988,7 @@ class Application:
     sc      = kw.get('subcat')
     if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
     markup  = {
-      'patient_id': lambda x, _, __: '<a href="/tables/mothers?pid=%s">%s</a>' % (x, x),
+      'patient_id': lambda x, _, __: '<a href="/tables/patient?pid=%s">%s</a>' % (x, x),
       'gravity_float': lambda x, _, __: '%s' % (int(x) if x else ''),
       'parity_float': lambda x, _, __: '%s' % (int(x) if x else ''),
       'lmp': lambda x, _, __: '%s' % (datetime.date(x) if x else ''),
@@ -1014,6 +1014,18 @@ class Application:
     desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(settings.PREGNANCY_DATA, sc), ) if sc else '', )
     return self.dynamised('predash_table', mapping = locals(), *args, **kw)
 
+  @cherrypy.expose
+  def tables_patient(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
+    nat     = orm.ORM.query('pre_table', cnds,
+      				cols  = [x[0] for x in (cols + indexed_attrs + settings.PREGNANCY_DATA) if x[0][0] != '_'],
+				sort = ('report_date', False),
+    			) 
+    patient = nat[0]  
+    reminders = []
+    pre_reports = [x for x in nat.list()]
+    return self.dynamised('patient_table', mapping = locals(), *args, **kw)
 
   BABIES_DESCR  = [
     ('boy', 'Male'),

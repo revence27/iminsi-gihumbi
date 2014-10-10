@@ -1,0 +1,35 @@
+<table width="100%"> 
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Date</th>
+            <th>LMP</th>
+            <th>Gravidity</th>
+            <th>Parity</th>
+            <th>Weight</th>
+	    <th>Height</th>
+	    <th>Reporter</th>
+	    <th>Patient</th>
+        </tr>
+    </thead>
+    <tbody>
+    	{% for report in display.pre_reports %}
+            <tr>
+            	<td>Pregnancy</td>
+                <td>{{report.report_date}}</td>
+		<td>{{report.lmp}}</td>
+                <td>{{report.gravity_float|int}}</td>
+ 		<td>{{report.parity_float|int}}</td>
+		<td>{{report.mother_weight_float}}</td>
+		<td>{{report.mother_height_float}}</td>
+		<td>{{report.reporter_phone}}</td>
+		<td>{{report.patient_id}}</td>
+                
+            </tr>
+        {% endfor %}
+    </tbody>
+    
+    <tfoot>
+			
+	</tfoot>
+</table>
