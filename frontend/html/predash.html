@@ -2,17 +2,17 @@
 {%  block title %}Pregnancy Risks {%  endblock  %}
 {%  block subtitle %} Pregnancy Risks {%  endblock  %}
 
-<script>
-alert("gdhsg");
-var a =  getQueryParameter('group');
-//console.log(a);
-alert(a);
-</script>
-
-
 {%  block level1  %}
 &#187;
-Pregnancy Risks
+<a href="/dashboards/{{ ref }}">Pregnancy Risks</a>
+
+&#187;
+ <lable id="demo"></lable>
+<script>
+var a =  getQueryParameter('group');
+//console.log(a);
+        document.getElementById("demo").innerHTML = a;
+</script>
 {%  endblock  %}
 
 
