@@ -7,6 +7,14 @@
 {%  block level1  %}
 &#187;
 <a href="/dashboards/{{ ref }}">Pregnancy Risks</a>
+
+&#187;
+ <lable id="demo"></lable>
+<script>
+var a =  getQueryParameter('group');
+//console.log(a);
+        document.getElementById("demo").innerHTML = a;
+</script>
 &#187;
 Table
 {%  endblock  %}
