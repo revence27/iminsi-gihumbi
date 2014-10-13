@@ -18,7 +18,6 @@ background: #5bb8f9;
 
  #header 
 { 
-	
      left: 0px; 
 	 top: 0px; 
 	 position: relative; 
@@ -56,10 +55,17 @@ background: #5bb8f9;
 /*********************************************/
 
 #nom{
+	height: 100px;
+	width: 50%;
+	float: left;
+}
+
+#nom1{
 	height: 70px;
 	width: 50%;
 	float: left;
 }
+
 
 #ministry{
 	width:20%;
@@ -78,7 +84,7 @@ background: #5bb8f9;
 
 
 #langs{
-	height: 70px;
+	height: 40px;
 	width: 50%;
 	float: left;
 	font-family: 'Open Sans', sans-serif;
@@ -97,13 +103,48 @@ background: #5bb8f9;
 font-size: 17px;
 }
 
+#langs1{
+	height: 70px;
+	width: 50%;
+	float: left;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 15px;
+	color: #fff;
+}
+
+#langs1 ul li {
+	display: inline-block;
+	padding-left: 10px;
+}
+
+#langs1 ul li:hover {
+	color: #f9ff01;
+	cursor: pointer;
+font-size: 17px;
+}
+
 #indicators div{
 	display: inline-block;
 	padding-bottom: 20px;
 }
 
 
-
+.navigator{
+	
+	width:100%;
+	background-color: #07587d;
+}
+.position{
+	width: 60%;
+	margin-left: auto;
+	margin-right: auto;
+	color:#fff;
+	padding-top:5px;
+	padding-bottom:5px;
+font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+}
 
 
 
@@ -260,6 +301,13 @@ padding-top: 20px;
 	padding-left:15px;
 	
 }
+.space{
+	width: 300px;
+	height: 150px;
+
+	padding-left:15px;
+	
+}
 
 .datapointreport{
 	
@@ -281,7 +329,20 @@ padding-top: 20px;
 	cursor: pointer;
 	text-align: center;
 }
+
+.risknumber{ 
+	padding-top: 55px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 28px;
+	color: #000;
+	cursor: pointer;
+	text-align: center;
+}
+
 .number:hover{ 
+	color: #1f89bf;
+}
+.risknumber:hover{ 
 	color: #1f89bf;
 }
 .descr{
@@ -294,12 +355,12 @@ padding-top: 20px;
 }
 
 .descrrisk{
-	padding-top: 35px;
-	padding-left:15px;
+	padding-top: 55px;
+	padding-left:160px;
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
-	font-size: 20px;
-	color: #fff;
+	font-size: 25px;
+	color: #000;
 }
 
 .descrreport{
@@ -419,7 +480,7 @@ padding-top: 20px;
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
 	font-size: 22px;
-	margin-bottom: 5px;§
+	margin-bottom: 5px;
 }
 
 
