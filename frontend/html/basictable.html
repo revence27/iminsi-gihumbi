@@ -66,7 +66,12 @@
     <tr>
       <th>#</th>
       {%  for col in display.cols %}
+        {% if col[1] == 'LMP'%}
         <th>{{  col[1] }}</th>
+	<th> EDDate </th>
+	{% else %}
+	<th>{{  col[1] }}</th>
+	{% endif %}
       {%  endfor  %}
       {%  if  display.attrs %}<th>Attributes</th>{% endif %}
     </tr>
@@ -77,8 +82,14 @@
       <tr class="{{ loop.cycle('even', 'odd')  }}">
         <td class="cnt">{{  rng[0] + loop.index  }}</td>
         {%  for col in display.cols %}
+          {% if col[1] == 'LMP'%}
+		{%  set mkp = display.markup[col[0]] %}
+		<td>{{  mkp(row[col[0]], row, col) }}</td>
+		<td> {{  mkp(row['edd'], row, col) }} </td>
+	{% else %}
           {%  set mkp = display.markup[col[0]] %}
           <td>{%  if  mkp %}{{  mkp(row[col[0]], row, col)  }}{%  else  %}{{  row[col[0]]  }}{% endif %}</td>
+        {% endif %}
         {%  endfor  %}
         {%  if  display.attrs %}
         <td>

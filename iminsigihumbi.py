@@ -953,13 +953,14 @@ class Application:
 
   @cherrypy.expose
   def tables_predash(self, *args, **kw):
+    DESCRI = []
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      if kw.get('group'):
       if kw.get('group') == 'no_risk':
        cnds.update({settings.NO_RISK['query_str']: ''})
       else:
-       kw.update({'compare': ' IS NOT '})
-       kw.update({'value': ' NULL '})
+       kw.update({'compare': ' IS NOT'})
+       kw.update({'value': ' NULL'})
     if kw.get('summary'):
      province = kw.get('province') or None
      district = kw.get('district') or None
@@ -969,9 +970,15 @@ class Application:
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
      if kw.get('subcat') is None:
-      if kw.get('group') == 'no_risk': wcl.append({'field_name': settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-      if kw.get('group') == 'at_risk': wcl.append({'field_name': settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-      if kw.get('group') == 'high_risk': wcl.append({'field_name': settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+      if kw.get('group') == 'no_risk':
+       wcl.append({'field_name': settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+       DESCRI.append(('no_risk', 'No Risk'))
+      if kw.get('group') == 'at_risk':
+       wcl.append({'field_name': settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+       DESCRI.append(('at_risk', 'At Risk'))
+      if kw.get('group') == 'high_risk':
+       wcl.append({'field_name': settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+       DESCRI.append(('high_risk', 'High Risk'))
      locateds = summarize_by_location(primary_table = 'pre_table', where_clause = wcl, 
 						province = province,
 						district = district,
@@ -981,17 +988,19 @@ class Application:
 
     navb, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
-      ('report_date',       'Date'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
+      
     ] + settings.PREGNANCY_DATA , *args, **kw)
     sc      = kw.get('subcat')
+    DESCRI = []
     if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
     markup  = {
       'patient_id': lambda x, _, __: '<a href="/tables/patient?pid=%s">%s</a>' % (x, x),
       'gravity_float': lambda x, _, __: '%s' % (int(x) if x else ''),
       'parity_float': lambda x, _, __: '%s' % (int(x) if x else ''),
       'lmp': lambda x, _, __: '%s' % (datetime.date(x) if x else ''),
+      'edd': lambda x, _, __: '%s' % (datetime.date(x) if x else ''),
       'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
       'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
       'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), ),
@@ -1003,23 +1012,32 @@ class Application:
       cnds[sc]  = ''
     # TODO: optimise
     attrs = []
-    if kw.get('group') == 'no_risk': cnds.update({settings.NO_RISK['query_str']: ''})
-    if kw.get('group') == 'at_risk': cnds.update({settings.RISK['query_str']: ''})
-    if kw.get('group') == 'high_risk': cnds.update({settings.HIGH_RISK['query_str']: ''})
-       
-    cols +=  settings.LOCATION_INFO 
+    if kw.get('group') == 'no_risk':
+     cnds.update({settings.NO_RISK['query_str']: ''})
+     DESCRI.append(('no_risk', 'No Risk'))
+    if kw.get('group') == 'at_risk':
+     cnds.update({settings.RISK['query_str']: ''})
+     DESCRI.append(('at_risk', 'At Risk'))
+    if kw.get('group') == 'high_risk':
+     cnds.update({settings.HIGH_RISK['query_str']: ''})
+     DESCRI.append(('high_risk', 'High Risk'))
+
+    cols    += settings.LOCATION_INFO   
     nat     = orm.ORM.query('pre_table', cnds,
-      cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
-    )
-    desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(settings.PREGNANCY_DATA, sc), ) if sc else '', )
+      cols  = [x[0] for x in (cols + [('(lmp + INTERVAL \'%d days\') AS edd' % settings.GESTATION, 'EDDate'),] +attrs) if x[0][0] != '_'],
+      
+    );print DESCRI
+    desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(DESCRI + settings.RISK['attrs'] + settings.HIGH_RISK['attrs'], sc or kw.get('group')), 
+					) if sc or kw.get('group') else '', )
     return self.dynamised('predash_table', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def tables_patient(self, *args, **kw):
     navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    attrs = settings.RISK['attrs'] + settings.HIGH_RISK['attrs'] 
     indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
     nat     = orm.ORM.query('pre_table', cnds,
-      				cols  = [x[0] for x in (cols + indexed_attrs + settings.PREGNANCY_DATA) if x[0][0] != '_'],
+      				cols  = [x[0] for x in (cols + indexed_attrs + settings.PREGNANCY_DATA + attrs) if x[0][0] != '_'],
 				sort = ('report_date', False),
     			) 
     patient = nat[0]  
