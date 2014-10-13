@@ -2,8 +2,28 @@
 {%  block title %}Pregnancy Risks {%  endblock  %}
 {%  block subtitle %} Pregnancy Risks {%  endblock  %}
 
+<script>
+alert("gdhsg");
+var a =  getQueryParameter('group');
+//console.log(a);
+alert(a);
+</script>
+
+
+{%  block level1  %}
+&#187;
+Pregnancy Risks
+{%  endblock  %}
+
+
+
+
+
+
 {%  block mainpart  %}
 {% if display.title %}
+
+
 <div class="smallcontainer">
     <div class="infoname">Total Of {{display.title}} Pregnancies</div>
     <div class="moretotal" ><a href="{{ nav.link('/tables/predash', summary = 'on')}}">View by Location</a></div>
