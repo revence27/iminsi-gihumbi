@@ -2,8 +2,28 @@
 {%  block title %}Pregnancy Risks {%  endblock  %}
 {%  block subtitle %} Pregnancy Risks {%  endblock  %}
 
+{%  block level1  %}
+&#187;
+<a href="/dashboards/{{ ref }}">Pregnancy Risks</a>
+
+&#187;
+ <lable id="demo"></lable>
+<script>
+var a =  getQueryParameter('group');
+//console.log(a);
+        document.getElementById("demo").innerHTML = a;
+</script>
+{%  endblock  %}
+
+
+
+
+
+
 {%  block mainpart  %}
 {% if display.title %}
+
+
 <div class="smallcontainer">
     <div class="infoname">Total Of {{display.title}} Pregnancies</div>
     <div class="moretotal" ><a href="{{ nav.link('/tables/predash', summary = 'on')}}">View by Location</a></div>
