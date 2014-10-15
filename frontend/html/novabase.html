@@ -130,7 +130,7 @@
               {%  include "dater.html"  %}
               {%  include "hlocator.html"  %}
             
-            <input type="submit" value="Filter Date" />
+            <input type="submit" value="Refresh" />
           </form>
 
           <form id="myform">
@@ -140,19 +140,52 @@
 		<select name="district" id="distchoose" onChange="changeLocation(this.value);"><option >  </option>  </select>
 		<input type="checkbox" name="cc" onchange="chgtz();" />
 		<select name="hc" id="locchoose"><option > </option></select> 
-        <input type="submit" value="Filter Location" />
+        <input type="submit" value="Refresh" />
           </form>
         </div>
       </div>
       
 </div>
-      <div class="navigator">
-      <div class="position">
+
+
+
+
+
+ <div class="navigator">
+	<div class="central">
+    <div class="position">
      <a href="/">  Home</a>
-      {%  block level1  %}{%  endblock  %}
-      </div>
+
+&#187;
+<a href="/dashboards/{{ ref }}">Pregnancy Risks</a>
+
+&#187;
+ <lable id="demo"></lable>
+<script>
+var a =  getQueryParameter('group');
+//console.log(a);
+        document.getElementById("demo").innerHTML = a;
+</script>
+&#187;
+{{ display.desc }}
+&#187;
+{{ pid }}
       </div>
       
+      
+      <div class="view">
+      <div class="tabular ">Table</div>
+      <div class="graphic active">Graphic</div>
+      </div>
+	</div>
+	</div>
+      
+
+
+
+
+
+
       <div id="main">
       {%  endblock  %}
       <div id="trunk"{% block trunkstyle  %}  style="background: url('{{  static_path }}/images/preg.jpg') fixed center no-repeat"{% endblock  %}>
