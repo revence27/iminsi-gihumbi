@@ -134,10 +134,18 @@ font-size: 17px;
 	width:100%;
 	background-color: #07587d;
 }
-.position{
-	width: 60%;
+.central{
+	width:80%;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+
+.position{
+	
+height: 30px;
+	display: inline-block;
+	width:65%;
 	color:#fff;
 	padding-top:5px;
 	padding-bottom:5px;
@@ -146,6 +154,43 @@ font-family: 'Open Sans', sans-serif;
 	font-size: 15px;
 }
 
+.view{
+	display:inline;
+	width:15%;
+	float: right;
+}
+
+.tabular{
+	
+	float:left;
+	padding-top:10px;
+	padding-right: 5px;
+	height: 30px;
+	display: inline-block;
+	width:40%;
+font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+color:#fff;
+text-align: center;
+	
+}
+.graphic{
+	
+	padding-top: 10px;
+	height: 30px;
+	display: inline-block;
+	width:50%;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+	color:#fff;
+text-align: center;
+}
+
+.active {
+	background-color: #16b494
+}
 
 
 /*********************************************/
