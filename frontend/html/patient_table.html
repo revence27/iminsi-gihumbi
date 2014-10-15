@@ -29,6 +29,29 @@
   </tr>
  </tbody>
 </table>
+<h2>Symptoms</h2>
+<table width="100%">
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+
+ {%  if  display.attrs %}
+
+        
+          {%  for bc in display.attrs %}
+          {%  if  display.nat[0][bc[0].split()[0]] == True %}<td> {{bc[0].split('_')[0]}}</td><td>{{  bc[1] }}</td>{% endif %}
+          {%  endfor  %}
+        
+        
+{% else %}
+  <tr>
+    <td colspan=2><center>No Symptoms</center></td>
+  </tr>
+{% endif %}
+</table>
 
 <h2>Reminders</h2>
 <table width="100%">

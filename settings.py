@@ -73,7 +73,7 @@ HIGH_RISK = { 'attrs':
 			[('gs_bool IS NOT NULL', 'Previous Obstetric Surgery'), 
 			 ('mu_bool IS NOT NULL', 'Multiples'),
 			 ('hd_bool IS NOT NULL', 'Previous Home Delivery'), 
-			 ('rm_bool IS NOT NULL', 'Repetiive Miscarriage'),
+			 ('rm_bool IS NOT NULL', 'Repetitive Miscarriage'),
 			 ('ol_bool IS NOT NULL', 'Old Age (Over 35)'),
 			 ('yg_bool IS NOT NULL', 'Young Age (Under 18)'),
 			 ('kx_bool IS NOT NULL', 'Previous Convulsion'),
@@ -91,7 +91,7 @@ PREGNANCY_DATA = [
       ('parity_float', 'Parity'),
       ('mother_weight_float', 'Weight'),
       ('mother_height_float', 'Height'),
-      ('report_date', 'Date'),
+      ('report_date', 'Submission Date'),
     ]
 
 
