@@ -80,7 +80,7 @@
     {#  {%  for row in display.nat.list() %}  #}
     {%  for row in display.nat[rng[0]:rng[1]] %}
       <tr class="{{ loop.cycle('even', 'odd')  }}">
-        <td class="cnt">{{  rng[0] + loop.index  }}</td>
+        <td class="cnt" {% if row['high_risky'] == True %} style="background-color:red" {% endif%} >{{  rng[0] + loop.index  }}</td>
         {%  for col in display.cols %}
           {% if col[1] == 'LMP'%}
 		{%  set mkp = display.markup[col[0]] %}
