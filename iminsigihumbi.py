@@ -932,7 +932,7 @@ class Application:
     elif kw.get('group') == 'high_risk':
       title = 'High Risk'
       group = 'high_risk'
-      cnds.update({settings.RISK['query_str']: ''})
+      cnds.update({settings.HIGH_RISK['query_str']: ''})
       attrs = [(x.split()[0], dict(settings.HIGH_RISK['attrs'])[x]) for x in dict (settings.HIGH_RISK['attrs'])]
       exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.HIGH_RISK['attrs'])]))
       nat = orm.ORM.query(  'pre_table', 
@@ -993,7 +993,6 @@ class Application:
       
     ] + settings.PREGNANCY_DATA , *args, **kw)
     sc      = kw.get('subcat')
-    DESCRI = []
     if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
     markup  = {
       'patient_id': lambda x, _, __: '<a href="/tables/patient?pid=%s">%s</a>' % (x, x),
@@ -1024,9 +1023,13 @@ class Application:
 
     cols    += settings.LOCATION_INFO   
     nat     = orm.ORM.query('pre_table', cnds,
-      cols  = [x[0] for x in (cols + [('(lmp + INTERVAL \'%d days\') AS edd' % settings.GESTATION, 'EDDate'),] +attrs) if x[0][0] != '_'],
+      cols  = [x[0] for x in (cols + [
+					('(lmp + INTERVAL \'%d days\') AS edd' % settings.GESTATION, 'EDDate'), 
+					('(%s) AS high_risky' % settings.HIGH_RISK['query_str'], 'HighRisky'),
+ 
+					] + attrs) if x[0][0] != '_'],
       
-    );print DESCRI
+    )
     desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(DESCRI + settings.RISK['attrs'] + settings.HIGH_RISK['attrs'], sc or kw.get('group')), 
 					) if sc or kw.get('group') else '', )
     return self.dynamised('predash_table', mapping = locals(), *args, **kw)
@@ -1034,12 +1037,12 @@ class Application:
   @cherrypy.expose
   def tables_patient(self, *args, **kw):
     navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
-    attrs = settings.RISK['attrs'] + settings.HIGH_RISK['attrs'] 
+    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.RISK['attrs'] + settings.HIGH_RISK['attrs'] ]
     indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
     nat     = orm.ORM.query('pre_table', cnds,
       				cols  = [x[0] for x in (cols + indexed_attrs + settings.PREGNANCY_DATA + attrs) if x[0][0] != '_'],
 				sort = ('report_date', False),
-    			) 
+    			); print nat.query 
     patient = nat[0]  
     reminders = []
     pre_reports = [x for x in nat.list()]
