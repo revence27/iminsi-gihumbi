@@ -19,7 +19,6 @@
 	<script src="{{ static_path }}/javascripts/locations.js"></script>
 	
     <script>
-    	
     	$(function()
     	{
     		$('.datapoint').each(function(ix, dtp)
@@ -38,9 +37,7 @@
     						var mo = $('.moreoptions', this);
     						$(mo).addClass('startshidden');
     					  });
-				
 			});
-    		
     		$('.dropdownlink').click(function(evt){
     			swaps   = {none: 'block', block:'none'},
     			now	    = $('.triangle-border ').css('display');
@@ -56,17 +53,8 @@
     			}, function() {
     			  $(this).removeClass('odd');
     			});
-    		
-    		
     	});
-
-
-			
-	
-			
-
 	</script>    
-    
   </head>
   <body>
     <div id="top">
@@ -135,7 +123,7 @@
 
           <form id="myform">
 		<input type="checkbox" name="ca" onchange="chgtx();" />
-		<select name="province" id="provchoose" onChange="changeDistrict(this.value);"><option> </option> </select>
+		<select name="province" id="provchoose" onChange="changeDistrict(this.value);"><option> Select Province</option> </select>
 		<input type="checkbox" name="cb" onchange="chgty();" />
 		<select name="district" id="distchoose" onChange="changeLocation(this.value);"><option >  </option>  </select>
 		<input type="checkbox" name="cc" onchange="chgtz();" />
@@ -157,7 +145,7 @@
      <a href="/">  Home</a>
 
 &#187;
-<a href="/dashboards/{{ ref }}">Pregnancy Risks</a>
+<a href="/dashboards/{{ ref }}">{{ ref }}</a>
 
 &#187;
  <lable id="demo"></lable>
@@ -174,16 +162,13 @@ var a =  getQueryParameter('group');
       
       
       <div class="view">
+      <div class="tabular ">Log</div>
       <div class="tabular ">Table</div>
       <div class="graphic active">Graphic</div>
       </div>
 	</div>
 	</div>
       
-
-
-
-
 
 
       <div id="main">

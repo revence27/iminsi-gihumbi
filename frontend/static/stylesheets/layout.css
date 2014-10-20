@@ -145,7 +145,7 @@ font-size: 17px;
 	
 height: 30px;
 	display: inline-block;
-	width:65%;
+	width:55%;
 	color:#fff;
 	padding-top:5px;
 	padding-bottom:5px;
@@ -156,7 +156,7 @@ font-family: 'Open Sans', sans-serif;
 
 .view{
 	display:inline;
-	width:15%;
+	width:25%;
 	float: right;
 }
 
@@ -167,7 +167,7 @@ font-family: 'Open Sans', sans-serif;
 	padding-right: 5px;
 	height: 30px;
 	display: inline-block;
-	width:40%;
+	width:30%;
 font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
 	font-size: 15px;
@@ -180,7 +180,19 @@ text-align: center;
 	padding-top: 10px;
 	height: 30px;
 	display: inline-block;
-	width:50%;
+	width:30%;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 15px;
+	color:#fff;
+text-align: center;
+}
+
+.log{
+	padding-top: 10px;
+	height: 30px;
+	display: inline-block;
+	width:30%;
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
 	font-size: 15px;
@@ -408,6 +420,25 @@ padding-top: 20px;
 	color: #000;
 }
 
+
+.descrrisk1{
+	padding-top: 20px;
+	padding-left:120px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight:lighter;
+	font-size: 25px;
+	color: #000;
+}
+
+.descrrisk1 a{
+	color:#45b39a;
+	font-size: 30px;
+}
+
+.descrrisk1 span{
+	padding-left: 40px;
+}
+
 .descrreport{
 	padding-top: 10px;
 	padding-left:15px;
@@ -448,6 +479,19 @@ padding-top: 20px;
 	display: none;
 }
 
+
+.nutritionnumber{
+{ 
+	
+	
+	color:#45b39a;
+}
+.nutritionnumber:hover
+{
+	color:#000;
+	cursor:pointer;
+}
+}
 
 
 /****************************************/
