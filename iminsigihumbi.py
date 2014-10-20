@@ -949,7 +949,6 @@ class Application:
 					'high_risk': ('COUNT(*)', settings.HIGH_RISK['query_str']),
 					}
 			)
-    print nat.query, nat.list()
     return self.dynamised('predash', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
@@ -996,7 +995,8 @@ class Application:
 						end = navb.finish,
 											
 						)
-     tabular = give_me_table(locateds)
+     tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'province': province, 'district': district, 'location': location } )
+     INDICS_HEADERS = dict([ (x[0].split()[0], x[1]) for x in INDICS])
 
     sc      = kw.get('subcat')
     if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')

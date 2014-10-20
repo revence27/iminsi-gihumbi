@@ -191,7 +191,9 @@ def give_me_cols(rows):
     data.append([{ col : row.__dict__[col]} for col in cols ])
   return [ cols, data ]
 
-def give_me_table(qry_result):
+def give_me_table(qry_result, MANY_INDICS = [], LOCS = {}):
+  indics = [ x.split()[0] for x in [y[0] for y in MANY_INDICS] ]
+  locs_cols = get_locs_cols(LOCS = LOCS)
   heads = []
   data  = []
   index = 0
@@ -211,7 +213,10 @@ def give_me_table(qry_result):
           heads = cols
           data = rows
         else:
-          col = cols[len(cols) - 1]#; print col
+          try:  col = cols[len(cols) - 1]#; print col
+          except IndexError, e:
+            cols = locs_cols + indics
+            col = cols[len(locs_cols) + index] #;print col
           if col not in heads:
             heads.append(col)
             for row in rows:
@@ -226,5 +231,13 @@ def give_me_table(qry_result):
         index += 1
   #print keys, heads, data       
   return {'heads' : heads, 'data' : data}
+
+## Initialize everything by zero
+def get_locs_cols(LOCS = []):
+  locs = []
+  if LOCS.get('province') or None:  locs += ['province_id', 'province_name']
+  if LOCS.get('district') or LOCS.get('province'):  locs += ['district_id', 'district_name']
+  if LOCS.get('location') or LOCS.get('district'):  locs += ['location_id', 'location_name']
+  return locs
 
 
