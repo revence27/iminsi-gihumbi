@@ -91,12 +91,16 @@ def build_query( fields = [], extracts = [], primary_table = '', tables = [], in
      qs = ' SELECT %s FROM %s %s %s %s %s' % (fields, primary_table, inner_joins, where_clause, group_by, order_by)
   return qs
   
-def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause = [] , nationwide = True, province = None, district = None, location = None):
+def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause = [] , 
+                                                      MANY_INDICS = [],
+                                                      nationwide = True, province = None, district = None, location = None,
+                                                      start = None, end = None):
 
  fields = []
  inner_joins = []
  group_by = []
- 
+ wcl = '' 
+
  if nationwide:
   fields.append( {'value': 'indexcol', 'alias': 'province_id', 'table': 'chws__province'})
   fields.append( {'value': 'name', 'alias': 'province_name', 'table': 'chws__province'} )
@@ -124,10 +128,12 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
   if location:
     where_clause.append({'field_name': '%s.health_center_pk' % primary_table, 'compare': '=', 'value': int(location)})
 
- fields.append( {'value': 'COUNT(*)', 'alias': 'total'} )
- 
+ if start:
+    where_clause.append({'field_name': '%s.report_date' % primary_table, 'compare': '>=', 'value': "('%s')" % start})
+ if end:
+    where_clause.append({'field_name': '%s.report_date' % primary_table, 'compare': '<=', 'value': "('%s')" % end})
+
  if where_clause != []:
-  wcl = ''
   index = 0
   while index < len(where_clause):
 
@@ -140,23 +146,85 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
       wcl += " AND %s %s %s " %  ( field_name, where_clause[index]['compare'], where_clause[index]['value'])
 
     index += 1
-    
-  qs = build_query( fields = fields, extracts = [], primary_table = primary_table, tables = [],
-                  inner_joins = inner_joins, where_clause = wcl, group_by = group_by, order_by = [])
- else:
-  qs = build_query( fields = fields, extracts = [], primary_table = primary_table, tables = [],
-                    inner_joins = inner_joins, where_clause = '', group_by = group_by, order_by = [])
 
- if qs != '':
-  #print qs
-  try: 
-    curz = fetch_data_cursor(conn, qs)
+ try:
+  data = []
+  if MANY_INDICS != []:
+    for col in MANY_INDICS:
+      qry = build_query( fields = fields + [{'value': 'COUNT(*)', 'alias': '%s' % col[0].split()[0] }], extracts = [], primary_table = primary_table, tables = [],
+                  inner_joins = inner_joins, where_clause = ' %s %s (%s)' % (wcl, 'AND' if wcl != '' else 'WHERE', col[0]) , group_by = group_by, order_by = [])
+      curz = fetch_data_cursor(conn, qry)
+      data.append(fetch_data(curz))
+  else:
+    fields.append( {'value': 'COUNT(*)', 'alias': 'total'} )
+    qry = build_query( fields = fields, extracts = [], primary_table = primary_table, tables = [],
+                inner_joins = inner_joins, where_clause = wcl if wcl != '' else '', group_by = group_by, order_by = []) 
+    curz = fetch_data_cursor(conn, qry)
     data = fetch_data(curz)
-    return data
-  except Exception, e:
-    return [] 
+  return data
+ except Exception, e:
+  print e;return [] 
  return []
 
 def get_indexed_value(field, table, indexfieldname, indexfield, alias = 'MyName'):
   return "(SELECT %s AS %s FROM %s WHERE %s = %s)" % (field, alias, table, indexfieldname, indexfield)
+
+def give_me_cols(rows):
+  cols = []
+  data = []
+  left_cols = ['province_id', 'province_name', 'district_id', 'district_name', 'location_id', 'location_name', 'total']
+  for row in rows:
+    for k in row.__dict__.keys():
+      if k not in left_cols and k not in cols: cols.append(k)
+      if k == 'province_id' and k not in cols:
+        cols.insert(0, k)
+        cols.insert(1, 'province_name')
+      if k == 'district_id' and k not in cols:
+        cols.insert(2, k)
+        cols.insert(3, 'district_name')
+      if k == 'location_id' and k not in cols:
+        cols.insert(4, k)
+        cols.insert(5, 'location_name')
+    for k in row.__dict__.keys():
+      if k == 'total' and k not in cols:
+        cols.insert(6, k)
+    data.append([{ col : row.__dict__[col]} for col in cols ])
+  return [ cols, data ]
+
+def give_me_table(qry_result):
+  heads = []
+  data  = []
+  index = 0
+  for qs in qry_result:
+    if type(qs) == Record:
+      d = give_me_cols(qry_result)
+      heads = d[0]
+      data = d[1]
+      break
+    else:
+      
+      if index < len(qry_result):
+        d = give_me_cols(qry_result[index])
+        cols = d[0]
+        rows = d[1]
+        if index == 0:
+          heads = cols
+          data = rows
+        else:
+          col = cols[len(cols) - 1]#; print col
+          if col not in heads:
+            heads.append(col)
+            for row in rows:
+              #print index, col, heads.index(col), data[rows.index(row)],  cols.index(col), rows[data.index(data[rows.index(row)])][cols.index(col)]
+              data[rows.index(row)].insert(heads.index(col), rows[data.index(data[rows.index(row)])][cols.index(col)])
+          for dt in data:
+            keys =  []
+            for h in heads:
+              keys = [ d.keys()[0] for d in dt]
+            if h not in keys:  dt.insert(heads.index(col),{h:0})
+        
+        index += 1
+  #print keys, heads, data       
+  return {'heads' : heads, 'data' : data}
+
 

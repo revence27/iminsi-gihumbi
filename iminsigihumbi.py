@@ -949,15 +949,23 @@ class Application:
 					'high_risk': ('COUNT(*)', settings.HIGH_RISK['query_str']),
 					}
 			)
+    print nat.query, nat.list()
     return self.dynamised('predash', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def tables_predash(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(basics = [
+      ('indexcol',          'Entry ID'),
+      ('patient_id',            'Mother ID'),
+      ('reporter_phone',            'Reporter Phone'),
+      
+    ] + settings.PREGNANCY_DATA , *args, **kw)
     DESCRI = []
+    INDICS = []
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      if kw.get('group'):
       if kw.get('group') == 'no_risk':
-       cnds.update({settings.NO_RISK['query_str']: ''})
+       cnds.update({'(%s)' % settings.NO_RISK['query_str']: ''})
       else:
        kw.update({'compare': ' IS NOT'})
        kw.update({'value': ' NULL'})
@@ -971,27 +979,25 @@ class Application:
 	   }] if kw.get('subcat') else []
      if kw.get('subcat') is None:
       if kw.get('group') == 'no_risk':
-       wcl.append({'field_name': settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-       DESCRI.append(('no_risk', 'No Risk'))
+       wcl.append({'field_name': '(%s)' % settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
       if kw.get('group') == 'at_risk':
-       wcl.append({'field_name': settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-       DESCRI.append(('at_risk', 'At Risk'))
+       wcl.append({'field_name': '(%s)' % settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+       INDICS = settings.RISK['attrs']
       if kw.get('group') == 'high_risk':
-       wcl.append({'field_name': settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-       DESCRI.append(('high_risk', 'High Risk'))
-     locateds = summarize_by_location(primary_table = 'pre_table', where_clause = wcl, 
+       wcl.append({'field_name': '(%s)' % settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+       INDICS = settings.HIGH_RISK['attrs']
+      if kw.get('group') is None:
+       pass
+     locateds = summarize_by_location(primary_table = 'pre_table', MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
 						district = district,
-						location = location 
+						location = location,
+						start =  navb.start,
+						end = navb.finish,
 											
-						);
+						)
+     tabular = give_me_table(locateds)
 
-    navb, cnds, cols    = self.neater_tables(basics = [
-      ('indexcol',          'Entry ID'),
-      ('patient_id',            'Mother ID'),
-      ('reporter_phone',            'Reporter Phone'),
-      
-    ] + settings.PREGNANCY_DATA , *args, **kw)
     sc      = kw.get('subcat')
     if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
     markup  = {
@@ -1012,13 +1018,13 @@ class Application:
     # TODO: optimise
     attrs = []
     if kw.get('group') == 'no_risk':
-     cnds.update({settings.NO_RISK['query_str']: ''})
+     cnds.update({'(%s)' % settings.NO_RISK['query_str']: ''})
      DESCRI.append(('no_risk', 'No Risk'))
     if kw.get('group') == 'at_risk':
-     cnds.update({settings.RISK['query_str']: ''})
+     cnds.update({'(%s)' % settings.RISK['query_str']: ''})
      DESCRI.append(('at_risk', 'At Risk'))
     if kw.get('group') == 'high_risk':
-     cnds.update({settings.HIGH_RISK['query_str']: ''})
+     cnds.update({'(%s)' % settings.HIGH_RISK['query_str']: ''})
      DESCRI.append(('high_risk', 'High Risk'))
 
     cols    += settings.LOCATION_INFO   
@@ -1042,10 +1048,10 @@ class Application:
     nat     = orm.ORM.query('pre_table', cnds,
       				cols  = [x[0] for x in (cols + indexed_attrs + settings.PREGNANCY_DATA + attrs) if x[0][0] != '_'],
 				sort = ('report_date', False),
-    			); print nat.query 
+    			)
     patient = nat[0]  
     reminders = []
-    pre_reports = [x for x in nat.list()]
+    pre_reports = [ x for x in nat.list() ]
     return self.dynamised('patient_table', mapping = locals(), *args, **kw)
 
   BABIES_DESCR  = [

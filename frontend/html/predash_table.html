@@ -20,6 +20,24 @@
 			{% endfor %}
 		</table>
 	</div>
+	{% if display.tabular %}
+	<div>
+		<table class="locationtable"> 
+		   <theader>
+			{% for h in display.tabular.heads %} 
+				<th>{{h}}</th>
+			{% endfor %}
+		   </theader>
+			{% for dt in display.tabular.data %} 
+			   <tr>
+				{% for h in display.tabular.heads %}
+					<td>{{ dt[display.tabular.heads.index(h)][h] }}</td>
+				{% endfor %}										
+			   </tr>	
+			{% endfor %}
+		</table>
+	</div>
+	{% endif %}
 
   {%else%}
   {%  include "basictable.html"  %}
