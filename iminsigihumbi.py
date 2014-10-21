@@ -995,7 +995,7 @@ class Application:
 						end = navb.finish,
 											
 						)
-     tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'province': province, 'district': district, 'location': location } )
+     tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
      INDICS_HEADERS = dict([ (x[0].split()[0], x[1]) for x in INDICS])
 
     sc      = kw.get('subcat')
