@@ -5,37 +5,16 @@
     <div class="infodata goodnum">
       <a href="{{ nav.link("/tables/delivery") }}">{{  display.births|neat_numbers }}</a>
     </div>
-    
-    <div class="infoname" style="font-size: 20px;">Deliveries in Next Week</div>
-    <div class="infodata goodnum">
-      <a href="{{ nav.link("/tables/delivery") }}">{{  display.births|neat_numbers }}</a>
-    </div>
-    
-    <div class="infoname" style="font-size: 20px;">Deliveries in Next two Weeks</div>
-    <div class="infodata goodnum">
-      <a href="{{ nav.link("/tables/delivery") }}">{{  display.births|neat_numbers }}</a>
-    </div>
-    
   </div>
   <div class="humblecontainer">
     <div class="explanation">Delivery Locations</div>
     <div class="vals">
       {%  for nom, loc in [('Home', 'home'), ('Clinic', 'clinic'), ('Hospital', 'hospital'), ('En Route', 'enroute')] %}
         <div class="dispval">
-          <div class="infoname">{{ nom }}</div>
-          <div class="sum">{{ display.locations[loc]|neat_numbers }}</div>
+          <div class="ttl">{{ nom }}</div>
+          <div class="dat">{{ display.locations[loc]|neat_numbers }}</div>
         </div>
       {%  endfor  %}
-    </div>
-    <div class="infopair">
-      <div class="prem">
-        <div class="infoname">Expected Deliveries</div>
-        <div class="sum">{{  display.expected|neat_numbers }}</div>
-      </div>
-      <div class="scnd">
-        <div class="infoname">Untracked Deliveries</div>
-        <div class="sum">{{  display.unknowns|neat_numbers }}</div>
-      </div>
     </div>
   </div>
   <div class="largecontainer">
@@ -55,7 +34,16 @@
   </div>
   <div class="largecontainer">
           -->
-    
+    <div class="infopair">
+      <div class="prem">
+        <div class="infoname">Expected Deliveries</div>
+        <div class="sum">{{  display.expected|neat_numbers }}</div>
+      </div>
+      <div class="scnd">
+        <div class="infoname">Untracked Deliveries</div>
+        <div class="sum">{{  display.unknowns|neat_numbers }}</div>
+      </div>
+    </div>
   </div>
   <div class="humblecontainer">
     <div class="explanation"><!-- Pregnant Mother’s Weight  --></div>
@@ -77,7 +65,17 @@
           </div>
         </div>
       </div>
-     
+      <div class="chart">
+        <div class="title">ANC Attendance: {{  display.tous|neat_numbers  }}</div>
+        <div class="data">
+          {%  for anc in display.ancs %}
+            <div class="datapoint" style="height: {{  "%.2f" % anc.rpc  }}%">
+              <div class="value">{{ anc.total|neat_numbers }}</div>
+              <div class="label">ANC {{ loop.index }}</div>
+            </div>
+          {%  endfor  %}
+        </div>
+      </div>
     </div>
   </div>
   <div class="largecontainer">

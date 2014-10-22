@@ -140,14 +140,14 @@
 							
 						}
 				
-				function getTotal(province, district, location){
+				function getTotal(province, district, location, subcat){
 							
 							var prv = getQueryParameter ( "province" );
 							var dst = getQueryParameter ( "district" );
 							var loc = getQueryParameter ( "hc" );
 							var param = getQueryParameter ( "summary" );
+							var subcaturl = getQueryParameter ( "subcat" );
 							var url  = document.URL ;
-							
 							if (param != "") {	
 										if (url.indexOf('?summary') > -1 )  url = url.replace("?summary="+param, "?");
 										else url = url.replace("&summary="+param, "");
@@ -155,9 +155,11 @@
 							if (province != '' && prv == '' ) url = url + "&province="+ province;
 							if (district != '' && dst == '' ) url = url + "&district="+ district;
 							if (location != '' && loc == '' ) url = url + "&hc="+ location;
+							if (subcat != '' && subcaturl == '' ) url = url + "&subcat="+ subcat;
 							url = url.replace("#", '');
 							//alert(province + "," + district + "," + location + "," + url) ;
 							window.location.href = url; 
+
 						}
 				
 				
