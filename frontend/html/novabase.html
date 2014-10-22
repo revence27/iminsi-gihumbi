@@ -148,12 +148,7 @@
 <a href="/dashboards/{{ ref }}">{{ ref }}</a>
 
 &#187;
- <lable id="demo"></lable>
-<script>
-var a =  getQueryParameter('group');
-//console.log(a);
-        document.getElementById("demo").innerHTML = a;
-</script>
+{{ group }}
 &#187;
 {{ display.desc }}
 &#187;
@@ -162,9 +157,11 @@ var a =  getQueryParameter('group');
       
       
       <div class="view">
-      <div class="tabular ">Log</div>
-      <div class="tabular "> <a href="{{ nav.link('/tables/predash', summary = 'on', tabular = 'on')}}"> Table </a> </div>
-      <div class="graphic active">Graphic</div>
+
+      <div class="tabular {% if view == 'log'%} active {% endif %} "><a href="{{ nav.link('/tables/predash', view = 'log') }}">Log</a></div>
+      <div class="tabular {% if view == 'table'%} active {% endif %}"><a href="{{ nav.link('/tables/predash', summary = 'on', view = 'table')}}">Table</a></div>
+      <div class="graphic {% if view == 'graphic' %} active {% endif %}"><a href="{{ nav.link('/dashboards/predash', summary = 'on', view = 'graphic')}}">Graphic</a></div>
+
       </div>
 	</div>
 	</div>
@@ -197,7 +194,7 @@ var a =  getQueryParameter('group');
 			</div>
 			<div id="FollowusonSocialNetw">
 			<strong>Follow us</strong>
-			<br></>Follow us on our soical networks and comment, interact and socailise with our community
+			<br></>Follows us on our soical networks and comment, interact and socailise with our community
 			</div>
 			<div id="social"><img src="{{ static_path }}/images/Layer17.png"></div>
 			<div id="uniceflogo"><img src="{{ static_path }}/images/Layer18.png"></div>
