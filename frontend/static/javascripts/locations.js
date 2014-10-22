@@ -159,6 +159,7 @@
 							url = url.replace("#", '');
 							//alert(province + "," + district + "," + location + "," + url) ;
 							window.location.href = url; 
+
 						}
 				
 				
