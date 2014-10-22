@@ -38,19 +38,7 @@
       </div>
     </div>
   </div>
-  <div class="largecontainer">
-    <div class="infopair">
-      <div class="prem">
-        <div class="infoname">Male</div>
-        <div class="sum">{{  display.boys|neat_numbers }}</div>
-        <div class="percent">{{  "%.2f" % display.boyspc }}</div>
-      </div>
-      <div class="scnd">
-        <div class="infoname">Female</div>
-        <div class="sum">{{  display.girls|neat_numbers }}</div>
-        <div class="percent">{{  "%.2f" % display.girlspc }}</div>
-      </div>
-    </div>
+
     <!--  
   </div>
   <div class="largecontainer">
@@ -58,40 +46,11 @@
     
   </div>
   <div class="humblecontainer">
-    <div class="explanation"><!-- Pregnant Mother’s Weight  --></div>
-    <div class="charter">
-      <div class="chart">
-        <div class="title">Pregnant Mother’s Weight</div>
-        <div class="data">
-          <div class="datapoint" style="height: {{  "%.2f" % display.thinpc}}%">
-            <div class="value">{{ display.thins|neat_numbers }}</div>
-            <div class="label">Under 45kg</div>
-          </div>
-          <div class="datapoint" style="height: {{  "%.2f" % display.midpc}}%">
-            <div class="value">{{ display.midweight|neat_numbers }}</div>
-            <div class="label"></div>
-          </div>
-          <div class="datapoint" style="height: {{  "%.2f" % display.fatpc}}%">
-            <div class="value">{{ display.fats|neat_numbers }}</div>
-            <div class="label">Over 45kg</div>
-          </div>
-        </div>
-      </div>
-     
-    </div>
+
+
   </div>
-  <div class="largecontainer">
-    <div class="infopair">
-      <div class="prem">
-        <div class="infoname">Breast-feeding</div>
-        <div class="sum">{{  display.delivs[0].bfeed|neat_numbers }}</div>
-      </div>
-      <div class="scnd">
-        <div class="infoname">Not Breast-feeding</div>
-        <div class="sum">{{  display.delivs[0].nbfeed|neat_numbers }}</div>
-      </div>
-    </div>
-  </div>
+
+
     <!--  
   <div class="largecontainer">
     <div class="infopair">

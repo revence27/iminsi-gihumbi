@@ -143,16 +143,29 @@ font-size: 17px;
 
 .position{
 	
-height: 30px;
+	height: 26px;
 	display: inline-block;
 	width:55%;
 	color:#fff;
 	padding-top:5px;
 	padding-bottom:5px;
-font-family: 'Open Sans', sans-serif;
+	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
 	font-size: 15px;
 }
+
+ .position li{
+	padding-left:5px;
+	padding-right:5px;
+	float: left;
+	display: inline;
+	
+}
+
+
+
+
+
 
 .view{
 	display:inline;
@@ -703,6 +716,8 @@ padding-top: 20px;
 	 width: 61px;
 	 height: 64px;
 	 z-index:4;
-} 
+}
+
+
 
 /****************************************/

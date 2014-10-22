@@ -1,4 +1,14 @@
 {%  extends "basicpregnancies.html" %}
+{% block position %}
+
+<li>&#187; <a href="/dashboards/predash">Pregnancy</a></li>
+
+<li>&#187; <a href=/dashboards/predash?group={{ group }}>{{ group }}</a></li>
+
+<li>&#187; {{ display.desc  }}</li>
+{% endblock %}
+
+
 
 {%  block mainpart  %}
   {% if display.locateds and not display.tabular %} 
@@ -54,7 +64,7 @@
 						<td>
 						<a href="#" onclick="addInURL('district', {{dt[display.tabular.heads.index('district_id')]['district_id']}});">
 						{{ dt[display.tabular.heads.index(h)][h] }}</a></td>
-						{% else %}
+						{% else %} 
 							{% if h == 'location_name' %}
 							<td>
 							<a href="#" onclick="addInURL('hc', {{dt[display.tabular.heads.index('location_id')]['location_id']}});">
