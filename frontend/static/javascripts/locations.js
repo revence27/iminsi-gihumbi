@@ -140,7 +140,7 @@
 							
 						}
 				
-				function getTotal(province, district, location, subcat = ''){
+				function getTotal(province, district, location, subcat){
 							
 							var prv = getQueryParameter ( "province" );
 							var dst = getQueryParameter ( "district" );
