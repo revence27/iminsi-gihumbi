@@ -65,13 +65,14 @@
 								<td>
 								<a href="#" 
 								onclick="getTotal(
-							{%if 'province_id' in display.tabular.heads and dt[display.tabular.heads.index('province_id')]['province_id'] %}
-							{{dt[display.tabular.heads.index('province_id')]['province_id'] }} {%else%}''{%endif%}, 
-							{%if 'district_id' in display.tabular.heads and dt[display.tabular.heads.index('district_id')]['district_id'] %}
-							{{dt[display.tabular.heads.index('district_id')]['district_id'] }} {%else%}''{%endif%},
-							{%if 'location_id' in display.tabular.heads and dt[display.tabular.heads.index('location_id')]['location_id'] %}
-							{{dt[display.tabular.heads.index('location_id')]['location_id'] }} {%else%}''{%endif%},
-							{% if h != '' and h != 'total' %}subcat='{{h}}'{%else%} subcat=''{% endif %}
+					{%if 'province_id' in display.tabular.heads and dt[display.tabular.heads.index('province_id')]['province_id'] %}
+					{{dt[display.tabular.heads.index('province_id')]['province_id'] }} {%else%}''{%endif%}, 
+					{%if 'district_id' in display.tabular.heads and dt[display.tabular.heads.index('district_id')]['district_id'] %}
+					{{dt[display.tabular.heads.index('district_id')]['district_id'] }} {%else%}''{%endif%},
+					{%if 'location_id' in display.tabular.heads and dt[display.tabular.heads.index('location_id')]['location_id'] %}
+					{{dt[display.tabular.heads.index('location_id')]['location_id'] }} {%else%}''{%endif%},
+					{% if h in [ 'no_risk', 'at_risk', 'high_risk'] %}group='{{h}}'{%else%} group=''{% endif %},
+					{% if h != '' and h != 'total' and h not in ['no_risk', 'at_risk', 'high_risk'] %}subcat='{{h}}'{%else%} subcat=''{% endif %}
 									 );"> 
 						{{ dt[display.tabular.heads.index(h)][h] }} </a></td>
 								{% endif %}

@@ -152,14 +152,16 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
   data = []
   if MANY_INDICS != []:
     for col in MANY_INDICS:
+      #print col, len(col)
       qry = build_query( fields = fields + [{'value': 'COUNT(*)', 'alias': '%s' % col[0].split()[0] }], extracts = [], primary_table = primary_table, tables = [],
-                  inner_joins = inner_joins, where_clause = ' %s %s (%s)' % (wcl, 'AND' if wcl != '' else 'WHERE', col[0]) , group_by = group_by, order_by = [])
+                        inner_joins = inner_joins, where_clause = ' %s %s (%s)' % (wcl, 'AND' if wcl != '' else 'WHERE', col[2] if len(col) == 3 else col[0] ) , 
+                        group_by = group_by, order_by = [])#;print qry
       curz = fetch_data_cursor(conn, qry)
       data.append(fetch_data(curz))
   else:
     fields.append( {'value': 'COUNT(*)', 'alias': 'total'} )
     qry = build_query( fields = fields, extracts = [], primary_table = primary_table, tables = [],
-                inner_joins = inner_joins, where_clause = wcl if wcl != '' else '', group_by = group_by, order_by = []) 
+                inner_joins = inner_joins, where_clause = wcl if wcl != '' else '', group_by = group_by, order_by = [])#; print qry 
     curz = fetch_data_cursor(conn, qry)
     data = fetch_data(curz)
   return data
