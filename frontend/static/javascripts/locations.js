@@ -140,12 +140,13 @@
 							
 						}
 				
-				function getTotal(province, district, location, subcat){
+				function getTotal(province, district, location, group, subcat){
 							
 							var prv = getQueryParameter ( "province" );
 							var dst = getQueryParameter ( "district" );
 							var loc = getQueryParameter ( "hc" );
 							var param = getQueryParameter ( "summary" );
+							var groupurl = getQueryParameter ( "group" );
 							var subcaturl = getQueryParameter ( "subcat" );
 							var url  = document.URL ;
 							if (param != "") {	
@@ -155,7 +156,8 @@
 							if (province != '' && prv == '' ) url = url + "&province="+ province;
 							if (district != '' && dst == '' ) url = url + "&district="+ district;
 							if (location != '' && loc == '' ) url = url + "&hc="+ location;
-							if (subcat != '' && subcaturl == '' ) url = url + "&subcat="+ subcat;
+							if ( group && group != '' && groupurl == '' ) url = url + "&group="+ group;
+							if ( subcat && subcat != '' && subcaturl == '' ) url = url + "&subcat="+ subcat;
 							url = url.replace("#", '');
 							//alert(province + "," + district + "," + location + "," + url) ;
 							window.location.href = url; 
