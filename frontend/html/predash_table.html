@@ -34,7 +34,7 @@
 						{% if h == 'location_name' %} <th>HealthCentre</th>
 						{% else %}
 							{% if h == 'province_id' or h == 'district_id' or h == 'location_id' %} 
-							{% else %}<th>{{display.INDICS_HEADERS[h]}}</th>
+							{% else %}<th>{{display.INDICS_HEADERS[h] or 'Total'}}</th>
 							{% endif %}
 						{% endif %}
 					{% endif %}
@@ -70,7 +70,8 @@
 							{%if 'district_id' in display.tabular.heads and dt[display.tabular.heads.index('district_id')]['district_id'] %}
 							{{dt[display.tabular.heads.index('district_id')]['district_id'] }} {%else%}''{%endif%},
 							{%if 'location_id' in display.tabular.heads and dt[display.tabular.heads.index('location_id')]['location_id'] %}
-							{{dt[display.tabular.heads.index('location_id')]['location_id'] }} {%else%}''{%endif%} 
+							{{dt[display.tabular.heads.index('location_id')]['location_id'] }} {%else%}''{%endif%},
+							{% if h != '' and h != 'total' %}subcat='{{h}}'{%else%} subcat=''{% endif %}
 									 );"> 
 						{{ dt[display.tabular.heads.index(h)][h] }} </a></td>
 								{% endif %}

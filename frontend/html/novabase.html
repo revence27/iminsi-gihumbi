@@ -157,9 +157,11 @@
       
       
       <div class="view">
+
       <div class="tabular {% if view == 'log'%} active {% endif %} "><a href="{{ nav.link('/tables/predash', view = 'log') }}">Log</a></div>
       <div class="tabular {% if view == 'table'%} active {% endif %}"><a href="{{ nav.link('/tables/predash', summary = 'on', view = 'table')}}">Table</a></div>
-      <div class="graphic {% if view != 'log' %}{% if view != 'table' %} active {% endif %}{% endif %}"><a href="{{ nav.link('/tables/predash', summary = 'on', view = 'table')}}">Graphic</a></div>
+      <div class="graphic {% if view == 'graphic' %} active {% endif %}"><a href="{{ nav.link('/dashboards/predash', summary = 'on', view = 'graphic')}}">Graphic</a></div>
+
       </div>
 	</div>
 	</div>
