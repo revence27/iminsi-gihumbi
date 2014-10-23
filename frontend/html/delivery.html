@@ -1,11 +1,14 @@
 {%  extends "deliverybase.html" %}
+{% block position %}
+
+<li>&#187; Delivery</li>
+
+{% endblock %}
+
 {%  block mainpart  %}
   <div class="smallcontainer">
-    <div class="infoname">Registered Deliveries</div>
-    <div class="infodata goodnum">
-      <a href="{{ nav.link("/tables/delivery") }}">{{  display.births|neat_numbers }}</a>
-    </div>
-    
+   
+     <img class="icon" src="{{  static_path }}/images/delivery.jpg" />
     <div class="infoname" style="font-size: 20px;">Deliveries in Next Week</div>
     <div class="infodata goodnum">
       <a href="{{ nav.link("/tables/delivery") }}">{{  display.births|neat_numbers }}</a>
@@ -16,53 +19,34 @@
       <a href="{{ nav.link("/tables/delivery") }}">{{  display.births|neat_numbers }}</a>
     </div>
     
-  </div>
-  <div class="humblecontainer">
-    <div class="explanation">Delivery Locations</div>
-    <div class="vals">
-      {%  for nom, loc in [('Home', 'home'), ('Clinic', 'clinic'), ('Hospital', 'hospital'), ('En Route', 'enroute')] %}
-        <div class="dispval">
-          <div class="infoname">{{ nom }}</div>
-          <div class="sum">{{ display.locations[loc]|neat_numbers }}</div>
-        </div>
-      {%  endfor  %}
-    </div>
-    <div class="infopair">
-      <div class="prem">
-        <div class="infoname">Expected Deliveries</div>
-        <div class="sum">{{  display.expected|neat_numbers }}</div>
-      </div>
-      <div class="scnd">
-        <div class="infoname">Untracked Deliveries</div>
-        <div class="sum">{{  display.unknowns|neat_numbers }}</div>
-      </div>
-    </div>
-  </div>
-
-    <!--  
-  </div>
-  <div class="largecontainer">
-          -->
+    
     
   </div>
   <div class="humblecontainer">
-
-
-  </div>
-
-
-    <!--  
-  <div class="largecontainer">
-    <div class="infopair">
-      <div class="prem">
+  <div class="infopair" style="display:block">
+      <div class="prem" style="display: inline; float:left;padding-right:30px;">
         <div class="infoname">Expected Deliveries</div>
-        <div class="sum">{{  display.expected|neat_numbers }}</div>
+        <div class="number">{{  display.expected|neat_numbers }}</div>
       </div>
-      <div class="scnd">
+      <div class="scnd" style="">
         <div class="infoname">Untracked Deliveries</div>
-        <div class="sum">{{  display.unknowns|neat_numbers }}</div>
+        <div class="number">{{  display.unknowns|neat_numbers }}</div>
       </div>
     </div>
+  
+    <div class="infoname" style="padding-left:150px; padding-top:50px;">Delivery Locations</div>
+    <div class="vals">
+      {%  for nom, loc in [('Home', 'home'), ('Clinic', 'clinic'), ('Hospital', 'hospital'), ('En Route', 'enroute')] %}
+        
+    <div class="datapoint">
+    <div class="descr">{{ nom }}</div>
+    <div class="number">{{ display.locations[loc]|neat_numbers }}</div>
+    </div>
+      {%  endfor  %}
+    </div>
+    
   </div>
-          -->
+
+
+
 {%  endblock  %}
