@@ -979,6 +979,7 @@ class Application:
      if kw.get('subcat') is None:
       if kw.get('group') == 'no_risk':
        wcl.append({'field_name': '(%s)' % settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+       INDICS = []
       if kw.get('group') == 'at_risk':
        wcl.append({'field_name': '(%s)' % settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
        INDICS = settings.RISK['attrs']
@@ -986,8 +987,14 @@ class Application:
        wcl.append({'field_name': '(%s)' % settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
        INDICS = settings.HIGH_RISK['attrs']
       if kw.get('group') is None:
-       pass
-     locateds = summarize_by_location(primary_table = 'pre_table', MANY_INDICS = INDICS, where_clause = wcl, 
+       INDICS = [('no_risk', 'No Risk', '(%s)' % settings.NO_RISK['query_str'] ), 
+		('at_risk', 'At Risk', '(%s)' % settings.RISK['query_str']),
+		 ('high_risk', 'High Risk', '(%s)' % settings.HIGH_RISK['query_str']),
+		]#; print INDICS
+     
+     
+     if kw.get('view') == 'table' or kw.get('view') != 'log' :
+      locateds = summarize_by_location(primary_table = 'pre_table', MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location,
@@ -995,8 +1002,8 @@ class Application:
 						end = navb.finish,
 											
 						)
-     tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
-     INDICS_HEADERS = dict([ (x[0].split()[0], x[1]) for x in INDICS])
+      tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
+      INDICS_HEADERS = dict([ (x[0].split()[0], x[1]) for x in INDICS])
 
     sc      = kw.get('subcat')
     if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')

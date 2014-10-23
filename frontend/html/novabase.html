@@ -94,11 +94,23 @@
           <li class="homelink">
             <a href="/"><span>Home</span></a>
           </li>
+          <li class="homelink">
+            <a href="/dashboards/predash"><span>Pregnancies</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/delivery"><span>Deliveries</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/ccm"><span>CCM</span></a>
+          </li>
+          {#
           {%  for ind in indicators  %}
        <li class="indicator{%  if  ind.ref == ref %} activeindicator{%  endif %}"{% if ind.title  %}  title="{{ ind.title }}{%  endif %}">
               <a href="/dashboards/{{ nav.link(ind.ref, minus = ['format', 'page', 'subcat', 'pid']) }}"><span>{{ ind.name  }}</span></a>
             </li>
           {%  endfor  %}
+          #}
+          
           </ul>
         </div>
         <div id="subtitle">
@@ -142,25 +154,19 @@
  <div class="navigator">
 	<div class="central">
     <div class="position">
-     <a href="/">  Home</a>
 
-&#187;
-<a href="/dashboards/{{ ref }}">{{ ref }}</a>
+     <li><a href="/">  Home</a></li>
+{% block position %}{% endblock %}
 
-&#187;
-{{ group }}
-&#187;
-{{ display.desc }}
-&#187;
-{{ pid }}
-      </div>
+</div>
       
       
       <div class="view">
 
-      <div class="tabular {% if view == 'log'%} active {% endif %} "><a href="{{ nav.link('/tables/predash', view = 'log') }}">Log</a></div>
+      <div class="tabular {% if view == 'log'
+      %} active {% endif %} "><a href="{{ nav.link('/tables/predash', view = 'log') }}">Log</a></div>
       <div class="tabular {% if view == 'table'%} active {% endif %}"><a href="{{ nav.link('/tables/predash', summary = 'on', view = 'table')}}">Table</a></div>
-      <div class="graphic {% if view == 'graphic' %} active {% endif %}"><a href="{{ nav.link('/dashboards/predash', summary = 'on', view = 'graphic')}}">Graphic</a></div>
+      <div class="graphic {% if view == 'graphic' %} active {% endif %}"><a href="{{ nav.link('/dashboards/predash', view = 'graphic')}}">Graphic</a></div>
 
 
       </div>
