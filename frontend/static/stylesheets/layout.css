@@ -363,6 +363,26 @@ padding-top: 20px;
 	background: url(../images/circle.png);
 }
 
+.datapointccm{
+	width: 130px;
+	height: 150px;
+	display: inline-block;
+	float: left;
+	margin-right:20px;
+	padding-left:15px;
+	background: url(../images/circle.png);
+
+}
+.datapointlast{
+	width: 130px;
+	height: 150px;
+	margin-right:200px;
+	float: left;
+	padding-left:15px;
+	background: url(../images/circle.png);
+}
+
+
 .datapointrisks{
 	width: 130px;
 	height: 150px;

@@ -94,11 +94,23 @@
           <li class="homelink">
             <a href="/"><span>Home</span></a>
           </li>
+          <li class="homelink">
+            <a href="/dashboards/predash"><span>Pregnancies</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/delivery"><span>Deliveries</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/ccm"><span>CCM</span></a>
+          </li>
+          {#
           {%  for ind in indicators  %}
        <li class="indicator{%  if  ind.ref == ref %} activeindicator{%  endif %}"{% if ind.title  %}  title="{{ ind.title }}{%  endif %}">
               <a href="/dashboards/{{ nav.link(ind.ref, minus = ['format', 'page', 'subcat', 'pid']) }}"><span>{{ ind.name  }}</span></a>
             </li>
           {%  endfor  %}
+          #}
+          
           </ul>
         </div>
         <div id="subtitle">

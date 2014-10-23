@@ -3,7 +3,7 @@
 {% block subtitle %} Pregnancy Risks {% endblock %}
 {% block mainpart %}
 <div class="smallcontainer">
-<div class="infoname">Total Pregnancies</div>
+<div class="infoname">Pregnancy Deaths</div>
 <div class="moretotal" ><a href="{{ nav.link('/tables/pregnancies', summary = 'on')}}">View by Location</a></div>
 <div class="infodata goodnum playable">
 <a href="{{ nav.link("/tables/pregnancies") }}">500</a>
@@ -13,19 +13,9 @@
 </div>
 </div>
 <div class="humblecontainer">
-<div class="datapointrisks" style="background: url(../static/images/circle.png);">
-<div class="descrrisk">No Risks</div>
-<div class="moreoptions startshidden" > <a href="">View by Location</a></div>
-<div class="number"><a href="/dashboards/pregnancies">150</a></div>
-</div>
-<div class="datapointrisks" style="background: url(../static/images/circleatrisk.png);">
-<div class="descrrisk">At Risk</div>
-<div class="moreoptions startshidden" > <a href="">View by Location</a></div>
-<div class="number"><a href="/dashboards/pregnancies">250</a></div>
-</div>
-<div class="datapointrisks" style="background: url(../static/images/circlehighrisk.png);">
-<div class="descrrisk">High Risk</div>
-<div class="moreoptions startshidden" > <a href="">View by Location</a></div>
+
+<div class="datapoint" style="background: url(../static/images/circle.png);">
+<div class="descr">High Risk</div>
 <div class="number"><a href="/dashboards/pregnancies">100</a></div>
 </div>
 </div>
