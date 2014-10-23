@@ -901,6 +901,8 @@ class Application:
     total   = nat[0]['total']
     return self.dynamised('pregnancies', mapping = locals(), *args, **kw)
 
+##### START OF NEW UZD #####
+  #### START OF PREGNANCY ###
   @cherrypy.expose
   def dashboards_predash(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
@@ -1047,6 +1049,26 @@ class Application:
 					) if sc or kw.get('group') else '', )
     return self.dynamised('predash_table', mapping = locals(), *args, **kw)
 
+  ### END OF PREGNANCY ####
+
+  ### START OF ANC ###
+
+  @cherrypy.expose
+  def dashboards_ancdash(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    exts = {}
+    attrs = [(x.split()[0], dict(settings.ANC['attrs'])[x]) for x in dict (settings.ANC['attrs'])]
+    exts.update(dict([(x[0].split()[0], ('COUNT(*)', x[0])) for x in settings.ANC['attrs'] ])) 
+    nat = orm.ORM.query(  'anc_table', 
+			  cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = exts
+			)
+    return self.dynamised('ancdash', mapping = locals(), *args, **kw)
+
+  ### END OF ANC ###
+
   @cherrypy.expose
   def tables_patient(self, *args, **kw):
     navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
@@ -1060,6 +1082,8 @@ class Application:
     reminders = []
     pre_reports = [ x for x in nat.list() ]
     return self.dynamised('patient_table', mapping = locals(), *args, **kw)
+
+##### END OF NEW UZD #######
 
   BABIES_DESCR  = [
     ('boy', 'Male'),

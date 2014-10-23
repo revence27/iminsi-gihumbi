@@ -109,6 +109,16 @@ PREGNANCY_DATA = [
       ('report_date', 'Submission Date'),
     ]
 
+ANC = { 
+	'attrs': [
+			('anc2_bool IS NOT NULL', 'ANC2'),
+			('anc3_bool IS NOT NULL', 'ANC3'),
+			('anc4_bool IS NOT NULL', 'ANC4'),
+		],
+
+	'query_str':[]
+
+	}
 
 APP_DATA  = {
   'indicators'  : [
