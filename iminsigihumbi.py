@@ -339,6 +339,10 @@ class Application:
     return ':-\\'
 
   @cherrypy.expose
+  def dashboards_newborn(self, *args, **kw):
+    return self.dynamised('newborn', *args, **kw)
+
+  @cherrypy.expose
   def dashboards_death(self, *args, **kw):
     return self.dynamised('death', *args, **kw)
 
