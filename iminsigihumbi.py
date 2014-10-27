@@ -348,7 +348,15 @@ class Application:
 
   @cherrypy.expose
   def dashboards_redalert(self, *args, **kw):
-    return self.dynamised('redalert', *args, **kw)
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    attrs   = self.PREGNANCIES_DESCR
+    # nat     = self.civilised_fetch('red_table', cnds, attrs)
+    nat     = orm.ORM.query('red_table', cnds)
+    # raise Exception, str(nat.query)
+    # total   = nat[0]['total']
+    fields  = settings.RED_ALERT_FIELDS
+    return self.dynamised('redalert', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def dashboards_pnc(self, *args, **kw):

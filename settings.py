@@ -163,4 +163,7 @@ APP_DATA  = {
   ]
 }
 
-
+RED_ALERT_FIELDS    =   [
+    ('Patient ID', 'patient_id'),
+    ('Reporter', 'reporter_phone')
+]
