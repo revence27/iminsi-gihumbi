@@ -122,6 +122,11 @@ ANC = {
 
 
 NBC_DATA = {
+		'cols' : [
+				      ('lmp AS dob', 'LMP'),
+				      ('report_date', 'Submission Date'),
+				    ],
+
 		'NO_RISK': { 	'attrs': [
 						('sb_bool IS NULL', 'Stillborn'),
 						('af_bool IS NULL', 'Abnormal Fontinel'),
