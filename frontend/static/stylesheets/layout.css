@@ -553,17 +553,18 @@ padding-top: 20px;
 }
 
 
-
-
-
-.largetable{
+#trunk table{
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
 	font-size: 12px;
 	width: 100%;
+	
 }
 
-.largetable a{
+
+
+
+#trunk table a{
 	color: #128870;
 }
 
