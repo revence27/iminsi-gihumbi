@@ -1,0 +1,67 @@
+{%  extends "basicmothers.html" %}
+{% block position %}
+
+<li>&#187; <a href="/dashboards/nbcdash">Child</a></li>
+
+<li>&#187; {{ pid }}</li>
+
+{% endblock %}
+
+{%  block mainpart  %}
+<h2>Child</h2>
+<table width="100%">
+  <thead>
+    <tr>
+      <th>Mother ID</th>
+      <th>Reporter Phone</th>
+      <th>Province</th>
+      <th>District</th>
+      <th>HealthCentre</th>
+      <th>Sector</th>
+      <th>Cell</th>
+      <th>Village</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  
+    <td>{{display.patient.patient_id}}</td>
+    <td>{{display.patient.reporter_phone}}</td>
+    <td>{{display.patient.province}}</td>
+    <td>{{display.patient.district}}</td>
+    <td>{{display.patient.healthcentre}}</td>
+    <td>{{display.patient.sector}}</td>
+    <td>{{display.patient.cell}}</td>
+    <td>{{display.patient.village}}</td>
+  
+  </tr>
+ </tbody>
+</table>
+<h2>Symptoms</h2>
+<table width="100%">
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+
+ {%  if  display.attrs %}
+
+        
+          {%  for bc in display.attrs %}
+          {%  if  display.nat[0][bc[0].split()[0]] == True %}<td> {{bc[0].split('_')[0]}}</td><td>{{  bc[1] }}</td>{% endif %}
+          {%  endfor  %}
+        
+        
+{% else %}
+  <tr>
+    <td colspan=2><center>No Symptoms</center></td>
+  </tr>
+{% endif %}
+</table>
+
+
+<h2>Reports</h2>
+{% include 'child_report_table.html' %} 
+{%  endblock  %}
