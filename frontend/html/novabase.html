@@ -162,12 +162,9 @@
       
       
       <div class="view">
-
-      <div class="tabular {% if view == 'log'
-      %} active {% endif %} "><a href="{{ nav.link('/tables/predash', view = 'log') }}">Log</a></div>
-      <div class="tabular {% if view == 'table'%} active {% endif %}"><a href="{{ nav.link('/tables/predash', summary = 'on', view = 'table')}}">Table</a></div>
-      <div class="graphic {% if view == 'graphic' %} active {% endif %}"><a href="{{ nav.link('/dashboards/predash', view = 'graphic')}}">Graphic</a></div>
-
+      <div class="tabular {% if view == 'log' %} active {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
+      <div class="tabular {% if view == 'table'%} active {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
+      <div class="graphic {% if view == 'graphic' %} active {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
 
       </div>
 	</div>

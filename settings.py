@@ -109,6 +109,60 @@ PREGNANCY_DATA = [
       ('report_date', 'Submission Date'),
     ]
 
+ANC = { 
+	'attrs': [
+			('anc2_bool IS NOT NULL', 'ANC2'),
+			('anc3_bool IS NOT NULL', 'ANC3'),
+			('anc4_bool IS NOT NULL', 'ANC4'),
+		],
+
+	'query_str':[]
+
+	}
+
+
+NBC_DATA = {
+		'NO_RISK': { 	'attrs': [
+						('sb_bool IS NULL', 'Stillborn'),
+						('af_bool IS NULL', 'Abnormal Fontinel'),
+						('ci_bool IS NULL', 'Cord Infection'),
+						('cm_bool IS NULL', 'Congenital Malformation'),
+						('nb_bool IS NULL', 'Not Breastfeeding'),
+						('ja_bool IS NULL', 'Jaundice'),
+						('rb_bool IS NULL', 'Rapid Breathing'),
+						('ns_bool IS NULL', 'Neck Stiffness'),
+						('hy_bool IS NULL', 'Hypothermia'),
+						('fe_bool IS NULL', 'Fever'),
+						('pm_bool IS NULL', 'Premature'),
+					],
+				'query_str': '((sb_bool IS NULL) AND (af_bool IS NULL) AND (ci_bool IS NULL) AND (cm_bool IS NULL) AND (nb_bool IS NULL) AND (ja_bool IS NULL) AND (rb_bool IS NULL) AND (ns_bool IS NULL) AND (hy_bool IS NULL) AND (fe_bool IS NULL) AND (pm_bool IS NULL) )'
+				},
+
+		'RISK':	{
+					'attrs': [
+							('sb_bool IS NOT NULL', 'Stillborn'),
+							('af_bool IS NOT NULL', 'Abnormal Fontinel'),
+							('ci_bool IS NOT NULL', 'Cord Infection'),
+							('cm_bool IS NOT NULL', 'Congenital Malformation'),
+							('nb_bool IS NOT NULL', 'Not Breastfeeding'),
+							('ja_bool IS NOT NULL', 'Jaundice'),
+							],
+					'query_str': '((sb_bool IS NOT NULL) OR (af_bool IS NOT NULL) OR (ci_bool IS NOT NULL) OR (cm_bool IS NOT NULL) OR (nb_bool IS NOT NULL) OR (ja_bool IS NOT NULL)) AND NOT ((rb_bool IS NOT NULL) OR (ns_bool IS NOT NULL) OR (hy_bool IS NOT NULL) OR (fe_bool IS NOT NULL) OR (pm_bool IS NOT NULL))'
+	
+				},
+		'HIGH_RISK':	{
+					'attrs': [ 
+							('rb_bool IS NOT NULL', 'Rapid Breathing'),
+							('ns_bool IS NOT NULL', 'Neck Stiffness'),
+							('hy_bool IS NOT NULL', 'Hypothermia'),
+							('fe_bool IS NOT NULL', 'Fever'),
+							('pm_bool IS NOT NULL', 'Premature'),							
+
+							],
+					'query_str': '((rb_bool IS NOT NULL) OR (ns_bool IS NOT NULL) OR (hy_bool IS NOT NULL) OR (fe_bool IS NOT NULL) OR (pm_bool IS NOT NULL))'
+				}
+		
+		}
 
 APP_DATA  = {
   'indicators'  : [

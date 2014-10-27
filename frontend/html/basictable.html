@@ -40,7 +40,10 @@
 </div>
 
 {% else %}
-  {%  set cpg, rng, pgs = nav.pages(display.nat) %}
+ {%  set cpg, rng, pgs = nav.pages(display.nat) %}
+ {{ cpg }}-
+ {{ pgs }}-
+ {{ rng }}
 <div class="tdesc">
 <a href="">{{ display.desc  }} (Page {{  cpg + 1 }})</a>
 </div>
@@ -105,9 +108,16 @@
 <div class="paginant">
   <div class="navigant">
     <ul>
-      {%  for page  in pgs  %}
+    <li><a href="./{{ nav.link(ref, page = cpg + 1)  }}">{{ cpg + 1 }}</a></li>
+    <li><a href="./{{ nav.link(ref, page = cpg + 2)  }}">{{ cpg + 2 }}</a></li>
+    <li><a href="./{{ nav.link(ref, page = cpg + 3)  }}">{{ cpg + 3 }}</a></li>
+    <li><a href="./{{ nav.link(ref, page = page)  }}">{{ cpg + 4 }}</a></li>
+    {#  {%  for page  in pgs  %}
+      {{ page }}
         <li>{%  if cpg == page  %}{{  loop.index  }}{%  else  %}<a href="./{{ nav.link(ref, page = page)  }}">{{ loop.index  }}</a>{% endif %}</li>
       {%  endfor  %}
+   #}
+   
     </ul>
   </div>
 </div>
