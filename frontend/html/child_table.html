@@ -50,7 +50,7 @@
 
         
           {%  for bc in display.attrs %}
-          {%  if  display.nat[0][bc[0].split()[0]] == True %}<td> {{bc[0].split('_')[0]}}</td><td>{{  bc[1] }}</td>{% endif %}
+          <tr>{%  if  display.nat[0][bc[0].split()[0]] == True %}<td> {{bc[0].split('_')[0]}}</td><td>{{  bc[1] }}</td>{% endif %}</tr>
           {%  endfor  %}
         
         
