@@ -329,6 +329,7 @@ class Birth:
       ('ib_bool', 'ibibari'),
       # ('db_bool', 'disabled'),
       ('sb_bool', 'stillborn'),
+      ('bf1_bool', 'breast1hr'),
       ('np_bool', 'no_problem')
       # TODO: Get from DB list.
     ])

@@ -383,8 +383,11 @@ class Application:
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('report_date')
     attrs   = self.NUT_DESCR
+    # nattrs  = copy.copy(attrs)
+    # nattrs['weight / ()'] = ''
     nat     = self.civilised_fetch('ig_adata', cnds, attrs)
     total   = nat[0]['total']
+    adata   = []
     return self.dynamised('nut', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
@@ -744,7 +747,7 @@ class Application:
     sc      = kw.get('subcat')
     markup  = {
       'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
-      'baby': lambda x, _, __: '<a href="/tables/babies?id=%s">%s</a>' % (x, x),
+      'baby': lambda x, _, __: '<a href="/tables/child?id=%s">%s</a>' % (x, x),
       'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
       'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
       'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), )
