@@ -41,6 +41,10 @@
 
 {% else %}
  {%  set cpg, rng, pgs = nav.pages(display.nat) %}
+{{ cpg }}
+{{ rng }}
+{{ pgs }}
+{{ display.nat.count() }}
 
 <div class="tdesc">
 <a href="">{{ display.desc  }} (Page {{  cpg + 1 }})</a>
@@ -103,6 +107,8 @@
     {%  endfor  %}
   </tbody>
 </table>
+
+{% if display.nat.count() > 100 %}
 <div class="paginant">
   <div class="navigant">
     <ul>
@@ -114,10 +120,14 @@
     <li><a href="./{{ nav.link(ref, page = cpg - 1 )  }}">{{ cpg  }}</a></li>
     {% endif %}
     <li>{{ cpg + 1 }}</li>
+    {% if display.nat.count() > 100 %}
     <li><a href="./{{ nav.link(ref, page = cpg + 1)  }}">{{ cpg + 2 }}</a></li>
+    {% endif %}
+    {% if display.nat.count() > 200 %}
     <li><a href="./{{ nav.link(ref, page = cpg + 2)  }}">{{ cpg + 3 }}</a></li>
+    {% endif %}
    <li><a href="./{{ nav.link(ref, page = cpg + 1)  }}"> &#187;</a></li>
-    
+    {% endif %}
     {#  {%  for page  in pgs  %}
       {{ page }}
         <li>{%  if cpg == page  %}{{  loop.index  }}{%  else  %}<a href="./{{ nav.link(ref, page = page)  }}">{{ loop.index  }}</a>{% endif %}</li>

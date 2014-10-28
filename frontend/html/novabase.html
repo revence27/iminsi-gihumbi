@@ -21,6 +21,9 @@
     <script>
     	$(function()
     	{
+    		
+    		
+    		
     		$('.datapoint').each(function(ix, dtp)
     		{
     			  	//console.log( ix + ": " + dtp );
@@ -54,6 +57,17 @@
     			  $(this).removeClass('odd');
     			});
     	});
+    	
+    	$(document).ready(function(){
+			
+			 $(".cssmenu ul .home").hover(function(){
+				   $(".cssmenu ul ul ").css("display","block");
+			   },function(){
+				   $(".cssmenu ul ul").css("display","none");
+				 });
+
+		});
+    	
 	</script>    
   </head>
   <body>
@@ -91,19 +105,18 @@
         #}	
         <div id='cssmenu' class="cssmenu">
         <ul class="cssmenu">
-          <li class="homelink">
+          <li class="home">
             <a href="/"><span>Home</span></a>
-          </li>
+           <ul>
+		   <li class="{%  if  ref == 'pregnancy' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("predash") }}'><span>Pregnancies</span></a></li>
+		   <li class="{%  if  ref == 'anc' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("nbcdash") }}'><span>New Borns</span></a></li>
+		   <li class="{%  if  ref == 'brithreport' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("birthreport") }}'><span>Child Health</span></a></li>
+		   <li class="{%  if  ref == 'vaccination' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("vaccination") }}'><span>Post Natal</span></a></li>
+		   <li class="{%  if  ref == 'vaccination' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("nutrition") }}'><span>Nutrition</span></a></li>
+  		   </ul>
+       </li>
           {% block menu %}
-          <li class="homelink">
-            <a href="/dashboards/predash"><span>Pregnancies</span></a>
-          </li>
-          <li class="homelink">
-            <a href="/dashboards/delivery"><span>Deliveries</span></a>
-          </li>
-          <li class="homelink">
-            <a href="/dashboards/ccm"><span>CCM</span></a>
-          </li>
+          
           {% endblock %}
           {#
           {%  for ind in indicators  %}
