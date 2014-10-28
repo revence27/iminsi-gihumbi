@@ -370,9 +370,34 @@ class Application:
   def dashboards_death(self, *args, **kw):
     return self.dynamised('death', *args, **kw)
 
+  NUT_DESCR = [
+      # ('weight', 'Weight'),
+      # ('height', 'Height'),
+      # ('muac', 'MUAC'),
+      ('exc_breast', 'Exclusive Breastfeeding'),
+      ('comp_breast', 'Complimentary Breastfeeding'),
+      ('no_breast', 'Not Breastfeeding')
+    ]
+  @cherrypy.expose
+  def dashboards_nut(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    attrs   = self.NUT_DESCR
+    nat     = self.civilised_fetch('ig_adata', cnds, attrs)
+    total   = nat[0]['total']
+    return self.dynamised('nut', mapping = locals(), *args, **kw)
+
   @cherrypy.expose
   def dashboards_redalert(self, *args, **kw):
-    return self.dynamised('redalert', *args, **kw)
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    attrs   = self.PREGNANCIES_DESCR
+    # nat     = self.civilised_fetch('red_table', cnds, attrs)
+    nat     = orm.ORM.query('red_table', cnds)
+    # raise Exception, str(nat.query)
+    # total   = nat[0]['total']
+    fields  = settings.RED_ALERT_FIELDS
+    return self.dynamised('redalert', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def dashboards_pnc(self, *args, **kw):
@@ -701,6 +726,38 @@ class Application:
     )
     desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(self.PREGNANCIES_DESCR, sc), ) if sc else '', )
     return self.dynamised('pregnancies_table', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def tables_nut(self, *args, **kw):
+    if kw.get('summary'):
+     province = kw.get('province') or None
+     district = kw.get('district') or None
+     location = kw.get('hc') or None
+    navb, cnds, cols    = self.neater_tables(sorter = 'report_date', basics = [
+      ('indexcol',          'Entry ID'),
+      ('birth_date',        'Birth Date'),
+      ('height',            'Height'),
+      ('weight',            'Weight'),
+      ('baby',              'Baby ID'),
+      ('muac',              'MUAC')
+    ], *args, **kw)
+    sc      = kw.get('subcat')
+    markup  = {
+      'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
+      'baby': lambda x, _, __: '<a href="/tables/babies?id=%s">%s</a>' % (x, x),
+      'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), )
+    }
+    if sc:
+      cnds[sc]  = ''
+    # TODO: optimise
+    attrs   = self.NUT_DESCR
+    nat     = orm.ORM.query('ig_adata', cnds,
+      cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
+    )
+    desc  = 'Nutrition%s' % (' (%s)' % (self.find_descr(self.NUT_DESCR, sc), ) if sc else '', )
+    return self.dynamised('babies_table', mapping = locals(), *args, **kw)
 
   # TODO: Handle deep structure and boolean display.
   # TODO: List and link the mother.

@@ -1,6 +1,19 @@
 {%  extends "novabase.html" %}
 {%  block title %}Pregnancy Risks {%  endblock  %}
 {%  block subtitle %} Pregnancy Risks {%  endblock  %}
+
+{% block menu %}
+ <li class="homelink">
+            <a href="/dashboards/predash"><span>Pregnancies</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/delivery"><span>Deliveries</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/ccm"><span>CCM</span></a>
+          </li>
+{% endblock %}
+
 {% block position %}
 <li>&#187; <a href="/dashboards/predash">Pregnancy</a></li>
 {% if group %}

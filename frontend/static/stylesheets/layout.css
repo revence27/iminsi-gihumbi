@@ -639,6 +639,22 @@ padding-top: 20px;
 	
 }
 
+.navigant{
+	width: 300px;
+	margin-left:auto;
+	margin-right: auto;
+}
+
+.navigant a{
+	color: #128870;
+}
+
+.navigant li{
+	font-family: 'Open Sans', sans-serif;
+	float: left;
+	display: inline;
+padding-left:10px;
+}
 
 
 /****************************************/

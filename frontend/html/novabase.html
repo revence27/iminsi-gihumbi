@@ -94,6 +94,7 @@
           <li class="homelink">
             <a href="/"><span>Home</span></a>
           </li>
+          {% block menu %}
           <li class="homelink">
             <a href="/dashboards/predash"><span>Pregnancies</span></a>
           </li>
@@ -103,6 +104,7 @@
           <li class="homelink">
             <a href="/dashboards/ccm"><span>CCM</span></a>
           </li>
+          {% endblock %}
           {#
           {%  for ind in indicators  %}
        <li class="indicator{%  if  ind.ref == ref %} activeindicator{%  endif %}"{% if ind.title  %}  title="{{ ind.title }}{%  endif %}">
