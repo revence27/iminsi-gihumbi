@@ -105,6 +105,7 @@ class Baby(R1000Object):
       self.save()
       return self.load(pid)
     self['indexcol']    = gat[0]['indexcol']
+    self['birth_date']  = gat[0]['birth_date']
     return self
 
 REPORTER_MIGRATIONS = [
@@ -118,6 +119,26 @@ class Reporter(R1000Object):
       self.save()
       return self.load(phn)
     self['indexcol']      = gat[0]['indexcol']
+    return self
+
+ADATA_MIGRATIONS = [
+  ('baby', 1),
+  ('exc_breast', True),
+  ('no_breast', True),
+  ('comp_breast', True),
+  ('height', 1.0),
+  ('weight', 1.0),
+  ('muac', 1.0),
+  ('birth_date', datetime.today())
+]
+class AData(R1000Object):
+  def load(self, bub):
+    gat = orm.ORM.query(self.table, {'baby = %s': bub}, migrations = ADATA_MIGRATIONS)
+    self['baby']  = bub
+    if not gat.count():
+      self.save()
+      return self.load(bub)
+    # self['indexcol']      = gat[0]['indexcol']
     return self
 
 PREGNANCY_MIGRATIONS  = [
@@ -240,7 +261,35 @@ class Pregancies:
 
 class Nutrition:
   def handle(self, entry, row, hst):
-    raise Exception, row['report_date']
+    mum = Mother('ig_mothers')
+    mum.load(entry['patient_id'])
+    prg = Pregnancy('ig_pregnancies')
+    try:
+      prg.load_latest(mum['indexcol'])
+    except Exception, e:
+      # TODO:
+      # For now, just skip the faulty ones.
+      return
+      prg.load(mum['indexcol'], entry['lmp'] - timedelta(days = settings.GESTATION))
+      return self.handle(entry, row, hst)
+    bub = Baby('ig_babies')
+    bub.load(prg['indexcol'])
+    adt = AData('ig_adata')
+    try:
+      adt['birth_date'] = bub['birth_date']
+    except:
+      return
+    adt.load(bub['indexcol'])
+    adt.copy(entry, ['province_pk', 'district_pk', 'health_center_pk', 'sector_pk', 'cell_pk', 'village_pk', 'report_date']).copy(row, [
+      ('child_weight_float', 'weight'),
+      ('child_height_float', 'height'),
+      ('muac_float', 'muac')
+    ]).copy_presence(row, [
+      ('ebf_bool', 'exc_breast'),
+      ('cbf_bool', 'comp_breast'),
+      ('nb_bool', 'no_breast')
+    ])
+    adt.save()
 
 class InterventionResult:
   def handle(self, entry, row, hst):
