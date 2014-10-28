@@ -4,4 +4,23 @@
 {%  block trunkstyle  %} style="background: url('{{ static_path }}/images/anc.jpg') no-repeat fixed center"{%  endblock  %}
 {%  block mainpart  %}
 
+<table>
+    <thead>
+      <tr>
+        {%  for fld in display.fields %}
+          <th>{{  fld[0]  }}</th>
+        {%  endfor  %}
+      </tr>
+    </thead>
+    <tbody>
+        {%  for ra in display.nat.list() %}
+          <tr>
+            {%  for fld in display.fields %}
+              <td>{{  ra[fld[1]]  }}</td>
+            {%  endfor  %}
+          </tr>
+        {%  endfor  %}
+    </tbody>
+</table>
+
 {%  endblock  %}
