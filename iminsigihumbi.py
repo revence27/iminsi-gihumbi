@@ -13,6 +13,7 @@ import sha
 import sys
 import urllib2, urlparse
 from summarize import *
+from pygrowup import helpers, Calculator
 
 PREGNANCY_MATCHES  = {
   'coughing'  : ('COUNT(*)',  'ch_bool IS NOT NULL'),
@@ -31,6 +32,29 @@ PREGNANCY_MATCHES  = {
   'anaemia'   : ('COUNT(*)',  'sa_bool IS NOT NULL')
 }
 RISK_MOD = {'(gs_bool IS NOT NULL OR mu_bool IS NOT NULL OR rm_bool IS NOT NULL OR ol_bool IS NOT NULL OR yg_bool IS NOT NULL OR kx_bool IS NOT NULL OR yj_bool IS NOT NULL OR lz_bool IS NOT NULL)':''}
+
+def child_status(weight = None, height = None, date_of_birth = None, sex = None):
+ status = {}
+ valid_gender = helpers.get_good_sex( sex )
+ valid_age = helpers.date_to_age_in_months(date_of_birth)
+ cg = Calculator(adjust_height_data=False, adjust_weight_scores=False)
+
+ try:
+  wfa = cg.zscore_for_measurement('wfa', weight, valid_age, valid_gender) if weight and valid_age and valid_gender else None
+  if wfa and wfa <= -2: status.update({'underweight': 'UNDERWEIGHT'})
+ except Exception, e: pass
+ try: 
+  hfa = cg.zscore_for_measurement('hfa', height , valid_age, valid_gender) if height and valid_age and valid_gender else None
+  if hfa and hfa <= -2: status.update({'stunted': 'STUNTED'})
+ except Exception, e: pass
+ try:
+  wfh = cg.zscore_for_measurement('wfh', weight, valid_age, valid_gender, height) if weight and height and valid_age and valid_gender else None
+  if wfh and wfh <= -2: status.update({'wasted': 'WASTED'})
+ except Exception, e: pass        
+
+ if status == {}:
+  status.update({'normal': 'NORMAL'})
+ return status
 
 def neat_numbers(num):
   pcs = divided_num(str(num), 3)
@@ -1078,7 +1102,7 @@ class Application:
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
       
-    ] + settings.PREGNANCY_DATA , *args, **kw)
+    ] , *args, **kw)
     DESCRI = []
     INDICS = []
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
