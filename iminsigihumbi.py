@@ -1230,6 +1230,7 @@ class Application:
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
+      ('lmp',            'Date Of Birth'),
       
     ] , *args, **kw)
     DESCRI = []
@@ -1281,9 +1282,9 @@ class Application:
     sc      = kw.get('subcat')
     if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
     markup  = {
-      'patient_id': lambda x, _, __: '<a href="/tables/patient?pid=%s">%s</a>' % (x, x),
+      'patient_id': lambda x, _, __: '<a href="/tables/child?pid=%s">%s</a>' % (x, x),
       'wt_float': lambda x, _, __: '%s' % (int(x) if x else ''),
-      'dob': lambda x, _, __: '%s' % (datetime.date(x) if x else ''),
+      'lmp': lambda x, _, __: '%s' % (datetime.date(x) if x else ''),
       'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
       'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
       'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), ),
@@ -1323,16 +1324,16 @@ class Application:
   @cherrypy.expose
   def tables_child(self, *args, **kw):
     navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
-    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.RISK['attrs'] + settings.HIGH_RISK['attrs'] ]
+    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'] ]
     indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
-    nat     = orm.ORM.query('bir_table', cnds,
-      				cols  = [x[0] for x in (cols + indexed_attrs + settings.PREGNANCY_DATA + attrs) if x[0][0] != '_'],
+    nat     = orm.ORM.query('nbc_table', cnds,
+      				cols  = [x[0] for x in (cols + indexed_attrs + settings.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
 				sort = ('report_date', False),
     			)
     patient = nat[0]  
     reminders = []
-    pre_reports = [ x for x in nat.list() ]
-    return self.dynamised('patient_table', mapping = locals(), *args, **kw)
+    nbc_reports = [ x for x in nat.list() ]#; print attrs
+    return self.dynamised('child_table', mapping = locals(), *args, **kw)
 
   ### END OF NEWBORN ####
 

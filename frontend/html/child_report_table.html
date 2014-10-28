@@ -1,0 +1,27 @@
+<table width="100%"> 
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Submission Date</th>
+            <th>Date Of Birth</th>
+	    <th>Reporter</th>
+	    <th>Patient</th>
+        </tr>
+    </thead>
+    <tbody>
+    	{% for report in display.nbc_reports %}
+            <tr>
+            	<td>Newborn Care</td>
+                <td>{{report.report_date}}</td>
+		<td>{{report.dob}}</td>
+		<td>{{report.reporter_phone}}</td>
+		<td>{{report.patient_id}}</td>
+                
+            </tr>
+        {% endfor %}
+    </tbody>
+    
+    <tfoot>
+			
+	</tfoot>
+</table>
