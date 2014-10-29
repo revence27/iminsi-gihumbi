@@ -783,7 +783,7 @@ class Application:
     navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
-      # ('height',            'Height'),
+      ('height',            'Height'),
       ('weight',            'Weight'),
       ('cnumber',           'Child Number'),
       ('pregnancy',         'Pregnancy ID')
@@ -1412,6 +1412,7 @@ class Application:
     patient = nat[0]  
     reminders = []
     nbc_reports = [ x for x in nat.list() ]#; print attrs
+    adata = []  # orm.ORM.query('ig_adata', {'indexcol': kid}, sort = ('report_date', False))
     return self.dynamised('child_table', mapping = locals(), *args, **kw)
 
   ### END OF NEWBORN ####

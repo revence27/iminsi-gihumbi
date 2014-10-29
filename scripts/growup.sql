@@ -77,6 +77,11 @@ CREATE VIEW ig_health_adata AS
             )) / 30) :: INTEGER
       )
     ) AS underweight
+/*
+    (RANDOM() > 0.95) AS wasting,
+    (RANDOM() > 0.85) AS underweight,
+    (RANDOM() > 0.75) AS stunting
+*/
   FROM
     ig_babies Babies  --  , ig_adata Anthropometric
   WHERE
