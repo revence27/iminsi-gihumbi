@@ -169,6 +169,54 @@ NBC_DATA = {
 		
 		}
 
+PNC_DATA = {
+	
+		'NO_RISK': {
+			   'attrs':	[
+						(u'af_bool IS NULL', u'Abnormal Fontinel'), 
+						(u'ch_bool IS NULL', u'Coughing'), 
+						(u'hy_bool IS NULL', u'Hypothermia'), 
+						(u'rb_bool IS NULL', u'Rapid Breathing'), 
+						(u'sa_bool IS NULL', u'Severe Anemia'),
+						(u'ds_bool IS NULL', u'Chronic Disease'),
+						(u'fe_bool IS NULL', u'Fever'), 
+						(u'fp_bool IS NULL', u'Fraccid Paralysis'),
+						(u'ja_bool IS NULL', u'Jaundice'),
+						(u'ns_bool IS NULL', u'Neck Stiffness'),
+						(u'oe_bool IS NULL', u'Edema'),
+						(u'pc_bool IS NULL', u'Pneumonia'),
+						(u'vo_bool IS NULL', u'Vomiting'),
+						(u'di_bool IS NULL', u'Diarhea'),
+						(u'ma_bool IS NULL', u'Malaria'),
+					],
+
+			   'query_str': '((af_bool IS NULL) AND (ch_bool IS NULL) AND (hy_bool IS NULL) AND (rb_bool IS NULL) AND (sa_bool IS NULL) AND (ds_bool IS NULL) AND (fe_bool IS NULL) AND (fp_bool IS NULL) AND (ja_bool IS NULL) AND (ns_bool IS NULL) AND (oe_bool IS NULL) AND (pc_bool IS NULL) AND (vo_bool IS NULL) AND (di_bool IS NULL) AND (ma_bool IS NULL))'
+			},
+
+		'RISK': {
+			   'attrs':	[
+						(u'af_bool IS NOT NULL', u'Abnormal Fontinel'), 
+						(u'ch_bool IS NOT NULL', u'Coughing'), 
+						(u'hy_bool IS NOT NULL', u'Hypothermia'), 
+						(u'rb_bool IS NOT NULL', u'Rapid Breathing'), 
+						(u'sa_bool IS NOT NULL', u'Severe Anemia'),
+						(u'ds_bool IS NOT NULL', u'Chronic Disease'),
+						(u'fe_bool IS NOT NULL', u'Fever'), 
+						(u'fp_bool IS NOT NULL', u'Fraccid Paralysis'),
+						(u'ja_bool IS NOT NULL', u'Jaundice'),
+						(u'ns_bool IS NOT NULL', u'Neck Stiffness'),
+						(u'oe_bool IS NOT NULL', u'Edema'),
+						(u'pc_bool IS NOT NULL', u'Pneumonia'),
+						(u'vo_bool IS NOT NULL', u'Vomiting'),
+						(u'di_bool IS NOT NULL', u'Diarhea'),
+						(u'ma_bool IS NOT NULL', u'Malaria'),
+					],
+
+			   'query_str': '( (af_bool IS NOT NULL) OR (ch_bool IS NOT NULL) OR (hy_bool IS NOT NULL) OR (rb_bool IS NOT NULL) OR (sa_bool IS NOT NULL) OR (ds_bool IS NOT NULL) OR (fe_bool IS NOT NULL) OR (fp_bool IS NOT NULL) OR (ja_bool IS NOT NULL) OR (ns_bool IS NOT NULL) OR (oe_bool IS NOT NULL) OR (pc_bool IS NOT NULL) OR (vo_bool IS NOT NULL) OR (di_bool IS NOT NULL) OR (ma_bool IS NOT NULL) )'
+
+		}
+	}
+
 APP_DATA  = {
   'indicators'  : [
     {'name':'Reporting',
