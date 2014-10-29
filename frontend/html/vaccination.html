@@ -16,7 +16,7 @@
     <div class="infoname" style="font-size:18px; padding-top:20px;">{{vc[1]}}</div>
     <div class="moretotal" ><a href="{{ nav.link('/tables/vaccin', subcat=vc[0], summary = 'on')}}">View by Location</a></div>
     <div class="infodata goodnum">
-      <a href="/tables/vaccin">{{  display.vac_comps[0][vc[0]]|neat_numbers }}</a>
+      <a href="{{ nav.link('/tables/vaccin', subcat=vc[0] )}}">{{  display.vac_comps[0][vc[0]]|neat_numbers }}</a>
     </div>
     {% endfor %}
   </div>
