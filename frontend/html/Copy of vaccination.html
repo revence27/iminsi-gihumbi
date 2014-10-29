@@ -2,6 +2,14 @@
 {%  block title %}{{  nav.listing[-1].name  }} {{  nav.listing[-1].title }} Vaccinations {%  endblock  %}
 {%  block subtitle %} Vaccinations {%  endblock  %}
 {%  block trunkstyle  %} style="background: url('{{ static_path }}/images/vacc.jpg') no-repeat fixed center"{%  endblock  %}
+{% block menu %}
+		 <li class="">
+            <a href="/dashboards/ccm"><span>CCM</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/vaccination"><span>Vaccinations</span></a>
+          </li>
+{% endblock %}
 {%  block mainpart  %}
   <div class="smallcontainer">
     <div class="infoname">Fully-Vaccinated Children</div>
@@ -50,14 +58,9 @@
           {%  endfor  %}
         </div>
       </div>
-      <!--
-      <div class="chart">
-        <div class="title">Unimmunised Children</div>
-        <div class="informer">
-          <div class="maindata">{{  display.never|neat_numbers  }}</div>
-        </div>
-      </div>
-      -->
+
+
+
     </div>
   </div>
 {%  endblock  %}
