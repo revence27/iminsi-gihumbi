@@ -7,7 +7,8 @@ PROBS   = ['stunting', 'wasting', 'underweight']
 HINFO_MIGRATIONS = [
   ('month', 1),
   ('sd2neg', 1.0),
-  ('boy', True)
+  ('boy', True),
+  ('problem', '|'.join(PROBS))
 ]
 
 orm.ORM.connect(dbname  = 'thousanddays', user = 'thousanddays', host = 'localhost', password = 'thousanddays')
@@ -17,9 +18,10 @@ def handle_file(gdr, prob, f):
     gat = json.load(fch)
     for mth in gat:
       dat = {
-        'month': int(mth['Month']),
-        'sd2neg': float(mth['SD2neg']),
-        'boy'   : gdr == 'boy'
+        'month'   : int(mth['Month']),
+        'sd2neg'  : float(mth['SD2neg']),
+        'boy'     : gdr == 'boy',
+        'problem' : prob
       }
       print orm.ORM.store('ig_deviations', dat, migrations = HINFO_MIGRATIONS)
 

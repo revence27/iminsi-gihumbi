@@ -10,10 +10,73 @@ CREATE VIEW ig_health_adata AS
     (SELECT height FROM ig_adata WHERE baby = Babies.indexcol ORDER BY report_date DESC LIMIT 1) AS aheight,
     indexcol AS baby,
     (
-      height < (SELECT sd2neg FROM ig_deviations WHERE month = ((EXTRACT(DAYS FROM ((SELECT report_date FROM ig_adata WHERE baby = Babies.indexcol ORDER BY report_date DESC LIMIT 1) - Babies.birth_date)) / 30)) :: INTEGER)
+      Babies.height < (
+        SELECT
+          sd2neg
+        FROM
+          ig_deviations
+        WHERE
+          problem = 'stunting'
+        AND
+          month = ((EXTRACT(DAYS FROM
+            (
+              (
+                SELECT
+                  report_date
+                FROM
+                  ig_adata
+                WHERE
+                  baby = Babies.indexcol
+                ORDER BY report_date DESC LIMIT 1
+              ) - Babies.birth_date)) / 30)) :: INTEGER
+      )
     ) AS stunting,
-    (RANDOM() > 0.85) AS wasting,
-    (RANDOM() > 0.75) AS underweight
+    (
+      Babies.height < (
+        SELECT
+          sd2neg
+        FROM
+          ig_deviations
+        WHERE
+          problem = 'wasting'
+        AND
+          month = ((EXTRACT(DAYS FROM
+            (
+              (
+                SELECT
+                  report_date
+                FROM
+                  ig_adata
+                WHERE
+                  baby = Babies.indexcol
+                ORDER BY
+                  report_date DESC LIMIT 1
+              ) - Babies.birth_date)) / 30)) :: INTEGER
+      )
+    ) AS wasting,
+    (
+      Babies.weight < (
+        SELECT
+          sd2neg
+        FROM
+          ig_deviations
+        WHERE
+          problem = 'underweight'
+        AND
+          month = (EXTRACT(DAYS FROM
+            (
+              (
+                SELECT
+                  report_date
+                FROM
+                  ig_adata
+                WHERE
+                  baby = Babies.indexcol
+                ORDER BY report_date DESC LIMIT 1
+              ) - Babies.birth_date
+            )) / 30) :: INTEGER
+      )
+    ) AS underweight
   FROM
     ig_babies Babies  --  , ig_adata Anthropometric
   WHERE
