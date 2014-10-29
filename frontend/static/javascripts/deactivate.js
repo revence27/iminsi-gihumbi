@@ -1,10 +1,10 @@
 		function start() {
-				myform.ca.checked = true;
-				myform.cb.checked = true;
-				myform.cc.checked = true;
-				myform.provchoose.disabled = false;
-				myform.distchoose.disabled = false;
-				myform.locchoose.disabled = false;
+				myform.ca.checked = false;
+				myform.cb.checked = false;
+				myform.cc.checked = false;
+				myform.provchoose.disabled = true;
+				myform.distchoose.disabled = true;
+				myform.locchoose.disabled = true;
 				}
 				onload = start;
 				function chgtx() {
