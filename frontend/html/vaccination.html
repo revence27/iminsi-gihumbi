@@ -1,0 +1,40 @@
+{%  extends "novabase.html" %}
+{%  block title %}{{  nav.listing[-1].name  }} {{  nav.listing[-1].title }} Vaccinations {%  endblock  %}
+{%  block subtitle %} Vaccinations {%  endblock  %}
+{%  block trunkstyle  %} style="background: url('{{ static_path }}/images/vacc.jpg') no-repeat fixed center"{%  endblock  %}
+{% block menu %}
+		 <li class="">
+            <a href="/dashboards/ccm"><span>CCM</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/vaccination"><span>Vaccinations</span></a>
+          </li>
+{% endblock %}
+{%  block mainpart  %}
+  <div class="smallcontainer">
+    <div class="infoname" style="font-size:18px; padding-top:20px;">Fully-Vaccinated Children</div>
+    <div class="infodata goodnum">
+      <a href="/tables/pregnancy">{{  display.fully|neat_numbers }}</a>
+    </div>
+    <div class="infoname" style="font-size:18px;">Partially Vaccinated Children</div>
+    <div class="infodata goodnum">
+      <a href="/tables/pregnancy">{{  display.partly|neat_numbers }}</a>
+    </div>
+  </div>
+  <div class="humblecontainer">
+		
+		<div class="infoname" style="padding-left:200px; padding-top:20px; padding-bottom: 20px;">Vaccination Series Completion</div>
+        
+        <div class="data">
+          {%  for vac in display.vaccs  %}
+   	<div class="datapointccm">
+    <div class="descr">V{{  loop.index  }}</div>
+    <div class="number">{{  vac.value|neat_numbers  }}</div>
+    </div>
+	{%  endfor  %}
+        </div>
+      
+  
+ 
+  </div>
+{%  endblock  %}
