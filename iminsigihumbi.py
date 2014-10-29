@@ -374,6 +374,9 @@ class Application:
       # ('weight', 'Weight'),
       # ('height', 'Height'),
       # ('muac', 'MUAC'),
+      ('stunting', 'Stunting'),
+      ('underweight', 'Underweight'),
+      ('wasting', 'Wasting'),
       ('exc_breast', 'Exclusive Breastfeeding'),
       ('comp_breast', 'Complimentary Breastfeeding'),
       ('no_breast', 'Not Breastfeeding')
@@ -381,11 +384,11 @@ class Application:
   @cherrypy.expose
   def dashboards_nut(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    cnds    = navb.conditions('birth_date')
     attrs   = self.NUT_DESCR
     # nattrs  = copy.copy(attrs)
     # nattrs['weight / ()'] = ''
-    nat     = self.civilised_fetch('ig_adata', cnds, attrs)
+    nat     = self.civilised_fetch('ig_health_adata', cnds, attrs)
     total   = nat[0]['total']
     adata   = []
     return self.dynamised('nut', mapping = locals(), *args, **kw)
@@ -736,7 +739,7 @@ class Application:
      province = kw.get('province') or None
      district = kw.get('district') or None
      location = kw.get('hc') or None
-    navb, cnds, cols    = self.neater_tables(sorter = 'report_date', basics = [
+    navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
       ('height',            'Height'),
@@ -756,7 +759,7 @@ class Application:
       cnds[sc]  = ''
     # TODO: optimise
     attrs   = self.NUT_DESCR
-    nat     = orm.ORM.query('ig_adata', cnds,
+    nat     = orm.ORM.query('ig_health_adata', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
     )
     desc  = 'Nutrition%s' % (' (%s)' % (self.find_descr(self.NUT_DESCR, sc), ) if sc else '', )
