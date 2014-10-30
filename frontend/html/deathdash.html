@@ -1,0 +1,21 @@
+{%  extends "novabase.html" %}
+{%  block title %}{{  nav.listing[-1].name  }} {{  nav.listing[-1].title }} Vaccinations {%  endblock  %}
+{%  block subtitle %} Vaccinations {%  endblock  %}
+{%  block trunkstyle  %} style="background: url('{{ static_path }}/images/vacc.jpg') no-repeat fixed center"{%  endblock  %}
+{% block menu %}
+		 
+          <li class="homelink">
+            <a href="/dashboards/deathdash"><span>Death</span></a>
+          </li>
+{% endblock %}
+{%  block mainpart  %}
+  <div class="smallcontainer">
+    <div class="infoname" style="font-size:18px; padding-top:20px;">Total Deaths</div>
+    <div class="moretotal" ><a href="{{ nav.link('/tables/deathdash', summary = 'on')}}">View by Location</a></div>
+    <div class="infodata goodnum">
+      <a href="{{ nav.link('/tables/deathdash' )}}">{{  display.nat[0]['total']|neat_numbers }}</a>
+    </div>
+  </div>
+  
+{%  include "basicdisplay.html"  %}
+{%  endblock  %}
