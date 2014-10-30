@@ -275,6 +275,9 @@ class Nutrition:
     bub = Baby('ig_babies')
     bub.load(prg['indexcol'])
     adt = AData('ig_adata')
+    if row['child_height_float']:
+      bub['height'] = row['child_height_float']
+      bub.save()
     try:
       adt['birth_date'] = bub['birth_date']
     except:
@@ -329,6 +332,7 @@ class Birth:
       ('ib_bool', 'ibibari'),
       # ('db_bool', 'disabled'),
       ('sb_bool', 'stillborn'),
+      ('bf1_bool', 'breast1hr'),
       ('np_bool', 'no_problem')
       # TODO: Get from DB list.
     ])

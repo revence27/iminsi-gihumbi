@@ -374,6 +374,9 @@ class Application:
       # ('weight', 'Weight'),
       # ('height', 'Height'),
       # ('muac', 'MUAC'),
+      ('stunting', 'Stunting'),
+      ('underweight', 'Underweight'),
+      ('wasting', 'Wasting'),
       ('exc_breast', 'Exclusive Breastfeeding'),
       ('comp_breast', 'Complimentary Breastfeeding'),
       ('no_breast', 'Not Breastfeeding')
@@ -381,10 +384,13 @@ class Application:
   @cherrypy.expose
   def dashboards_nut(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    cnds    = navb.conditions('birth_date')
     attrs   = self.NUT_DESCR
-    nat     = self.civilised_fetch('ig_adata', cnds, attrs)
+    # nattrs  = copy.copy(attrs)
+    # nattrs['weight / ()'] = ''
+    nat     = self.civilised_fetch('ig_health_adata', cnds, attrs)
     total   = nat[0]['total']
+    adata   = []
     return self.dynamised('nut', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
@@ -733,7 +739,7 @@ class Application:
      province = kw.get('province') or None
      district = kw.get('district') or None
      location = kw.get('hc') or None
-    navb, cnds, cols    = self.neater_tables(sorter = 'report_date', basics = [
+    navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
       ('height',            'Height'),
@@ -744,7 +750,7 @@ class Application:
     sc      = kw.get('subcat')
     markup  = {
       'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
-      'baby': lambda x, _, __: '<a href="/tables/babies?id=%s">%s</a>' % (x, x),
+      'baby': lambda x, _, __: '<a href="/tables/child?id=%s">%s</a>' % (x, x),
       'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
       'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
       'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), )
@@ -753,7 +759,7 @@ class Application:
       cnds[sc]  = ''
     # TODO: optimise
     attrs   = self.NUT_DESCR
-    nat     = orm.ORM.query('ig_adata', cnds,
+    nat     = orm.ORM.query('ig_health_adata', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
     )
     desc  = 'Nutrition%s' % (' (%s)' % (self.find_descr(self.NUT_DESCR, sc), ) if sc else '', )
@@ -777,7 +783,7 @@ class Application:
     navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
-      # ('height',            'Height'),
+      ('height',            'Height'),
       ('weight',            'Weight'),
       ('cnumber',           'Child Number'),
       ('pregnancy',         'Pregnancy ID')
@@ -1406,6 +1412,7 @@ class Application:
     patient = nat[0]  
     reminders = []
     nbc_reports = [ x for x in nat.list() ]#; print attrs
+    adata = []  # orm.ORM.query('ig_adata', {'indexcol': kid}, sort = ('report_date', False))
     return self.dynamised('child_table', mapping = locals(), *args, **kw)
 
   ### END OF NEWBORN ####

@@ -1,6 +1,6 @@
 {%  extends "novabase.html" %}
 {%  block title %} Newborn Visits {%  endblock  %}
-{%  block subtitle %} Newborn Visits {%  endblock  %}
+{%  block subtitle %} New Born Care {%  endblock  %}
 {% block position %}
 <li>&#187; <a href="/dashboards/nbcdash">Newborn</a></li>
 {% if group %}
@@ -24,7 +24,7 @@
       <a href="{{ nav.link('/tables/nbcdash', group = display['group'])}}">{{  display.nat[0]['total']|neat_numbers}}</a>
     </div>
     <div class="graphicard">
-      <img class="icon" src="{{  static_path }}/images/pregnantwo1man.jpg" />
+      <img class="icon" src="{{  static_path }}/images/pre3gnantwo1man.jpg" />
     </div>
 
     <div class="infoname">Total Newborn Visits</div>
@@ -46,7 +46,7 @@
       <a href="{{ nav.link("/tables/nbcdash") }}">{{  display.nat[0]['total']|neat_numbers }}</a>
     </div>
     <div class="graphicard">
-      <img class="icon" src="{{  static_path }}/images/pregnantwoman.jpg" />
+      <img class="icon" src="{{  static_path }}/images/pregnantwomadn.jpg" />
     </div>
   </div>
   
