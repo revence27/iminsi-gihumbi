@@ -217,6 +217,38 @@ PNC_DATA = {
 		}
 	}
 
+
+VAC_DATA = {
+		'VAC_SERIES': {
+
+				'attrs': [
+						(u'v1_bool IS NOT NULL', u'BCG, PO'),
+						(u'v2_bool IS NOT NULL', u'P1, Penta1, PCV1, Rota1'),
+						(u'v3_bool IS NOT NULL', u'P2, Penta2, PCV2, Rota2'),
+						(u'v4_bool IS NOT NULL', u'P3, Penta3, PCV3, Rota3'),
+						(u'v5_bool IS NOT NULL', u'Measles1, Rubella'),
+						(u'v6_bool IS NOT NULL', u'Measles2'),					
+					],
+		
+				'query_str': '((v1_bool IS NOT NULL) OR (v2_bool IS NOT NULL) OR (v3_bool IS NOT NULL) OR (v4_bool IS NOT NULL) OR (v5_bool IS NOT NULL) OR (v6_bool IS NOT NULL))'
+			},
+
+		'VAC_COMPLETION': {
+
+					'attrs': [
+							(u'vc_bool IS NOT NULL', u'Vaccine Complete'),
+							(u'vi_bool IS NOT NULL', u'Vaccine Incomplete'),
+							(u'nv_bool IS NOT NULL', u'Unimmunized Child'),				
+						],
+			
+					'query_str': '((vc_bool IS NOT NULL) OR (vi_bool IS NOT NULL) OR (nv_bool IS NOT NULL))'
+			},
+
+
+
+		}
+
+
 APP_DATA  = {
   'indicators'  : [
     {'name':'Reporting',

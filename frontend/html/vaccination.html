@@ -7,34 +7,41 @@
             <a href="/dashboards/ccm"><span>CCM</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/vaccination"><span>Vaccinations</span></a>
+            <a href="/dashboards/vaccin"><span>Vaccinations</span></a>
           </li>
 {% endblock %}
 {%  block mainpart  %}
   <div class="smallcontainer">
-    <div class="infoname" style="font-size:18px; padding-top:20px;">Fully-Vaccinated Children</div>
+    {% for vc in display.vac_comps_attrs %}
+    <div class="infoname" style="font-size:18px; padding-top:20px;">{{vc[1]}}</div>
+    <div class="moretotal" ><a href="{{ nav.link('/tables/vaccin', subcat=vc[0], summary = 'on')}}">View by Location</a></div>
     <div class="infodata goodnum">
-      <a href="/tables/pregnancy">{{  display.fully|neat_numbers }}</a>
+      <a href="{{ nav.link('/tables/vaccin', subcat=vc[0] )}}">{{  display.vac_comps[0][vc[0]]|neat_numbers }}</a>
     </div>
-    <div class="infoname" style="font-size:18px;">Partially Vaccinated Children</div>
-    <div class="infodata goodnum">
-      <a href="/tables/pregnancy">{{  display.partly|neat_numbers }}</a>
-    </div>
+    {% endfor %}
   </div>
   <div class="humblecontainer">
 		
 		<div class="infoname" style="padding-left:200px; padding-top:20px; padding-bottom: 20px;">Vaccination Series Completion</div>
         
-        <div class="data">
-          {%  for vac in display.vaccs  %}
-   	<div class="datapointccm">
-    <div class="descr">V{{  loop.index  }}</div>
-    <div class="number">{{  vac.value|neat_numbers  }}</div>
-    </div>
+	{%  for vac in display.vac_series_attrs %}
+	  <div class="datapoint">
+	  
+	    {%  set num = display.vac_series[0][vac[0]] %}
+	    
+	    <div class="descr">{{  vac[1] }}</div>
+	    <div class="moreoptions startshidden" >
+		 <a href="/tables/{{  nav.link('vaccin', subcat = vac[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
+	    </div>
+	    <div class="number">
+		{% if  num %}<a href="/tables/{{  nav.link('vaccin', subcat = vac[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>
+		{% else  %}  {{  num|neat_numbers }}  {%  endif %}
+	    </div>
+	    
+  	   </div>
 	{%  endfor  %}
-        </div>
       
   
  
-  </div>
+ </div>
 {%  endblock  %}

@@ -374,6 +374,9 @@ class Application:
       # ('weight', 'Weight'),
       # ('height', 'Height'),
       # ('muac', 'MUAC'),
+      ('stunting', 'Stunting'),
+      ('underweight', 'Underweight'),
+      ('wasting', 'Wasting'),
       ('exc_breast', 'Exclusive Breastfeeding'),
       ('comp_breast', 'Complimentary Breastfeeding'),
       ('no_breast', 'Not Breastfeeding')
@@ -381,10 +384,13 @@ class Application:
   @cherrypy.expose
   def dashboards_nut(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    cnds    = navb.conditions('birth_date')
     attrs   = self.NUT_DESCR
-    nat     = self.civilised_fetch('ig_adata', cnds, attrs)
+    # nattrs  = copy.copy(attrs)
+    # nattrs['weight / ()'] = ''
+    nat     = self.civilised_fetch('ig_health_adata', cnds, attrs)
     total   = nat[0]['total']
+    adata   = []
     return self.dynamised('nut', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
@@ -733,7 +739,7 @@ class Application:
      province = kw.get('province') or None
      district = kw.get('district') or None
      location = kw.get('hc') or None
-    navb, cnds, cols    = self.neater_tables(sorter = 'report_date', basics = [
+    navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
       ('height',            'Height'),
@@ -744,7 +750,7 @@ class Application:
     sc      = kw.get('subcat')
     markup  = {
       'reporter': lambda x, _, __: '<a href="/tables/reporters?id=%s">%s</a>' % (x, x),
-      'baby': lambda x, _, __: '<a href="/tables/babies?id=%s">%s</a>' % (x, x),
+      'baby': lambda x, _, __: '<a href="/tables/child?id=%s">%s</a>' % (x, x),
       'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
       'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
       'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), )
@@ -753,7 +759,7 @@ class Application:
       cnds[sc]  = ''
     # TODO: optimise
     attrs   = self.NUT_DESCR
-    nat     = orm.ORM.query('ig_adata', cnds,
+    nat     = orm.ORM.query('ig_health_adata', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
     )
     desc  = 'Nutrition%s' % (' (%s)' % (self.find_descr(self.NUT_DESCR, sc), ) if sc else '', )
@@ -777,7 +783,7 @@ class Application:
     navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
-      # ('height',            'Height'),
+      ('height',            'Height'),
       ('weight',            'Weight'),
       ('cnumber',           'Child Number'),
       ('pregnancy',         'Pregnancy ID')
@@ -1406,6 +1412,7 @@ class Application:
     patient = nat[0]  
     reminders = []
     nbc_reports = [ x for x in nat.list() ]#; print attrs
+    adata = []  # orm.ORM.query('ig_adata', {'indexcol': kid}, sort = ('report_date', False))
     return self.dynamised('child_table', mapping = locals(), *args, **kw)
 
   ### END OF NEWBORN ####
@@ -1553,7 +1560,102 @@ class Application:
 
   ### END OF POSTNATAL ####
 
+  #### START OF VACCINATION ###
+  @cherrypy.expose
+  def dashboards_vaccin(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    exts = {}
+    
+    vac_comps_attrs = [(x[0].split()[0], x[1]) for x in settings.VAC_DATA['VAC_COMPLETION']['attrs']]
+    vac_comps_exts = exts
+    vac_comps_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.VAC_DATA['VAC_COMPLETION']['attrs']]))
+    vac_comps = orm.ORM.query(  'chi_table', 
+			  cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = vac_comps_exts,
+			)
 
+    vac_series_attrs = [(x[0].split()[0], x[1]) for x in settings.VAC_DATA['VAC_SERIES']['attrs']]
+    vac_series_exts = exts
+    vac_series_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.VAC_DATA['VAC_SERIES']['attrs']]))
+    vac_series = orm.ORM.query(  'chi_table', 
+			  cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = vac_series_exts,
+			); print vac_series.query
+
+    return self.dynamised('vaccination', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def tables_vaccin(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(basics = [
+      ('indexcol',          'Entry ID'),
+      ('patient_id',            'Mother ID'),
+      ('reporter_phone',            'Reporter Phone'),
+      ('lmp',            'Date Of Birth'),
+      
+    ] , *args, **kw)
+    DESCRI = []
+    INDICS = []
+    if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
+     kw.update({'compare': ' IS NOT'})
+     kw.update({'value': ' NULL'})
+    if kw.get('summary'):
+     province = kw.get('province') or None
+     district = kw.get('district') or None
+     location = kw.get('hc') or None
+     wcl = [{'field_name': '%s' % kw.get('subcat'), 
+		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
+		'value': '%s' % kw.get('value') if kw.get('value') else '' 
+	   }] if kw.get('subcat') else []
+     
+     
+     if kw.get('view') == 'table' or kw.get('view') != 'log' :
+      locateds = summarize_by_location(primary_table = 'chi_table', MANY_INDICS = INDICS, where_clause = wcl, 
+						province = province,
+						district = district,
+						location = location,
+						start =  navb.start,
+						end = navb.finish,
+											
+						)
+      tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
+      INDICS_HEADERS = dict([ (x[0].split()[0], x[1]) for x in INDICS])
+
+    sc      = kw.get('subcat')
+    if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
+    markup  = {
+      'patient_id': lambda x, _, __: '<a href="/tables/child?pid=%s">%s</a>' % (x, x),
+      'wt_float': lambda x, _, __: '%s' % (int(x) if x else ''),
+      'lmp': lambda x, _, __: '%s' % (datetime.date(x) if x else ''),
+      'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), ),
+      'sector_pk': lambda x, _, __: '%s' % (self.sector(str(x))['name'] if self.sector(str(x)) else '', ),
+      'cell_pk': lambda x, _, __: '%s' % (self.cell(str(x))['name'] if self.cell(str(x)) else '', ),
+      'village_pk': lambda x, _, __: '%s' % (self.village(str(x))['name'] if self.village(str(x)) else '', ),
+    }
+    if sc:
+      cnds[sc]  = ''
+    # TODO: optimise
+    attrs = []
+    
+    cols    += settings.LOCATION_INFO   
+    nat     = orm.ORM.query('chi_table', cnds,
+      cols  = [x[0] for x in (cols + [
+					('(lmp) AS dob', 'Date Of Birth'),
+ 
+					] + attrs) if x[0][0] != '_'],
+      
+    )
+    desc  = 'Vaccination %s' % (' (%s)' % (self.find_descr(DESCRI + settings.VAC_DATA['VAC_COMPLETION']['attrs'] + settings.VAC_DATA['VAC_SERIES']['attrs'], 
+						sc ), 
+					) )
+    return self.dynamised('nbcdash_table', mapping = locals(), *args, **kw)
+
+
+  #### END OF VACCINATION ###
 
   @cherrypy.expose
   def tables_patient(self, *args, **kw):
