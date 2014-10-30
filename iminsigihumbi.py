@@ -388,7 +388,7 @@ class Application:
     attrs   = self.NUT_DESCR
     # nattrs  = copy.copy(attrs)
     # nattrs['weight / ()'] = ''
-    nat     = self.civilised_fetch('ig_health_adata', cnds, attrs)
+    nat     = self.civilised_fetch('ig_babies_adata', cnds, attrs)
     total   = nat[0]['total']
     adata   = []
     return self.dynamised('nut', mapping = locals(), *args, **kw)
@@ -759,7 +759,7 @@ class Application:
       cnds[sc]  = ''
     # TODO: optimise
     attrs   = self.NUT_DESCR
-    nat     = orm.ORM.query('ig_health_adata', cnds,
+    nat     = orm.ORM.query('ig_babies_adata', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
     )
     desc  = 'Nutrition%s' % (' (%s)' % (self.find_descr(self.NUT_DESCR, sc), ) if sc else '', )
