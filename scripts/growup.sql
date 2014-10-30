@@ -1,6 +1,6 @@
-DROP VIEW ig_health_adata;
+DROP VIEW ig_babies_adata;
 
-CREATE VIEW ig_health_adata AS
+CREATE VIEW ig_babies_adata AS
   SELECT
     Babies.*,
     (SELECT exc_breast FROM ig_adata WHERE baby = Babies.indexcol ORDER BY report_date DESC LIMIT 1) AS exc_breast,
