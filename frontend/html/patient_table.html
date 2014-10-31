@@ -87,18 +87,60 @@
 <h2>Reports</h2>
 {% include 'report_table.html' %} 
 
-<h1>ANC Reports</h1>
-<ol>
-{%  for anc in display.anc_reports.list() %}
-  <li>Report #{{  anc['indexcol'] }}, sent at <i>{{  anc['report_date'] }}</i>, weighing <b>{{  anc['mother_weight_float'] }}</b>.</li>
-{%  endfor  %}
-</ol>
 
+
+<!-- ANC Information -->
+<h1>ANC Reports</h1>
+ <table width="100%">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Date</th>
+      <th>Weight</th>
+    </tr>
+  </thead>
+  {%  for anc in display.anc_reports.list() %}
+  <tr>
+  <td>
+  {{  anc['indexcol'] }}
+  </td>
+  <td>
+  {{  anc['report_date'] }}
+  </td>
+  <td>
+  {{  anc['mother_weight_float'] }}kg
+  </td>
+  </tr>
+  {% endfor %}
+  </table>
+
+
+
+
+<!-- PNC information -->
 <h1>PNC Reports</h1>
-<ol>
-{%  for pnc in display.pnc_reports.list() %}
-  <li>{{  pnc['indexcol'] }}</li>
-{%  endfor  %}
-</ol>
+ <table width="100%">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Date</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  {%  for pnc in display.pnc_reports.list() %}
+  <tr>
+  <td>
+  {{  pnc['indexcol'] }}
+  </td>
+  <td>
+  {{  pnc['report_date'] }}
+  </td>
+  <td>
+  {{  pnc['mw_bool'] }}
+  </td>
+  </tr>
+  {% endfor %}
+  </table>
+
 
 {%  endblock  %}

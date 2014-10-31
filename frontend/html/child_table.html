@@ -69,14 +69,28 @@
  <table width="100%">
   <thead>
     <tr>
-      <th>Code</th>
-      <th>Description</th>
+      <th>#</th>
+      <th>Date</th>
+      <th>Height</th>
+      <th>Weight</th>
     </tr>
   </thead>
-  </table>
-<ol>
   {%  for cbn in display.cbn_reports.list() %}
-  <li>Report #{{  cbn['indexcol'] }}, {{  cbn['child_height_float'] }}cm, {{  cbn['child_weight_float'] }}kg</li>
-  {%  endfor  %}
-</ol>
+  <tr>
+  <td>
+  {{  cbn['indexcol'] }}
+  </td>
+  <td>
+  {{  cbn['report_date'] }}
+  </td>
+  <td>
+  {{  cbn['child_height_float'] }}cm
+  </td>
+  <td>
+  {{  cbn['child_weight_float'] }}kg
+  </td>
+  </tr>
+  {% endfor %}
+  </table>
+
 {%  endblock  %}
