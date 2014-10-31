@@ -86,4 +86,19 @@
 </table>
 <h2>Reports</h2>
 {% include 'report_table.html' %} 
+
+<h1>ANC Reports</h1>
+<ol>
+{%  for anc in display.anc_reports.list() %}
+  <li>Report #{{  anc['indexcol'] }}, sent at <i>{{  anc['report_date'] }}</i>, weighing <b>{{  anc['mother_weight_float'] }}</b>.</li>
+{%  endfor  %}
+</ol>
+
+<h1>PNC Reports</h1>
+<ol>
+{%  for pnc in display.pnc_reports.list() %}
+  <li>{{  pnc['indexcol'] }}</li>
+{%  endfor  %}
+</ol>
+
 {%  endblock  %}

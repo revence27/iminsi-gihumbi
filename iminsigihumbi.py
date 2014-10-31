@@ -1401,7 +1401,7 @@ class Application:
 
 
   @cherrypy.expose
-  def tables_child(self, *args, **kw):
+  def __tables_child(self, *args, **kw):
     navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
     attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'] ]
     indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
@@ -1412,7 +1412,7 @@ class Application:
     patient = nat[0]  
     reminders = []
     nbc_reports = [ x for x in nat.list() ]#; print attrs
-    adata = []  # orm.ORM.query('ig_adata', {'indexcol': kid}, sort = ('report_date', False))
+    cbn_reports =   orm.ORM.query('cbn_table', cnds)
     return self.dynamised('child_table', mapping = locals(), *args, **kw)
 
   ### END OF NEWBORN ####
@@ -1556,6 +1556,7 @@ class Application:
     patient = nat[0]  
     reminders = []
     nbc_reports = [ x for x in nat.list() ]#; print attrs
+    cbn_reports = orm.ORM.query('cbn_table', cnds)
     return self.dynamised('child_table', mapping = locals(), *args, **kw)
 
   ### END OF POSTNATAL ####
@@ -1765,6 +1766,8 @@ class Application:
     patient = nat[0]  
     reminders = []
     pre_reports = [ x for x in nat.list() ]
+    anc_reports = orm.ORM.query('anc_table', cnds)
+    pnc_reports = orm.ORM.query('pnc_table', cnds)
     return self.dynamised('patient_table', mapping = locals(), *args, **kw)
 
 ##### END OF NEW UZD #######

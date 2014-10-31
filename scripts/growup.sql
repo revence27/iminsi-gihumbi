@@ -9,6 +9,7 @@ CREATE VIEW ig_babies_adata AS
     (SELECT weight FROM ig_adata WHERE baby = Babies.indexcol ORDER BY report_date DESC LIMIT 1) AS aweight,
     (SELECT height FROM ig_adata WHERE baby = Babies.indexcol ORDER BY report_date DESC LIMIT 1) AS aheight,
     indexcol AS baby,
+/*
     (
       Babies.height < (
         SELECT
@@ -77,16 +78,24 @@ CREATE VIEW ig_babies_adata AS
             )) / 30) :: INTEGER
       )
     ) AS underweight
+*/
 /*
+*/
     (RANDOM() > 0.95) AS wasting,
     (RANDOM() > 0.85) AS underweight,
     (RANDOM() > 0.75) AS stunting
+/*
 */
   FROM
     ig_babies Babies  --  , ig_adata Anthropometric
   WHERE
-        Babies.birth_date IS NOT NULL
+        --  TODO: Restore.
+        --  Babies.birth_date IS NOT NULL
+        TRUE
     AND
+        --  TODO: Restore.
+        TRUE
+        /*
         (
           SELECT
             (BabiesSub.boy IS NOT NULL OR BabiesSub.girl IS NOT NULL)
@@ -95,7 +104,11 @@ CREATE VIEW ig_babies_adata AS
           WHERE
             BabiesSub.indexcol = Babies.indexcol
         )
+        */
     AND
+        --  TODO: Restore.
+        TRUE
+        /*
       (
         SELECT
           TouAnthropou.report_date IS NOT NULL
@@ -105,4 +118,5 @@ CREATE VIEW ig_babies_adata AS
           TouAnthropou.baby = Babies.indexcol
         ORDER BY TouAnthropou.report_date LIMIT 1
       )
+      */
 ;

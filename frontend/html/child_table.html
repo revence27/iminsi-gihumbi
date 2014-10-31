@@ -64,4 +64,11 @@
 
 <h2>Reports</h2>
 {% include 'child_report_table.html' %} 
+
+<h2>CBN Reports</h2>
+<ol>
+  {%  for cbn in display.cbn_reports.list() %}
+    <li>{{  cbn['indexcol'] }}</li>
+  {%  endfor  %}
+</ol>
 {%  endblock  %}
