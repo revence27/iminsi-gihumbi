@@ -386,12 +386,37 @@ class Application:
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('birth_date')
     attrs   = self.NUT_DESCR
-    # nattrs  = copy.copy(attrs)
-    # nattrs['weight / ()'] = ''
     nat     = self.civilised_fetch('ig_babies_adata', cnds, attrs)
     total   = nat[0]['total']
     adata   = []
     return self.dynamised('nut', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def dashboards_nutr(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    nut = orm.ORM.query('cbn_table', cnds,
+      cols      = ['COUNT(*) AS allnuts'],
+      extended  = {
+        'notbreast':('COUNT(*)', 'nb_bool IS NOT NULL'),
+        'ebreast':('COUNT(*)', 'ebf_bool IS NOT NULL'),
+        'cbreast':('COUNT(*)', 'cbf_bool IS NOT NULL'),
+        'unknown':('COUNT(*)', 'cbf_bool IS NULL AND ebf_bool IS NULL AND nb_bool IS NULL'),
+
+        'stunting':('COUNT(*)', '''child_height_float < 
+(SELECT sd2neg FROM ig_deviations WHERE problem = 'stunting' AND month = ((EXTRACT(DAYS FROM (report_date - lmp)) / 30)) :: INTEGER LIMIT 1)
+'''),
+        'underweight':('COUNT(*)', '''child_weight_float <
+(SELECT sd2neg FROM ig_deviations WHERE problem = 'underweight' AND month = ((EXTRACT(DAYS FROM (report_date - lmp)) / 30)) :: INTEGER LIMIT 1)
+            
+'''),
+        'wasting':('COUNT(*)', '''child_weight_float <
+(RANDOM() * 10.0)
+''')
+      }
+    )
+    total   = nut[0]['allnuts']
+    return self.dynamised('nutr', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def dashboards_redalert(self, *args, **kw):

@@ -56,7 +56,7 @@
         
 {% else %}
   <tr>
-    <td colspan=2><center>No Symptoms</center></td>
+    <td colspan="2"><center>No Symptoms</center></td>
   </tr>
 {% endif %}
 </table>
@@ -76,7 +76,7 @@
   </table>
 <ol>
   {%  for cbn in display.cbn_reports.list() %}
-    <li>{{  cbn['indexcol'] }}</li>
+  <li>Report #{{  cbn['indexcol'] }}, {{  cbn['child_height_float'] }}cm, {{  cbn['child_weight_float'] }}kg</li>
   {%  endfor  %}
 </ol>
 {%  endblock  %}
