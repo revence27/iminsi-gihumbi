@@ -248,6 +248,18 @@ VAC_DATA = {
 
 		}
 
+DEATH_DATA = {
+		'attrs': [
+						(u'md_bool IS NOT NULL', u'Maternal Death'),
+						(u'nd_bool IS NOT NULL', u'Newborn Death'),
+						(u'cd_bool IS NOT NULL', u'Child Death'),
+											
+					],
+
+		'query_str': '((md_bool IS NOT NULL) OR (nd_bool IS NOT NULL) OR (cd_bool IS NOT NULL))'
+
+		}
+
 
 APP_DATA  = {
   'indicators'  : [
