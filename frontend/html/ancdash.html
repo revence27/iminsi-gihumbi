@@ -1,6 +1,21 @@
 {%  extends "novabase.html" %}
 {%  block title %}Antenatal Care Visit {%  endblock  %}
 {%  block subtitle %} Antenatal Care Visit {%  endblock  %}
+{% block menu %}
+ <li class="homelink">
+            <a href="/dashboards/predash"><span>Pregnancies</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/delivery"><span>Deliveries</span></a>
+          </li>
+         
+          <li class="homelink">
+            <a href="/dashboards/ancdash"><span>ANC</span></a>
+          </li>
+          
+{% endblock %}
+
+
 {% block position %}
 <li>&#187; <a href="/dashboards/ancdash">ANC</a></li>
 {% if group %}
