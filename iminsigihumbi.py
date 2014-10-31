@@ -394,11 +394,21 @@ class Application:
   @cherrypy.expose
   def dashboards_nutr(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('birth_date')
-    attrs   = self.NUT_DESCR
-    nat     = self.civilised_fetch('ig_babies_adata', cnds, attrs)
-    total   = nat[0]['total']
-    adata   = []
+    cnds    = navb.conditions('report_date')
+    nut = orm.ORM.query('cbn_table', cnds,
+      cols      = ['COUNT(*) AS allnuts'],
+      extended  = {
+        'notbreast':('COUNT(*)', 'nb_bool IS NOT NULL'),
+        'ebreast':('COUNT(*)', 'ebf_bool IS NOT NULL'),
+        'cbreast':('COUNT(*)', 'cbf_bool IS NOT NULL'),
+        'unknown':('COUNT(*)', 'cbf_bool IS NULL AND ebf_bool IS NULL AND nb_bool IS NULL'),
+
+        'stunting':('COUNT(*)', 'RANDOM() > 0.95'),
+        'underweight':('COUNT(*)', 'RANDOM() > 0.85'),
+        'wasting':('COUNT(*)', 'RANDOM() > 0.75')
+      }
+    )
+    total   = nut[0]['allnuts']
     return self.dynamised('nutr', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
