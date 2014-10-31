@@ -386,12 +386,20 @@ class Application:
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('birth_date')
     attrs   = self.NUT_DESCR
-    # nattrs  = copy.copy(attrs)
-    # nattrs['weight / ()'] = ''
     nat     = self.civilised_fetch('ig_babies_adata', cnds, attrs)
     total   = nat[0]['total']
     adata   = []
     return self.dynamised('nut', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def dashboards_nutr(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('birth_date')
+    attrs   = self.NUT_DESCR
+    nat     = self.civilised_fetch('ig_babies_adata', cnds, attrs)
+    total   = nat[0]['total']
+    adata   = []
+    return self.dynamised('nutr', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def dashboards_redalert(self, *args, **kw):
