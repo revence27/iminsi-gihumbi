@@ -403,9 +403,16 @@ class Application:
         'cbreast':('COUNT(*)', 'cbf_bool IS NOT NULL'),
         'unknown':('COUNT(*)', 'cbf_bool IS NULL AND ebf_bool IS NULL AND nb_bool IS NULL'),
 
-        'stunting':('COUNT(*)', 'RANDOM() > 0.95'),
-        'underweight':('COUNT(*)', 'RANDOM() > 0.85'),
-        'wasting':('COUNT(*)', 'RANDOM() > 0.75')
+        'stunting':('COUNT(*)', '''child_height_float < 
+(SELECT sd2neg FROM ig_deviations WHERE problem = 'stunting' AND month = ((EXTRACT(DAYS FROM (report_date - lmp)) / 30)) :: INTEGER LIMIT 1)
+'''),
+        'underweight':('COUNT(*)', '''child_weight_float <
+(SELECT sd2neg FROM ig_deviations WHERE problem = 'underweight' AND month = ((EXTRACT(DAYS FROM (report_date - lmp)) / 30)) :: INTEGER LIMIT 1)
+            
+'''),
+        'wasting':('COUNT(*)', '''child_weight_float <
+(RANDOM() * 10.0)
+''')
       }
     )
     total   = nut[0]['allnuts']

@@ -1,10 +1,10 @@
 {%  extends "basicbabies.html" %}
 {%  block mainpart  %}
-<div>Exclusive breast-feeding: {{  display.nut[0]['ebreast']}}</div>
-<div>Complementary breast-feeding: {{  display.nut[0]['cbreast']}}</div>
-<div>Not breast-feeding: {{  display.nut[0]['notbreast']}}</div>
+<div>Exclusive breast-feeding: {{  display.nut[0]['ebreast']|neat_numbers }}</div>
+<div>Complementary breast-feeding: {{  display.nut[0]['cbreast']|neat_numbers }}</div>
+<div>Not breast-feeding: {{  display.nut[0]['notbreast']|neat_numbers }}</div>
 
-<div>Stunting: {{  display.nut[0]['stunting']}}</div>
-<div>Underweight: {{  display.nut[0]['underweight']}}</div>
-<div>Wasting: {{  display.nut[0]['wasting']}}</div>
+<div>Stunting: {{  display.nut[0]['stunting']|neat_numbers  }}</div>
+<div>Underweight: {{  display.nut[0]['underweight']|neat_numbers  }}</div>
+<div>Wasting: {{  display.nut[0]['wasting']|neat_numbers  }}</div>
 {%  endblock  %}
