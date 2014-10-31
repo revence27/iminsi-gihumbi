@@ -1614,7 +1614,7 @@ class Application:
     return self.dynamised('vaccindash', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
-  def tables_vaccin(self, *args, **kw):
+  def tables_vaccindash(self, *args, **kw):
     navb, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
@@ -1627,6 +1627,8 @@ class Application:
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
+    else:
+     INDICS = settings.VAC_DATA['VAC_COMPLETION']['attrs'] + settings.VAC_DATA['VAC_SERIES']['attrs']
     if kw.get('summary'):
      province = kw.get('province') or None
      district = kw.get('district') or None
@@ -1635,8 +1637,7 @@ class Application:
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
-     
-     
+
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
       locateds = summarize_by_location(primary_table = 'chi_table', MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
@@ -1676,7 +1677,7 @@ class Application:
       
     )
     desc  = 'Vaccination %s' % (' (%s)' % (self.find_descr(DESCRI + settings.VAC_DATA['VAC_COMPLETION']['attrs'] + settings.VAC_DATA['VAC_SERIES']['attrs'], 
-						sc ), 
+						sc) or 'ALL', 
 					) )
     return self.dynamised('vaccindash_table', mapping = locals(), *args, **kw)
 
@@ -1771,7 +1772,7 @@ class Application:
       
     )
     desc  = 'Death %s' % (' (%s)' % (self.find_descr(DESCRI + settings.DEATH_DATA['attrs'], 
-						sc ), 
+						sc ) or 'ALL', 
 					) )
     return self.dynamised('deathdash_table', mapping = locals(), *args, **kw)
 
