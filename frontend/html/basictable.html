@@ -108,7 +108,7 @@
     <ul>
     <li><a href="./{{ nav.link(ref, page = cpg - 1 )  }}">&#171;</a></li>
      {% if cpg + 1 > 3 %}
-    <li><a href="./{{ nav.link(ref, page = 0 )  }}">1..</a></li>
+    <li><a href="./{{ nav.link(ref, page = 0 )  }}">1&#133;</a></li>
     {% endif %}
     {% if cpg > 1 %}
     <li><a href="./{{ nav.link(ref, page = cpg - 2 )  }}">{{ cpg - 1  }}</a></li>
@@ -124,19 +124,13 @@
     <li><a href="./{{ nav.link(ref, page = cpg + 2)  }}">{{ cpg + 3 }}</a></li>
     {% endif %}
     {% if pgs|length >= cpg + 4 %}
-    <li><a href="./{{ nav.link(ref, page = pgs|length  - 1)  }}"> ...{{ pgs|length }}</a></li>
+    <li><a href="./{{ nav.link(ref, page = pgs|length  - 1)  }}"> &#133; {{ pgs|length }}</a></li>
     {% endif %}
    <li><a href="./{{ nav.link(ref, page = cpg + 1)  }}"> &#187;</a></li>
     {% endif %}
     
     
     
-    {#  {%  for page  in pgs  %}
-      {{ page }}
-        <li>{%  if cpg == page  %}{{  loop.index  }}{%  else  %}<a href="./{{ nav.link(ref, page = page)  }}">{{ loop.index  }}</a>{% endif %}</li>
-      {%  endfor  %}
-   #}
-   
     </ul>
   </div>
 </div>
