@@ -957,12 +957,76 @@ class Application:
      ([] if 'hc' in kw else [('health_center_pk',  'Health Centre')])) + extras)
     return (navb, cnds, cols)
 
+  EXPORT_MIGS = [
+    ('total', 0),
+    ('sofar', 0)
+  ]
+  # TODO:
+  # 1.  Escapes for strings and SYLK escapes (;)
+  # 2.  Data type specification
+  # 3.  DB-validated tracking of current position
+  @cherrypy.expose
+  def exports_general(self, *args, **kw):
+    navb  = ThousandNavigation(*args, **kw)
+    cnds  = navb.conditions('report_date')
+    tbl   = kw.get('key', 'thousanddays_reports')
+    btc   = 5000
+    pos   = int(kw.get('pos', '0'))
+    eid   = kw.get('eid')
+    tot   = 0
+    beg   = False
+    if not eid:
+      toq = orm.ORM.query(tbl, cnds, cols = ['COUNT(*) AS total'])
+      tot = toq[0]['total']
+      eid = orm.ORM.store('exports_table', {'total': tot, 'sofar': 0})
+      beg = True
+    else:
+      eid = int(eid)
+      toq = orm.ORM.query('exports_table', {'indexcol = %s': eid})
+      tot = toq[0]['total']
+    pgs, rmd  = divmod(tot, btc)
+    pgs       = pgs + (1 if rmd else rmd)
+    dst       = 'frontend/static/downloads/%d.xls' % (eid, )
+    stt       = pos * btc
+    if pos > pgs:
+      with open(dst, 'a') as fch:
+        fch.write('E\n')
+      # cherrypy.response.headers['Content-Type']         = 'application/vnd.ms-excel; charset=UTF-8'
+      # cherrypy.response.headers['Content-Disposition']  = 'attachment; filename=download-%d.xls' % (eid, )
+      raise cherrypy.HTTPRedirect(dst)
+    with open(dst, 'a') as fch:
+      nat = orm.ORM.query(tbl, cnds, sort = ('indexcol', True))
+      nat[0]
+      if beg:
+        fch.write('ID;P\n')
+        stt = stt + 1
+        xps = 0
+        for hd in nat.cursor.description:
+          xps = xps + 1
+          fch.write('C;Y%d;X%d;K"%s"\n' % (stt, xps, hd.name))
+        pass
+      rng = pos * btc
+      for row in nat[rng : rng + btc]:
+        stt = stt + 1
+        xps = 0
+        for hd in nat.cursor.description:
+          xps = xps + 1
+          fch.write('C;Y%d;X%d;K"%s"\n' % (stt, xps, row[hd.name]))
+    # raise cherrypy.HTTPRedirect('/exports/general?pos=%d&eid=%d' % (pos + 1, eid))
+    cherrypy.response.headers['Content-Type'] = 'application/json'
+    cherrypy.response.headers['Location']     = '/exports/general?lmt=%d&pos=%d&eid=%d' % (pgs, pos + 1, eid)
+    cherrypy.response.status                  = 303
+    return json.dumps({'total': tot, 'id': eid, 'pos': pos + 1, 'limit': pgs})
+
   @cherrypy.expose
   def exports_delivery(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('report_date')
     nat     = orm.ORM.query('bir_table', cnds)
-    raise Exception, str(kw)
+    nat[0]
+    raise Exception, str(nat.cursor.description)
+    raise Exception, str(nat.cols)
+    raise Exception, str(nat.query)
 
   # TODO.
   @cherrypy.expose
