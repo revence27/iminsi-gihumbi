@@ -1,0 +1,83 @@
+{%  extends "novabase.html" %}
+{%  block title %}Community Case Management {%  endblock  %}
+{%  block subtitle %} Community Case Management {%  endblock  %}
+{%  block trunkstyle  %} style="background: url('{{ static_path }}/images/anc.jpg') no-repeat fixed center"{%  endblock  %}
+
+{% block menu %}
+		 <li class="">
+            <a href="/dashboards/ccm"><span>CCM</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/vaccindash"><span>Vaccinations</span></a>
+          </li>
+{% endblock %}
+
+
+
+{%  block mainpart  %}
+
+<div class="smallcontainer">
+   
+     <img class="icon" src="{{  static_path }}/images/ccm.jpg" />
+    <div class="infoname" style="font-size: 20px;">Number of Children</div>
+    <div class="moretotal" ><a href="{{ nav.link('/tables/ccmdash', summary = 'on')}}">View by Location</a></div>
+    <div class="infodata goodnum">
+      <a href="{{ nav.link('/tables/ccmdash' )}}">{{  display.ccm[0]['total']|neat_numbers }}</a>
+    </div>
+    
+    
+    
+  </div>
+  <div class="humblecontainer">
+
+	{%  for ca in display.ccm_attrs %}
+	  <div class="datapoint">
+	  
+	    {%  set num = display.ccm[0][ca[0]] %}
+	    
+	    <div class="descr">{{  ca[1] }}</div>
+	    <div class="moreoptions startshidden" >
+		 <a href="/tables/{{  nav.link('ccmdash', subcat = ca[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
+	    </div>
+	    <div class="number">
+		{% if  num %}<a href="/tables/{{  nav.link('ccmdash', subcat = ca[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>
+		{% else  %}  {{  num|neat_numbers }}  {%  endif %}
+	    </div>
+	    
+  	   </div>
+	{%  endfor  %}
+
+  </div>
+
+  <div class="humblecontainer">
+
+    <div class="infoname" style="padding-left:200px; padding-top:50px; padding-bottom: 20px;">Interventions</div>
+    
+    <div class="datapointccm">
+    <div class="descr">Treated</div>
+    <div class="number">54</div>
+    </div>
+    
+    <div class="datapointccm">
+    <div class="descr">Directly Referred</div>
+    <div class="number">54</div>
+    </div>
+    
+    <div class="datapointccm">
+    <div class="descr">Referred after Treatement</div>
+    <div class="number">54</div>
+    </div>
+    
+   
+    <div class="datapointccm">
+    <div class="descr">Binome Advice</div>
+    <div class="number">54</div>
+    </div>
+    
+ 
+    
+  </div>
+
+
+
+{%  endblock  %}

@@ -260,6 +260,18 @@ DEATH_DATA = {
 
 		}
 
+CCM_DATA = {
+		'attrs': [
+						(u'di_bool IS NOT NULL', u'Diarrhea'),
+						(u'ma_bool IS NOT NULL', u'Malaria'),
+						(u'pc_bool IS NOT NULL', u'Pneumonia'),
+											
+					],
+
+		'query_str': '((di_bool IS NOT NULL) OR (ma_bool IS NOT NULL) OR (pc_bool IS NOT NULL))'
+		
+		}
+
 
 APP_DATA  = {
   'indicators'  : [
