@@ -736,7 +736,6 @@ class Application:
   @cherrypy.expose
   def tables_delivery(self, *args, **kw):
     navb, cnds, cols    = self.tables_in_general(*args, **kw)
-    # TODO: optimise
     nat     = orm.ORM.query('bir_table', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
     )
@@ -746,14 +745,12 @@ class Application:
   @cherrypy.expose
   def tables_pregnancy(self, *args, **kw):
     navb, cnds, cols    = self.tables_in_general(*args, **kw)
-    # TODO: optimise
     nat     = orm.ORM.query('pre_table', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
     )
     desc  = 'Pregnancy Reports'
     return self.dynamised('pregnancy_table', mapping = locals(), *args, **kw)
 
-  # TODO: Handle deep structure and boolean display.
   @cherrypy.expose
   def tables_pregnancies(self, *args, **kw):
     if kw.get('summary'):
@@ -784,7 +781,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs = self.PREGNANCIES_DESCR
     nat     = orm.ORM.query('ig_pregnancies', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
@@ -816,7 +812,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs   = self.NUT_DESCR
     nat     = orm.ORM.query('ig_babies_adata', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
@@ -824,8 +819,6 @@ class Application:
     desc  = 'Nutrition%s' % (' (%s)' % (self.find_descr(self.NUT_DESCR, sc), ) if sc else '', )
     return self.dynamised('babies_table', mapping = locals(), *args, **kw)
 
-  # TODO: Handle deep structure and boolean display.
-  # TODO: List and link the mother.
   @cherrypy.expose
   def tables_babies(self, *args, **kw):
     if kw.get('summary'):
@@ -858,7 +851,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs   = self.BABIES_DESCR
     nat     = orm.ORM.query('ig_babies', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
@@ -866,7 +858,6 @@ class Application:
     desc  = 'Babies%s' % (' (%s)' % (self.find_descr(self.BABIES_DESCR, sc), ) if sc else '', )
     return self.dynamised('babies_table', mapping = locals(), *args, **kw)
 
-  # TODO: Handle deep structure and boolean display.
   @cherrypy.expose
   def tables_mothers(self, *args, **kw):
     if kw.get('summary'):
@@ -901,7 +892,6 @@ class Application:
     }
     if sc:
       cnds[{'withprev':'pregnancies > 1'}.get(sc, sc)]  = ''
-    # TODO: optimise
     attrs   = self.MOTHERS_DESCR
     nat     = orm.ORM.query('ig_mothers', cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
@@ -910,7 +900,6 @@ class Application:
     desc  = 'Mothers%s' % (' (%s)' % (self.find_descr(self.MOTHERS_DESCR, sc), ) if sc else '', )
     return self.dynamised('mothers_table', mapping = locals(), *args, **kw)
 
-  # TODO: Handle deep structure.
   @cherrypy.expose
   def tables_reports(self, *args, **kw):
     navb, cnds, cols    = self.neater_tables(basics = [
@@ -920,7 +909,6 @@ class Application:
       ('reporter_phone',    'Reporter Phone'),
       ('report_type',       'Report Type')
     ], *args, **kw)
-    # TODO: optimise
     desc    = 'Reports'
     sc      = kw.get('subcat')
     markup  = {}
@@ -933,7 +921,6 @@ class Application:
     )
     return self.dynamised('reports_table', mapping = locals(), *args, **kw)
 
-  # TODO: Handle deep structure and boolean display.
   @cherrypy.expose
   def tables_reporters(self, *args, **kw):
     navb, cnds, cols    = self.neater_tables(
@@ -951,7 +938,6 @@ class Application:
       'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
       'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), )
     }
-    # TODO: optimise
     nat     = orm.ORM.query('ig_reporters', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
       sort  = ('created_at', False)
@@ -1007,7 +993,6 @@ class Application:
     ('sofar', 0)
   ]
   # TODO:
-  # 1.  Escapes for strings and SYLK escapes (;)
   # 2.  Data type specification
   # 3.  DB-validated tracking of current position
   # 4.  Use table key for real, not table name.
@@ -1050,7 +1035,7 @@ class Application:
         xps = 0
         for hd in nat.cursor.description:
           xps = xps + 1
-          fch.write('C;Y%d;X%d;K"%s"\n' % (stt, xps, hd.name))
+          fch.write('C;Y%d;X%d;K%s\n' % (stt, xps, json.dumps(hd.name)))
         pass
       rng = pos * btc
       for row in nat[rng : rng + btc]:
@@ -1058,7 +1043,7 @@ class Application:
         xps = 0
         for hd in nat.cursor.description:
           xps = xps + 1
-          fch.write('C;Y%d;X%d;K"%s"\n' % (stt, xps, row[hd.name]))
+          fch.write('C;Y%d;X%d;K%s\n' % (stt, xps, json.dumps(str(row[hd.name])))
     # raise cherrypy.HTTPRedirect('/exports/general?pos=%d&eid=%d' % (pos + 1, eid))
     cherrypy.response.headers['Content-Type'] = 'application/json'
     cherrypy.response.headers['Location']     = '/exports/general?lmt=%d&pos=%d&eid=%d' % (pgs, pos + 1, eid)
@@ -1076,7 +1061,6 @@ class Application:
     raise Exception, str(nat.cols)
     raise Exception, str(nat.query)
 
-  # TODO.
   @cherrypy.expose
   def dashboards_reporting(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
@@ -1120,7 +1104,6 @@ class Application:
       ('mother_sick', 'With Unspecifed Sickness'),
       ('previous_convulsion', 'With History of Convulsions'),
     ]
-  # TODO.
   @cherrypy.expose
   def dashboards_pregnancies(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
@@ -1255,7 +1238,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs = []
     if kw.get('group') == 'no_risk':
      cnds.update({'(%s)' % settings.NO_RISK['query_str']: ''})
@@ -1366,7 +1348,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs = []
     if kw.get('group') == 'no_risk':
      cnds.update({'(%s)' % settings.NO_RISK['query_str']: ''})
@@ -1515,7 +1496,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs = []
     if kw.get('group') == 'no_risk':
      cnds.update({'(%s)' % settings.NBC_DATA['NO_RISK']['query_str']: ''})
@@ -1664,7 +1644,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs = []
     if kw.get('group') == 'no_risk':
      cnds.update({'(%s)' % settings.PNC_DATA['NO_RISK']['query_str']: ''})
@@ -1784,7 +1763,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs = []
     
     cols    += settings.LOCATION_INFO   
@@ -1890,7 +1868,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs = []
     
     cols    += settings.LOCATION_INFO   
@@ -1985,7 +1962,6 @@ class Application:
     }
     if sc:
       cnds[sc]  = ''
-    # TODO: optimise
     attrs = []
     
     cols    += settings.LOCATION_INFO   
@@ -2034,7 +2010,6 @@ class Application:
     ('stillborn', 'Stillborn'),
     ('no_problem', 'With No Problem')
   ]
-  # TODO.
   @cherrypy.expose
   def dashboards_babies(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
@@ -2045,7 +2020,6 @@ class Application:
     total   = nat[0]['total']
     return self.dynamised('babies', mapping = locals(), *args, **kw)
 
-  # TODO.
   @cherrypy.expose
   def dashboards_delivs(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
@@ -2115,7 +2089,6 @@ class Application:
       ('handwashing', 'With Water Tap'),
       ('no_handwashing', 'No Water Tap'),
     ]
-  # TODO.
   @cherrypy.expose
   def dashboards_mothers(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
