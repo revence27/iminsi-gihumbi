@@ -109,14 +109,14 @@ PREGNANCY_DATA = [
       ('report_date', 'Submission Date'),
     ]
 
-ANC = { 
+ANC_DATA = { 
 	'attrs': [
 			('anc2_bool IS NOT NULL', 'ANC2'),
 			('anc3_bool IS NOT NULL', 'ANC3'),
 			('anc4_bool IS NOT NULL', 'ANC4'),
 		],
 
-	'query_str':[]
+	'query_str': '((anc2_bool IS NOT NULL) OR (anc3_bool IS NOT NULL) OR (anc4_bool IS NOT NULL))'
 
 	}
 

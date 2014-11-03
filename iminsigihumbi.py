@@ -1174,8 +1174,9 @@ class Application:
     navb    = ThousandNavigation(*args, **kw)
     cnds    = navb.conditions('report_date')
     exts = {}
-    attrs = [(x.split()[0], dict(settings.ANC['attrs'])[x]) for x in dict (settings.ANC['attrs'])]
-    exts.update(dict([(x[0].split()[0], ('COUNT(*)', x[0])) for x in settings.ANC['attrs'] ])) 
+    attrs = [(x.split()[0], dict(settings.ANC_DATA['attrs'])[x]) for x in dict (settings.ANC_DATA['attrs'])]
+    cnds.update({settings.ANC_DATA['query_str']: ''})
+    exts.update(dict([(x[0].split()[0], ('COUNT(*)', x[0])) for x in settings.ANC_DATA['attrs'] ])) 
     nat = orm.ORM.query(  'anc_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -1193,13 +1194,10 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
+    cnds.update({settings.ANC_DATA['query_str']: ''})
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
-     if kw.get('group'):
-      if kw.get('group') == 'no_risk':
-       cnds.update({'(%s)' % settings.NO_RISK['query_str']: ''})
-      else:
-       kw.update({'compare': ' IS NOT'})
-       kw.update({'value': ' NULL'})
+     kw.update({'compare': ' IS NOT'})
+     kw.update({'value': ' NULL'})
     if kw.get('summary'):
      province = kw.get('province') or None
      district = kw.get('district') or None
@@ -1208,25 +1206,13 @@ class Application:
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
-     if kw.get('subcat') is None:
-      if kw.get('group') == 'no_risk':
-       wcl.append({'field_name': '(%s)' % settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-       INDICS = []
-      if kw.get('group') == 'at_risk':
-       wcl.append({'field_name': '(%s)' % settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-       INDICS = settings.RISK['attrs']
-      if kw.get('group') == 'high_risk':
-       wcl.append({'field_name': '(%s)' % settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-       INDICS = settings.HIGH_RISK['attrs']
-      if kw.get('group') is None:
-       INDICS = [('no_risk', 'No Risk', '(%s)' % settings.NO_RISK['query_str'] ), 
-		('at_risk', 'At Risk', '(%s)' % settings.RISK['query_str']),
-		 ('high_risk', 'High Risk', '(%s)' % settings.HIGH_RISK['query_str']),
-		]#; print INDICS
-     
+     wcl.append({'field_name': '(%s)' % settings.ANC_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
+
+     if kw.get('subcat') is None: INDICS = settings.ANC_DATA['attrs']
+      
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
-      locateds = summarize_by_location(primary_table = 'pre_table', MANY_INDICS = INDICS, where_clause = wcl, 
+      locateds = summarize_by_location(primary_table = 'anc_table', MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location,
@@ -1251,16 +1237,7 @@ class Application:
     if sc:
       cnds[sc]  = ''
     # TODO: optimise
-    attrs = []
-    if kw.get('group') == 'no_risk':
-     cnds.update({'(%s)' % settings.NO_RISK['query_str']: ''})
-     DESCRI.append(('no_risk', 'No Risk'))
-    if kw.get('group') == 'at_risk':
-     cnds.update({'(%s)' % settings.RISK['query_str']: ''})
-     DESCRI.append(('at_risk', 'At Risk'))
-    if kw.get('group') == 'high_risk':
-     cnds.update({'(%s)' % settings.HIGH_RISK['query_str']: ''})
-     DESCRI.append(('high_risk', 'High Risk'))
+    attrs = settings.ANC_DATA['attrs']
 
     cols    += settings.LOCATION_INFO   
     nat     = orm.ORM.query('anc_table', cnds,
@@ -1271,9 +1248,9 @@ class Application:
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'ANC%s' % (' (%s)' % (self.find_descr(DESCRI + settings.RISK['attrs'] + settings.HIGH_RISK['attrs'], sc or kw.get('group')), 
+    desc  = 'ANC%s' % (' (%s)' % (self.find_descr(DESCRI + settings.ANC_DATA['attrs'], sc or kw.get('group')), 
 					) if sc or kw.get('group') else '', )
-    return self.dynamised('predash_table', mapping = locals(), *args, **kw)
+    return self.dynamised('ancdash_table', mapping = locals(), *args, **kw)
 
   ### END OF ANC ###
 
