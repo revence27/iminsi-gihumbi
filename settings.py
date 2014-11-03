@@ -109,14 +109,14 @@ PREGNANCY_DATA = [
       ('report_date', 'Submission Date'),
     ]
 
-ANC = { 
+ANC_DATA = { 
 	'attrs': [
 			('anc2_bool IS NOT NULL', 'ANC2'),
 			('anc3_bool IS NOT NULL', 'ANC3'),
 			('anc4_bool IS NOT NULL', 'ANC4'),
 		],
 
-	'query_str':[]
+	'query_str': '((anc2_bool IS NOT NULL) OR (anc3_bool IS NOT NULL) OR (anc4_bool IS NOT NULL))'
 
 	}
 
@@ -283,6 +283,41 @@ CMR_DATA = {
 
 		'query_str': '((pt_bool IS NOT NULL) OR (pr_bool IS NOT NULL) OR (tr_bool IS NOT NULL) OR (aa_bool IS NOT NULL))'
 		
+		}
+
+RED_DATA = {
+
+		'attrs': [
+				(u'ap_bool IS NOT NULL', u'Acute Abd Pain Early Pregnancy') ,
+				(u'co_bool IS NOT NULL', u'Convulsions') ,
+				(u'he_bool IS NOT NULL', u'Hemorrhaging/Bleeding') ,
+				(u'la_bool IS NOT NULL', u'Mother in Labor at Home') ,
+				(u'mc_bool IS NOT NULL', u'Miscarriage') ,
+				(u'pa_bool IS NOT NULL', u'Premature Contraction') ,
+				(u'ps_bool IS NOT NULL', u'Labour with Previous C-Section') ,
+				(u'sc_bool IS NOT NULL', u'Serious Condition but Unknown') ,
+				#(u'sl_bool IS NOT NULL', u'Stroke during Labor') ,
+				(u'un_bool IS NOT NULL', u'Unconscious'), 
+			],
+
+		'query_str': '((ap_bool IS NOT NULL) OR  (co_bool IS NOT NULL) OR  (he_bool IS NOT NULL) OR  (la_bool IS NOT NULL) OR  (mc_bool IS NOT NULL) OR  (pa_bool IS NOT NULL) OR  (ps_bool IS NOT NULL) OR  (sc_bool IS NOT NULL) OR  (un_bool IS NOT NULL) OR  (ho_bool IS NOT NULL) OR  (or_bool IS NOT NULL))'
+
+		#'query_str': '((ap_bool IS NOT NULL) OR  (co_bool IS NOT NULL) OR  (he_bool IS NOT NULL) OR  (la_bool IS NOT NULL) OR  (mc_bool IS NOT NULL) OR  (pa_bool IS NOT NULL) OR  (ps_bool IS NOT NULL) OR  (sc_bool IS NOT NULL) OR  (sl_bool IS NOT NULL) OR  (un_bool IS NOT NULL) OR  (ho_bool IS NOT NULL) OR  (or_bool IS NOT NULL))'
+
+		}
+
+RAR_DATA = {
+
+		'attrs': [
+				(u'al_bool IS NOT NULL', u'Ambulance Late') ,
+				(u'at_bool IS NOT NULL', u'Ambulance on Time') ,
+				(u'na_bool IS NOT NULL', u'No Ambulance Response') ,
+				(u'mw_bool IS NOT NULL', u'Mother Well(OK)') ,
+				(u'ms_bool IS NOT NULL', u'Mother Sick') ,
+			],
+
+		'query_str': '((al_bool IS NOT NULL) OR  (at_bool IS NOT NULL) OR  (na_bool IS NOT NULL) OR  (mw_bool IS NOT NULL) OR  (ms_bool IS NOT NULL))'
+
 		}
 
 
