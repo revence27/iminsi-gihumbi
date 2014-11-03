@@ -1,0 +1,89 @@
+{%  extends "novabase.html" %}
+{%  block title %}Community Case Management {%  endblock  %}
+{%  block subtitle %} Community Case Management {%  endblock  %}
+{%  block trunkstyle  %} style="background: url('{{ static_path }}/images/anc.jpg') no-repeat fixed center"{%  endblock  %}
+
+{% block menu %}
+	<li class="homelink">
+            <a href="/dashboards/predash"><span>Pregnancies</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/delivery"><span>Deliveries</span></a>
+          </li>
+         
+          <li class="homelink">
+            <a href="/dashboards/ancdash"><span>ANC</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/reddash"><span>RedAlert</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/deathdash"><span>Deaths</span></a>
+          </li>
+{% endblock %}
+
+
+
+{%  block mainpart  %}
+
+<div class="smallcontainer">
+   
+     <img class="icon" src="{{  static_path }}/images/circlehighrisk.png" />
+    <div class="infoname" style="font-size: 20px;">Total Red Alerts</div>
+    <div class="moretotal" ><a href="{{ nav.link('/tables/reddash', summary = 'on')}}">View by Location</a></div>
+    <div class="infodata goodnum">
+      <a href="{{ nav.link('/tables/reddash' )}}">{{  display.red[0]['total']|neat_numbers }}</a>
+    </div>
+    
+    
+    
+  </div>
+  <div class="humblecontainer">
+
+	{%  for red in display.red_attrs %}
+	  <div class="datapoint">
+	  
+	    {%  set num = display.red[0][red[0]] %}
+	    
+	    <div class="descr">{{  red[1] }}</div>
+	    <div class="moreoptions startshidden" >
+		 <a href="/tables/{{  nav.link('reddash', subcat = red[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
+	    </div>
+	    <div class="number">
+		{% if  num %}<a href="/tables/{{  nav.link('reddash', subcat = red[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>
+		{% else  %}  {{  num|neat_numbers }}  {%  endif %}
+	    </div>
+	    
+  	   </div>
+	{%  endfor  %}
+
+  </div>
+
+  <div class="humblecontainer">
+
+    <div class="infoname" style="padding-left:200px; padding-top:50px; padding-bottom: 20px;">Interventions</div>
+    
+
+	{%  for rar in display.rar_attrs %}
+	  <div class="datapoint">
+	  
+	    {%  set num = display.rar[0][rar[0]] %}
+	    
+	    <div class="descr">{{  rar[1] }}</div>
+	    <div class="moreoptions startshidden" >
+		 <a href="/tables/{{  nav.link('reddash', subcat = rar[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
+	    </div>
+	    <div class="number">
+		{% if  num %}<a href="/tables/{{  nav.link('reddash', subcat = rar[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>
+		{% else  %}  {{  num|neat_numbers }}  {%  endif %}
+	    </div>
+	    
+  	   </div>
+	{%  endfor  %}
+ 
+    
+  </div>
+
+
+
+{%  endblock  %}
