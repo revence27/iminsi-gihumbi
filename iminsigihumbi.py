@@ -96,6 +96,35 @@ class ThousandLocation:
       except KeyError:  pass
     return urlparse.urlunsplit((pcs[0], pcs[1], pcs[2], '&'.join(['%s=%s' % (k, urllib2.quote(qrs[k])) for k in qrs if qrs[k]]), pcs[4]))
 
+class ThousandAuth:
+  def __init__(self, usn):
+    self.usern  = usn
+
+  def check(self, pwd):
+    him = orm.ORM.query('ig_admins', {'username = %s': self.usern})
+    if him.count() < 1:
+      return False
+    him = him[0]
+    slt = him['salt']
+    shp = sha.sha('%s%s' % (slt, pwd)).hexdigest()
+    return shp == him['sha1_pass']
+
+  def conditions(self):
+    ans = {}
+    him = orm.ORM.query('ig_admins', {'username = %s': self.usern})[0]
+    if him['province_pk']:
+      ans['province_pk = %s'] = him['province_pk']
+    if him['district_pk']:
+      ans['district_pk = %s'] = him['district_pk']
+    if him['health_center_pk']:
+      ans['health_center_pk = %s'] = him['health_center_pk']
+    return ans
+
+  def checked_conditions(self, pwd):
+    if not self.check(pwd):
+      raise Exception, 'Access denied.'
+    return self.conditions()
+
 class ThousandNavigation:
   def __init__(self, *args, **kw):
     self.args   = args
@@ -208,8 +237,8 @@ class ThousandNavigation:
     )
     return prvq.list()
 
-  def conditions(self, tn = 'created_at'):
-    ans = {}
+  def conditions(self, tn, ini = None):
+    ans = ini.conditions() if ini else {}
     if tn:
       ans = {
         (tn + ' >= %s')  : self.start,
@@ -384,7 +413,8 @@ class Application:
   @cherrypy.expose
   def dashboards_nut(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('birth_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('birth_date', auth)
     attrs   = self.NUT_DESCR
     nat     = self.civilised_fetch('ig_babies_adata', cnds, attrs)
     total   = nat[0]['total']
@@ -394,7 +424,8 @@ class Application:
   @cherrypy.expose
   def dashboards_nutr(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     nut = orm.ORM.query('cbn_table', cnds,
       cols      = ['COUNT(*) AS allnuts'],
       extended  = {
@@ -421,7 +452,8 @@ class Application:
   @cherrypy.expose
   def dashboards_redalert(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     attrs   = self.PREGNANCIES_DESCR
     # nat     = self.civilised_fetch('red_table', cnds, attrs)
     nat     = orm.ORM.query('red_table', cnds)
@@ -444,7 +476,8 @@ class Application:
 
   def locals_for_births(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     pcnds   = copy.copy(cnds)
     pcnds[("lmp + ('%d DAYS' :: INTERVAL)" % (settings.GESTATION, )) + ' <= %s']  = navb.finish
     delivs  = orm.ORM.query('bir_table', cnds,
@@ -547,7 +580,8 @@ class Application:
   @cherrypy.expose
   def dashboards_vaccination(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     vacced  = orm.ORM.query('chi_table', cnds,
       cols  = ['COUNT(*) AS allkids'],
       extended  = {
@@ -943,6 +977,7 @@ class Application:
       ('lmp',               'LMP')
     ], *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
+    auth    = ThousandAuth(cherrypy.session['email'])
     cnds    = {}
     pid     = kw.get('pid')
     tid     = kw.get( 'id')
@@ -951,11 +986,21 @@ class Application:
     elif tid:
       cnds  = {'indexcol  = %s':  tid}
     else:
-      cnds  = navb.conditions(sorter)
+      cnds  = navb.conditions(sorter, auth)
     cols  = (basics + (([] if 'province' in kw else [('province_pk',       'Province')]) +
      ([] if 'district' in kw else [('district_pk',       'District')]) +
      ([] if 'hc' in kw else [('health_center_pk',  'Health Centre')])) + extras)
     return (navb, cnds, cols)
+
+  def authentication(self, *args, **kw):
+    auth  = ThousandAuth(kw.get('email'))
+    if kw.get('logout'):
+      del cherrypy.session['email']
+    if auth.check(kw.get('password')):
+      cherrypy.session['email'] = kw.get('email')
+    if kw.get('next'):
+      raise cherrypy.HTTPRedirect(kw.get('next'))
+    raise cherrypy.HTTPRedirect('/')
 
   EXPORT_MIGS = [
     ('total', 0),
@@ -965,10 +1010,12 @@ class Application:
   # 1.  Escapes for strings and SYLK escapes (;)
   # 2.  Data type specification
   # 3.  DB-validated tracking of current position
+  # 4.  Use table key for real, not table name.
   @cherrypy.expose
   def exports_general(self, *args, **kw):
     navb  = ThousandNavigation(*args, **kw)
-    cnds  = navb.conditions('report_date')
+    auth  = ThousandAuth(cherrypy.session['email'])
+    cnds  = navb.conditions('report_date', auth)
     tbl   = kw.get('key', 'thousanddays_reports')
     btc   = 5000
     pos   = int(kw.get('pos', '0'))
@@ -1021,7 +1068,8 @@ class Application:
   @cherrypy.expose
   def exports_delivery(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     nat     = orm.ORM.query('bir_table', cnds)
     nat[0]
     raise Exception, str(nat.cursor.description)
@@ -1032,7 +1080,8 @@ class Application:
   @cherrypy.expose
   def dashboards_reporting(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions(None)
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions(None, auth)
     nat     = orm.ORM.query('ig_reporters', cnds, cols = ['COUNT(*) AS total'])
     total   = nat[0]['total']
     rps     = orm.ORM.query('thousanddays_reports', cnds, cols = ['COUNT(*) AS total'])
@@ -1075,7 +1124,8 @@ class Application:
   @cherrypy.expose
   def dashboards_pregnancies(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     attrs   = self.PREGNANCIES_DESCR
     nat     = self.civilised_fetch('ig_pregnancies', cnds, attrs)
     total   = nat[0]['total']
@@ -1086,7 +1136,8 @@ class Application:
   @cherrypy.expose
   def dashboards_predash(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     exts = {}
     total = orm.ORM.query(  'pre_table', 
 			  cnds,
@@ -1236,7 +1287,8 @@ class Application:
   @cherrypy.expose
   def dashboards_ancdash(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     exts = {}
     attrs = [(x.split()[0], dict(settings.ANC['attrs'])[x]) for x in dict (settings.ANC['attrs'])]
     exts.update(dict([(x[0].split()[0], ('COUNT(*)', x[0])) for x in settings.ANC['attrs'] ])) 
@@ -1345,7 +1397,8 @@ class Application:
   @cherrypy.expose
   def dashboards_nbcdash(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     exts = {}
     total = orm.ORM.query(  'nbc_table', 
 			  cnds,
@@ -1510,7 +1563,8 @@ class Application:
   @cherrypy.expose
   def dashboards_pncdash(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     exts = {}
     total = orm.ORM.query(  'pnc_table', 
 			  cnds,
@@ -1654,7 +1708,8 @@ class Application:
   @cherrypy.expose
   def dashboards_vaccindash(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     exts = {}
     
     vac_comps_attrs = [(x[0].split()[0], x[1]) for x in settings.VAC_DATA['VAC_COMPLETION']['attrs']]
@@ -1755,7 +1810,8 @@ class Application:
   @cherrypy.expose
   def dashboards_deathdash(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     exts = {}
     
     attrs = [(x[0].split()[0], x[1]) for x in settings.DEATH_DATA['attrs']]
@@ -1877,7 +1933,8 @@ class Application:
   @cherrypy.expose
   def dashboards_babies(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('birth_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('birth_date', auth)
     attrs   = self.BABIES_DESCR
     nat     = self.civilised_fetch('ig_babies', cnds, attrs)
     total   = nat[0]['total']
@@ -1887,7 +1944,8 @@ class Application:
   @cherrypy.expose
   def dashboards_delivs(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('lmp')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('lmp', auth)
     cnds[("""(lmp + '%d DAYS')""" % (settings.GESTATION, )) + """ >= %s"""] = navb.finish
     attrs   = self.PREGNANCIES_DESCR
     nat     = self.civilised_fetch('ig_pregnancies', cnds, attrs)
@@ -1902,6 +1960,7 @@ class Application:
   @cherrypy.expose
   def dashboards_admins(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
+    auth    = ThousandAuth(cherrypy.session['email'])
     naddr   = kw.get('addr')
     dadmin  = kw.get('del')
     if dadmin:
@@ -1917,7 +1976,7 @@ class Application:
       thing = {'salt': salt, 'address': naddr, 'sha1_pass': rslt.hexdigest(), 'district_pk': dst, 'province_pk': prv, 'health_center_pk': hc}
       orm.ORM.store('ig_admins', thing, migrations  = self.ADMIN_MIGRATIONS)
       raise cherrypy.HTTPRedirect(cherrypy.request.headers.get('Referer') or '/dashboards/admins')
-    cnds    = navb.conditions(None)
+    cnds    = navb.conditions(None, auth)
     if not prv:
       cnds['province_pk IS NULL'] = ''
     if not dst:
@@ -1955,7 +2014,8 @@ class Application:
   @cherrypy.expose
   def dashboards_mothers(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     pregs   = orm.ORM.query('ig_mothers', cnds, cols = ['(SUM(pregnancies) - COUNT(*)) AS total'])[0]['total']
     attrs   = self.MOTHERS_DESCR
     nat     = self.civilised_fetch('ig_mothers', cnds, attrs)
@@ -1965,7 +2025,8 @@ class Application:
   @cherrypy.expose
   def dashboards_pregnancy(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     nat     = orm.ORM.query('pre_table', cnds,
       cols      = ['COUNT(*) AS allpregs'],
       extended  = PREGNANCY_MATCHES,
@@ -2063,7 +2124,8 @@ class Application:
   @cherrypy.expose
   def data_reports(self, *args, **kw):
     navb    = ThousandNavigation(*args, **kw)
-    cnds    = navb.conditions('report_date')
+    auth    = ThousandAuth(cherrypy.session['email'])
+    cnds    = navb.conditions('report_date', auth)
     cnds.update({'report_type = %s':kw.get('subcat')})
     cherrypy.response.headers['Content-Type'] = 'application/json'
     reps   = orm.ORM.query('thousanddays_reports', cnds, cols = ['COUNT(*) AS total'])[0]['total']
