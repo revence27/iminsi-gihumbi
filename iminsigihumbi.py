@@ -1702,14 +1702,15 @@ class Application:
 			  extended = ccm_exts,
 			)
 
-    #vac_series_attrs = [(x[0].split()[0], x[1]) for x in settings.VAC_DATA['VAC_SERIES']['attrs']]
-    #vac_series_exts = exts
-    #vac_series_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.VAC_DATA['VAC_SERIES']['attrs']]))
-    #vac_series = orm.ORM.query(  'chi_table', 
-    #			  cnds, 
-    #			  cols = ['COUNT(*) AS total'], 
-    #			  extended = vac_series_exts,
-    #			)
+    cmr_attrs = [(x[0].split()[0], x[1]) for x in settings.CMR_DATA['attrs']]
+    cmr_cnds = navb.conditions('report_date')
+    cmr_cnds.update({settings.CMR_DATA['query_str']: ''})
+    cmr_exts = dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.CMR_DATA['attrs']])
+    cmr = orm.ORM.query(  'cmr_table', 
+			  cmr_cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = cmr_exts,
+			)
 
     return self.dynamised('ccmdash', mapping = locals(), *args, **kw)
 
@@ -1724,12 +1725,16 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
-    cnds.update({settings.CCM_DATA['query_str']: ''})
+    primary_table = 'ccm_table'
+    if kw.get('subcat') and kw.get('subcat') in [x[0].split()[0] for x in settings.CMR_DATA['attrs']]:
+     primary_table = 'cmr_table'
+     cnds.update({settings.CMR_DATA['query_str']: ''})
+    else: cnds.update({settings.CCM_DATA['query_str']: ''}) 
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     else:
-     INDICS = settings.CCM_DATA['attrs'] #+ settings.VAC_DATA['VAC_SERIES']['attrs']
+     INDICS = settings.CCM_DATA['attrs']
     if kw.get('summary'):
      province = kw.get('province') or None
      district = kw.get('district') or None
@@ -1740,7 +1745,7 @@ class Application:
 	   }] if kw.get('subcat') else []
 
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
-      locateds = summarize_by_location(primary_table = 'ccm_table', MANY_INDICS = INDICS, where_clause = wcl, 
+      locateds = summarize_by_location(primary_table = primary_table, MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location,
@@ -1770,14 +1775,14 @@ class Application:
     attrs = []
     
     cols    += settings.LOCATION_INFO   
-    nat     = orm.ORM.query('ccm_table', cnds,
+    nat     = orm.ORM.query(primary_table, cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp) AS dob', 'Date Of Birth'),
  
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'CCM %s' % (' (%s)' % (self.find_descr(DESCRI + settings.CCM_DATA['attrs'] + settings.VAC_DATA['VAC_SERIES']['attrs'], 
+    desc  = 'CCM %s' % (' (%s)' % (self.find_descr(DESCRI + settings.CCM_DATA['attrs'] + settings.CMR_DATA['attrs'], 
 						sc) or 'ALL', 
 					) )
     return self.dynamised('ccmdash_table', mapping = locals(), *args, **kw)

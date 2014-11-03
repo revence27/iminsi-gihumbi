@@ -272,6 +272,19 @@ CCM_DATA = {
 		
 		}
 
+CMR_DATA = {
+		'attrs': [
+						(u'pt_bool IS NOT NULL', u'Patient Treated'),
+						(u'pr_bool IS NOT NULL', u'Patient Directly Referred'),
+						(u'tr_bool IS NOT NULL', u'Patient Referred After Treatment'),
+						(u'aa_bool IS NOT NULL', u'Binome Advice'),
+											
+					],
+
+		'query_str': '((pt_bool IS NOT NULL) OR (pr_bool IS NOT NULL) OR (tr_bool IS NOT NULL) OR (aa_bool IS NOT NULL))'
+		
+		}
+
 
 APP_DATA  = {
   'indicators'  : [

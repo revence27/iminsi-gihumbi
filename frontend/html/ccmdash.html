@@ -53,27 +53,23 @@
 
     <div class="infoname" style="padding-left:200px; padding-top:50px; padding-bottom: 20px;">Interventions</div>
     
-    <div class="datapointccm">
-    <div class="descr">Treated</div>
-    <div class="number">54</div>
-    </div>
-    
-    <div class="datapointccm">
-    <div class="descr">Directly Referred</div>
-    <div class="number">54</div>
-    </div>
-    
-    <div class="datapointccm">
-    <div class="descr">Referred after Treatement</div>
-    <div class="number">54</div>
-    </div>
-    
-   
-    <div class="datapointccm">
-    <div class="descr">Binome Advice</div>
-    <div class="number">54</div>
-    </div>
-    
+
+	{%  for ra in display.cmr_attrs %}
+	  <div class="datapoint">
+	  
+	    {%  set num = display.cmr[0][ra[0]] %}
+	    
+	    <div class="descr">{{  ra[1] }}</div>
+	    <div class="moreoptions startshidden" >
+		 <a href="/tables/{{  nav.link('ccmdash', subcat = ra[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
+	    </div>
+	    <div class="number">
+		{% if  num %}<a href="/tables/{{  nav.link('ccmdash', subcat = ra[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>
+		{% else  %}  {{  num|neat_numbers }}  {%  endif %}
+	    </div>
+	    
+  	   </div>
+	{%  endfor  %}
  
     
   </div>
