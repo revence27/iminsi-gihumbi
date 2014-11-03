@@ -1043,7 +1043,7 @@ class Application:
         xps = 0
         for hd in nat.cursor.description:
           xps = xps + 1
-          fch.write('C;Y%d;X%d;K%s\n' % (stt, xps, json.dumps(str(row[hd.name])))
+          fch.write('C;Y%d;X%d;K%s\n' % (stt, xps, json.dumps(str(row[hd.name]))))
     # raise cherrypy.HTTPRedirect('/exports/general?pos=%d&eid=%d' % (pos + 1, eid))
     cherrypy.response.headers['Content-Type'] = 'application/json'
     cherrypy.response.headers['Location']     = '/exports/general?lmt=%d&pos=%d&eid=%d' % (pgs, pos + 1, eid)
