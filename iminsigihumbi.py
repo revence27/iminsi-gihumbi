@@ -1277,6 +1277,108 @@ class Application:
 
   ### END OF ANC ###
 
+  #### START OF RED ALERT ###
+  @cherrypy.expose
+  def dashboards_reddash(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    exts = {}
+    
+    red_attrs = [(x[0].split()[0], x[1]) for x in settings.RED_DATA['attrs']]
+    red_exts = exts
+    red_cnds = cnds
+    red_cnds.update({settings.RED_DATA['query_str']: ''})
+    red_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.RED_DATA['attrs']]))
+    red = orm.ORM.query(  'red_table', 
+			  red_cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = red_exts,
+			)
+
+    rar_attrs = [(x[0].split()[0], x[1]) for x in settings.RAR_DATA['attrs']]
+    rar_cnds = navb.conditions('report_date')
+    rar_cnds.update({settings.RAR_DATA['query_str']: ''})
+    rar_exts = dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.RAR_DATA['attrs']])
+    rar = orm.ORM.query(  'rar_table', 
+			  rar_cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = rar_exts,
+			)
+
+    return self.dynamised('reddash', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def tables_reddash(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(basics = [
+      ('indexcol',          'Entry ID'),
+      ('patient_id',            'Mother ID'),
+      ('reporter_phone',            'Reporter Phone'),
+      
+    ] , *args, **kw)
+    DESCRI = []
+    INDICS = []
+    primary_table = 'red_table'
+    if kw.get('subcat') and kw.get('subcat') in [x[0].split()[0] for x in settings.RAR_DATA['attrs']]:
+     primary_table = 'rar_table'
+     cnds.update({settings.RAR_DATA['query_str']: ''})
+    else: cnds.update({settings.RED_DATA['query_str']: ''}) 
+    if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
+     kw.update({'compare': ' IS NOT'})
+     kw.update({'value': ' NULL'})
+    else:
+     INDICS = settings.RED_DATA['attrs']
+    if kw.get('summary'):
+     province = kw.get('province') or None
+     district = kw.get('district') or None
+     location = kw.get('hc') or None
+     wcl = [{'field_name': '%s' % kw.get('subcat'), 
+		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
+		'value': '%s' % kw.get('value') if kw.get('value') else '' 
+	   }] if kw.get('subcat') else []
+
+     if kw.get('view') == 'table' or kw.get('view') != 'log' :
+      locateds = summarize_by_location(primary_table = primary_table, MANY_INDICS = INDICS, where_clause = wcl, 
+						province = province,
+						district = district,
+						location = location,
+						start =  navb.start,
+						end = navb.finish,
+											
+						)
+      tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
+      INDICS_HEADERS = dict([ (x[0].split()[0], x[1]) for x in INDICS])
+
+    sc      = kw.get('subcat')
+    if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
+    markup  = {
+      'patient_id': lambda x, _, __: '<a href="/tables/child?pid=%s">%s</a>' % (x, x),
+      'wt_float': lambda x, _, __: '%s' % (int(x) if x else ''),
+      'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), ),
+      'sector_pk': lambda x, _, __: '%s' % (self.sector(str(x))['name'] if self.sector(str(x)) else '', ),
+      'cell_pk': lambda x, _, __: '%s' % (self.cell(str(x))['name'] if self.cell(str(x)) else '', ),
+      'village_pk': lambda x, _, __: '%s' % (self.village(str(x))['name'] if self.village(str(x)) else '', ),
+    }
+    if sc:
+      cnds[sc]  = ''
+    # TODO: optimise
+    attrs = []
+    
+    cols    += settings.LOCATION_INFO   
+    nat     = orm.ORM.query(primary_table, cnds,
+      cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
+      
+    )
+    desc  = 'Red Alerts %s' % (' (%s)' % (self.find_descr(DESCRI + settings.RED_DATA['attrs'] + settings.RAR_DATA['attrs'], 
+						sc) or 'ALL', 
+					) )
+    return self.dynamised('reddash_table', mapping = locals(), *args, **kw)
+
+
+  #### END OF RED ALERT ###
+
+
   #### START OF NEWBORN ###
   @cherrypy.expose
   def dashboards_nbcdash(self, *args, **kw):
