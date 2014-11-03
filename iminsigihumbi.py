@@ -2032,6 +2032,7 @@ class Application:
     return self.dynamised('pregnancies', mapping = locals(), *args, **kw)
 
   ADMIN_MIGRATIONS  = [
+    ('address',           'user@example.com'),
     ('province_pk',       0),
     ('district_pk',       0),
     ('health_center_pk',  0)
