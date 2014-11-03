@@ -1781,7 +1781,6 @@ class Application:
 
   #### END OF VACCINATION ###
 
-<<<<<<< HEAD
   #### START OF CCM ###
   @cherrypy.expose
   def dashboards_ccmdash(self, *args, **kw):
@@ -1886,8 +1885,6 @@ class Application:
 
 
   #### END OF CCM ###
-=======
->>>>>>> parent of e98ad50... Merge remote-tracking branch 'pivot/master'
 
 
   #### START OF DEATH ###
