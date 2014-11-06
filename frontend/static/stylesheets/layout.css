@@ -50,6 +50,20 @@ background: #5bb8f9;
 }
 
 
+/**********************************************/
+
+
+.newborntext{
+	color: #288dae;
+}
+.newbornbackground{
+	background-color: #288dae
+}
+.newborncircle{
+	background: url(../images/newborncircle.png);
+}
+
+
 
 
 /*********************************************/
