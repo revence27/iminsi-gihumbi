@@ -100,6 +100,9 @@ class ThousandAuth:
   def __init__(self, usn):
     self.usern  = usn
 
+  def username(self):
+    return self.usern
+
   def check(self, pwd):
     him = orm.ORM.query('ig_admins', {'address = %s': self.usern})
     if him.count() < 1:
@@ -363,11 +366,9 @@ class Application:
 
   @cherrypy.expose
   def index(self, *args, **kw):
-    if cherrypy.session.get('email'):
-      raise cherrypy.HTTPRedirect(settings.AUTH_HOME)
     flash = cherrypy.session.get('flash', '')
     user  = cherrypy.session.get('user', '')
-    return self.dynamised('index', *args, **kw)
+    return self.dynamised('index', mapping = locals(), *args, **kw)
 
 ##### START OF ALL LOCATIONS FILTERING
 
@@ -995,11 +996,12 @@ class Application:
     if kw.get('logout'):
       if 'email' in cherrypy.session:
         del cherrypy.session['email']
+      raise cherrypy.HTTPRedirect('/')
     if auth.check(pwd):
       cherrypy.session['email'] = eml
     else:
       cherrypy.session['flash'] = 'Access Denied'
-      raise cherrypy.HTTPRedirect(settings.AUTH_HOME)
+      raise cherrypy.HTTPRedirect('/')
     if kw.get('next'):
       raise cherrypy.HTTPRedirect(kw.get('next'))
     raise cherrypy.HTTPRedirect(settings.AUTH_HOME)
