@@ -367,6 +367,8 @@ class Application:
   @cherrypy.expose
   def index(self, *args, **kw):
     flash = cherrypy.session.get('flash', '')
+    if 'flash' in cherrypy.session:
+      del cherrypy.session['flash']
     user  = cherrypy.session.get('user', '')
     return self.dynamised('index', mapping = locals(), *args, **kw)
 
@@ -1013,15 +1015,18 @@ class Application:
     ('sofar', 0)
   ]
   # TODO:
-  # 2.  Data type specification
-  # 3.  DB-validated tracking of current position
-  # 4.  Use table key for real, not table name.
+  # 1.  Data type specification
+  # 2.  DB-validated tracking of current position
   @cherrypy.expose
   def exports_general(self, *args, **kw):
-    navb  = ThousandNavigation(*args, **kw)
-    auth  = ThousandAuth(cherrypy.session['email'])
-    cnds  = navb.conditions('report_date', auth)
-    tbl   = kw.get('key', 'thousanddays_reports')
+    navb      = ThousandNavigation(*args, **kw)
+    auth      = ThousandAuth(cherrypy.session['email'])
+    tbl, srt  = {
+      '_'       : ('thousanddays_reports', None),
+      'predash' : ('pre_table', None),
+      'mothers' : ('ig_mothers', 'indexcol')
+    }.get(kw.get('key', '_'))
+    cnds  = navb.conditions(srt or 'report_date', auth)
     btc   = 5000
     pos   = int(kw.get('pos', '0'))
     eid   = kw.get('eid')

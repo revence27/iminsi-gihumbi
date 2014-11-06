@@ -55,7 +55,7 @@
     <form method="POST" action="/exports/general">
       {%  include "hlocator.html"  %}
       {%  include "hdater.html"  %}
-      <input type="hidden" value="key" name="dth_reports" />
+      <input type="hidden" value="key" name="{{ ref }}" />
       <input type="submit" value="Export" />
     </form>
   </div>

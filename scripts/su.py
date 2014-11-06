@@ -1,5 +1,6 @@
 from ectomorph import orm
 import getpass
+import settings
 import sha
 import sys
 import random
@@ -19,7 +20,7 @@ def record_su(email, pwd):
     for it in gat.list():
       orm.ORM.delete('ig_admins', it['indexcol'])
     return record_su(email, pwd)
-  salt  = str(random.random())
+  salt  = ''.join([str(random.random()) for _ in range(settings.SALT_STRENGTH)])
   sha1  = sha.sha('%s%s' % (salt, pwd)).hexdigest()
   orm.ORM.store('ig_admins', {'address': email, 'salt': salt, 'sha1_pass': sha1}, migrations = MIGS)
   return 0
