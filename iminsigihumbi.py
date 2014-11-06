@@ -1594,6 +1594,7 @@ class Application:
       ('lmp',            'Date Of Birth'),
       
     ] , *args, **kw)
+    auth    = ThousandAuth(cherrypy.session['email'])
     DESCRI = []
     INDICS = []
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):

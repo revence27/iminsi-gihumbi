@@ -72,31 +72,28 @@
 	</script>    
   </head>
   <body>
-  
-  {% if ref in ['predash','ancdash','delivery'] %}
-  {% set module = 'pregnancies' %}
-  {% endif %}
-  {% if ref in ['nbcdash'] %}
-  {% set module = 'newborn' %}
-  {% endif %}
-  {% if ref in ['pncdash'] %}
-  {% set module = 'postnatal' %}
-  {% endif %}
-  
-  
-  
-  
     <div id="top">
    
       <div id="header">
-                <div id="langs">
+        <div id="nom1">
+          <div id="ministry">
+            <img src="{{  static_path }}/images/rwanda.png" />
+          </div>
+          <div id="rapid">
+            <img src="{{  static_path }}/images/rapid.png" />
+            </div>
+            <div id="unicef">
+            <img src="{{  static_path }}/images/unicef1.png" />
+          </div>
+          <div id="motto"></div>
+        </div>
+        <div id="langs1">
           <ul>
             <li>English</li>
             <li>Kinyarwanda</li>
-            <li>Francais</li>
+            <li>Français</li>
           </ul>
         </div>
-        <div id="user">{{ display.auth.username() }}- <a href="/authentication?logout=yes">Logout</a></div>
         {%  block topstrip  %}
 
         <div id='cssmenu' class="cssmenu">
@@ -158,17 +155,17 @@
 	<div class="central">
     <div class="position">
 
-     <li><a href="/dashboards/home">  Home</a></li>
+     <li><a href="/">  Home</a></li>
 {% block position %}{% endblock %}
 
 </div>
       
       
       <div class="view">
-      <div class="tabular {% if view == 'log' %} {{ module }}background {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
-      <div class="tabular {% if view == 'table'%} {{ module }}background {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
-      <div class="graphic {% if view == 'graphic' %} {{ module }}background {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
-
+      <div class="tabular {% if view == 'log' %} active {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
+      <div class="tabular {% if view == 'table'%} active {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
+      <div class="graphic {% if view == 'graphic' %} active {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
+{{ ref }}
       </div>
 	</div>
 	</div>
