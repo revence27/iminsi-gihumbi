@@ -18,4 +18,29 @@
   </div>
   
 {%  include "basicdisplay.html"  %}
+
+  <div class="humblecontainer">
+
+    <div class="infoname" style="padding-left:200px; padding-top:50px; padding-bottom: 20px;">Incident Area</div>
+    
+
+	{%  for bl in display.bylocs_attrs %}
+	  <div class="datapoint">
+	  
+	    {%  set num = display.bylocs[0][bl[0]] %}
+	    
+	    <div class="descr">{{  bl[1] }}</div>
+	    <div class="moreoptions startshidden" >
+		 <a href="/tables/{{  nav.link('deathdash', subcat = bl[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
+	    </div>
+	    <div class="number">
+		{% if  num %}<a href="/tables/{{  nav.link('deathdash', subcat = bl[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>
+		{% else  %}  {{  num|neat_numbers }}  {%  endif %}
+	    </div>
+	    
+  	   </div>
+	{%  endfor  %}
+ 
+    
+  </div>
 {%  endblock  %}

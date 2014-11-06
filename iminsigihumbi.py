@@ -1160,7 +1160,7 @@ class Application:
  
 					] + attrs) if x[0][0] != '_'],
       
-    )
+    ); print nat.query
     desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(DESCRI + settings.RISK['attrs'] + settings.HIGH_RISK['attrs'], sc or kw.get('group')), 
 					) if sc or kw.get('group') else '', )
     return self.dynamised('predash_table', mapping = locals(), *args, **kw)
@@ -1354,6 +1354,132 @@ class Application:
 
 
   #### END OF RED ALERT ###
+
+  #### START OF DELIVERY ###
+
+  @cherrypy.expose
+  def dashboards_deliverydash(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    cnds    = navb.conditions('report_date')
+    exts = {}
+    
+    attrs = [(x[0].split()[0], x[1]) for x in settings.DELIVERY_DATA['attrs']]
+    cnds.update({settings.DELIVERY_DATA['query_str']: ''})
+    exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.DELIVERY_DATA['attrs']]))
+    nat = orm.ORM.query(  'bir_table', 
+			  cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = exts,
+			)
+    
+    today = datetime.today().date()
+    next_monday = today + timedelta(days=-today.weekday(), weeks=1)
+    next_sunday = next_monday + timedelta(days = 6)
+    next_week_cnds = navb.conditions('report_date')
+    next_week_cnds.update({"(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , next_monday, next_sunday): ''})
+    next_week = orm.ORM.query(  'pre_table', 
+    			  next_week_cnds, 
+    			  cols = ['COUNT(*) AS total']
+    			)
+
+    next_two_monday = today + timedelta(days=-today.weekday(), weeks=2)
+    next_two_sunday = next_two_monday + timedelta(days = 6)
+    next_two_week_cnds = navb.conditions('report_date')
+    next_two_week_cnds.update({"(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , next_two_monday, next_two_sunday): ''})
+    next_two_week = orm.ORM.query(  'pre_table', 
+    			  next_two_week_cnds, 
+    			  cols = ['COUNT(*) AS total']
+    			)
+
+    return self.dynamised('deliverydash', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def tables_deliverydash(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(basics = [
+      ('indexcol',          'Entry ID'),
+      ('patient_id',            'Mother ID'),
+      ('reporter_phone',            'Reporter Phone'),
+      ('lmp',            'Date Of Birth'),
+      
+    ] , *args, **kw)
+    DESCRI = []
+    INDICS = []
+    primary_table = 'bir_table'
+    if kw.get('group'):
+     primary_table = 'pre_table'
+     today = datetime.today().date()
+     if kw.get('group') == 'next_week': weeks = 1
+     if kw.get('group') == 'next_two_week': weeks = 2
+     start = today + timedelta(days=-today.weekday(), weeks=weeks)
+     end = start + timedelta(days = 6)
+     cnds.update({"(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , start, end): ''})
+    else:
+     cnds.update({settings.DELIVERY_DATA['query_str']: ''})
+    if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
+     kw.update({'compare': ' IS NOT'})
+     kw.update({'value': ' NULL'})
+    else:
+     if kw.get('group'): DESCRI = [('next_week', 'Deliveries in Next Week'), ('next_two_week', 'Deliveries in Next two Weeks')]
+     else: INDICS = settings.DELIVERY_DATA['attrs']
+    if kw.get('summary'):
+     province = kw.get('province') or None
+     district = kw.get('district') or None
+     location = kw.get('hc') or None
+     wcl = [{'field_name': '%s' % kw.get('subcat'), 
+		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
+		'value': '%s' % kw.get('value') if kw.get('value') else '' 
+	   }] if kw.get('subcat') else []
+
+     if kw.get('group'):
+      wcl.append({'field_name': '(%s)' % "(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , start, end),
+                  'compare': '', 'value': '', 'extra': True})
+     else: wcl.append({'field_name': '(%s)' % settings.DELIVERY_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
+     
+     if kw.get('view') == 'table' or kw.get('view') != 'log' :
+      locateds = summarize_by_location(primary_table = primary_table, MANY_INDICS = INDICS, where_clause = wcl, 
+						province = province,
+						district = district,
+						location = location,
+						start =  navb.start,
+						end = navb.finish,
+											
+						)
+      tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
+      INDICS_HEADERS = dict([ (x[0].split()[0], x[1]) for x in INDICS])
+
+    sc      = kw.get('subcat')
+    if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
+    markup  = {
+      'patient_id': lambda x, _, __: '<a href="/tables/child?pid=%s">%s</a>' % (x, x),
+      'wt_float': lambda x, _, __: '%s' % (int(x) if x else ''),
+      'lmp': lambda x, _, __: '%s' % (datetime.date(x) if x else ''),
+      'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
+      'district_pk': lambda x, _, __: '%s' % (self.districts.get(str(x)), ),
+      'health_center_pk': lambda x, _, __: '%s' % (self.hcs.get(str(x)), ),
+      'sector_pk': lambda x, _, __: '%s' % (self.sector(str(x))['name'] if self.sector(str(x)) else '', ),
+      'cell_pk': lambda x, _, __: '%s' % (self.cell(str(x))['name'] if self.cell(str(x)) else '', ),
+      'village_pk': lambda x, _, __: '%s' % (self.village(str(x))['name'] if self.village(str(x)) else '', ),
+    }
+    if sc:
+      cnds[sc]  = ''
+    # TODO: optimise
+    attrs = []
+    
+    cols    += settings.LOCATION_INFO   
+    nat     = orm.ORM.query(primary_table, cnds,
+      cols  = [x[0] for x in (cols + [
+					('(lmp) AS dob', 'Date Of Birth'),
+ 
+					] + attrs) if x[0][0] != '_'],
+      
+    )
+    desc  = 'Deliveries %s' % (' (%s)' % (self.find_descr(DESCRI + settings.DELIVERY_DATA['attrs'], 
+						sc or kw.get('group') ) or 'ALL', 
+					) )
+    return self.dynamised('deliverydash_table', mapping = locals(), *args, **kw)
+
+
+  #### END OF DELIVERY ###
 
 
   #### START OF NEWBORN ###
@@ -1887,6 +2013,16 @@ class Application:
 			  extended = exts,
 			)
 
+    bylocs_attrs = [(x[0].split()[0], x[1]) for x in settings.DEATH_DATA['bylocs']['attrs']]
+    bylocs_cnds = navb.conditions('report_date')
+    bylocs_cnds.update({settings.DEATH_DATA['bylocs']['query_str']: ''})
+    bylocs_exts = dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.DEATH_DATA['bylocs']['attrs']])
+    bylocs = orm.ORM.query(  'dth_table', 
+			  bylocs_cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = bylocs_exts,
+			)
+
     return self.dynamised('deathdash', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
@@ -1905,7 +2041,7 @@ class Application:
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     else:
-     INDICS = settings.DEATH_DATA['attrs']
+     INDICS = settings.DEATH_DATA['attrs'] #+ settings.DEATH_DATA['bylocs']['attrs']
     if kw.get('summary'):
      province = kw.get('province') or None
      district = kw.get('district') or None
@@ -1955,7 +2091,7 @@ class Application:
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Death %s' % (' (%s)' % (self.find_descr(DESCRI + settings.DEATH_DATA['attrs'], 
+    desc  = 'Death %s' % (' (%s)' % (self.find_descr(DESCRI + settings.DEATH_DATA['attrs'] + settings.DEATH_DATA['bylocs']['attrs'], 
 						sc ) or 'ALL', 
 					) )
     return self.dynamised('deathdash_table', mapping = locals(), *args, **kw)

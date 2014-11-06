@@ -256,7 +256,20 @@ DEATH_DATA = {
 											
 					],
 
-		'query_str': '((md_bool IS NOT NULL) OR (nd_bool IS NOT NULL) OR (cd_bool IS NOT NULL))'
+		'query_str': '((md_bool IS NOT NULL) OR (nd_bool IS NOT NULL) OR (cd_bool IS NOT NULL))',
+
+                'bylocs': {
+				'attrs': [
+						(u'hp_bool IS NOT NULL', u'At Hospital'),
+						(u'cl_bool IS NOT NULL', u'At Clinic'),
+						(u'or_bool IS NOT NULL', u'On Route'),
+						(u'ho_bool IS NOT NULL', u'At home'),
+											
+					],
+
+				'query_str': '((md_bool IS NOT NULL) OR (nd_bool IS NOT NULL) OR (cd_bool IS NOT NULL)) AND ((hp_bool IS NOT NULL) OR (cl_bool IS NOT NULL) OR (or_bool IS NOT NULL) OR (ho_bool IS NOT NULL))',
+
+				}
 
 		}
 
@@ -318,6 +331,19 @@ RAR_DATA = {
 
 		'query_str': '((al_bool IS NOT NULL) OR  (at_bool IS NOT NULL) OR  (na_bool IS NOT NULL) OR  (mw_bool IS NOT NULL) OR  (ms_bool IS NOT NULL))'
 
+		}
+
+DELIVERY_DATA = {
+		'attrs': [
+				(u'hp_bool IS NOT NULL', u'At Hospital'),
+				(u'cl_bool IS NOT NULL', u'At Clinic'),
+				(u'or_bool IS NOT NULL', u'On Route'),
+				(u'ho_bool IS NOT NULL', u'At home'),
+									
+			],
+
+		'query_str':'((hp_bool IS NOT NULL) OR (cl_bool IS NOT NULL) OR (or_bool IS NOT NULL) OR (ho_bool IS NOT NULL))',
+		
 		}
 
 
