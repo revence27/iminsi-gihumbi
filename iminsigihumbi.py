@@ -363,7 +363,7 @@ class Application:
 
   @cherrypy.expose
   def index(self, *args, **kw):
-    if session.cherrypy.get('email'):
+    if cherrypy.session.get('email'):
       raise cherrypy.HTTPRedirect(settings.AUTH_HOME)
     flash = cherrypy.session.get('flash', '')
     user  = cherrypy.session.get('user', '')
