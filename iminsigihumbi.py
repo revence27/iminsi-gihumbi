@@ -981,6 +981,7 @@ class Application:
   @cherrypy.expose
   def dashboards_home(self, *args, **kw):
     flash = cherrypy.session.get('flash', '')
+    user  = cherrypy.session.get('user', '')
     return self.dynamised('home', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
