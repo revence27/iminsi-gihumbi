@@ -363,6 +363,10 @@ class Application:
 
   @cherrypy.expose
   def index(self, *args, **kw):
+    if session.cherrypy.get('email'):
+      raise cherrypy.HTTPRedirect(settings.AUTH_HOME)
+    flash = cherrypy.session.get('flash', '')
+    user  = cherrypy.session.get('user', '')
     return self.dynamised('index', *args, **kw)
 
 ##### START OF ALL LOCATIONS FILTERING
@@ -980,8 +984,6 @@ class Application:
 
   @cherrypy.expose
   def dashboards_home(self, *args, **kw):
-    flash = cherrypy.session.get('flash', '')
-    user  = cherrypy.session.get('user', '')
     return self.dynamised('home', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
@@ -997,10 +999,10 @@ class Application:
       cherrypy.session['email'] = eml
     else:
       cherrypy.session['flash'] = 'Access Denied'
-      raise cherrypy.HTTPRedirect('/')
+      raise cherrypy.HTTPRedirect(settings.AUTH_HOME)
     if kw.get('next'):
       raise cherrypy.HTTPRedirect(kw.get('next'))
-    raise cherrypy.HTTPRedirect('/')
+    raise cherrypy.HTTPRedirect(settings.AUTH_HOME)
 
   EXPORT_MIGS = [
     ('total', 0),

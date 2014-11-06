@@ -13,6 +13,7 @@ BMI_MAX         = 25
 MIN_WEIGHT      = 45
 MAX_WEIGHT      = 65
 SALT_STRENGTH   = 2
+AUTH_HOME       = '/dashboards/home'
 
 
 LOCATION_INFO = [
