@@ -1,0 +1,54 @@
+{%  extends "deliverybase.html" %}
+{% block menu %}
+ <li class="homelink">
+            <a href="/dashboards/predash"><span>Pregnancies</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/deliverydash"><span>Deliveries</span></a>
+          </li>
+
+          <li class="homelink">
+            <a href="/dashboards/deliverynotdash"><span>Deliveries Notifications</span></a>
+          </li>
+         
+          <li class="homelink">
+            <a href="/dashboards/ancdash"><span>ANC</span></a>
+          </li>
+           
+{% endblock %}
+
+
+{% block position %}
+
+<li>&#187; Delivery</li>
+
+{% endblock %}
+
+{%  block mainpart  %}
+  <div class="smallcontainer">
+   
+     <img class="icon" src="{{  static_path }}/images/delivery.jpg" />
+        
+  </div>
+  <div class="humblecontainer">
+  {%  for dl in display.attrs %}
+	  <div class="datapoint">
+	  
+	    {%  set num = display.nat[0][dl[0]] %}
+	    
+	    <div class="descr">{{  dl[1] }}</div>
+	    <div class="moreoptions startshidden" >
+		 <a href="/tables/{{  nav.link('deliverynotdash', group = dl[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
+	    </div>
+	    <div class="number">
+		{% if  num %}<a href="/tables/{{  nav.link('deliverynotdash', group = dl[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>
+		{% else  %}  {{  num|neat_numbers }}  {%  endif %}
+	    </div>
+	    
+  	   </div>
+	{%  endfor  %}
+    
+  </div>
+
+
+{%  endblock  %}

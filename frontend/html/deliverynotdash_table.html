@@ -1,0 +1,104 @@
+{%  extends "basicpregnancies.html" %}
+{% block position %}
+
+<li>&#187; <a href="/dashboards/deliverynotdash">Deliveries</a></li>
+
+<li>&#187; <a href=/dashboards/deliverynotdash?group={{ group }}>{{ group }}</a></li>
+
+<li>&#187; {{ display.desc  }}</li>
+{% endblock %}
+
+
+
+{%  block mainpart  %}
+  {% if display.locateds and not display.tabular %} 
+	<div>
+		<table class="locationtable"> 
+		   <theader>
+			{% if display.locateds[0].province_name %}<th>Province</th> {% endif %}
+			{% if display.locateds[0].district_name %}<th>District</th> {% endif %}
+			{% if display.locateds[0].location_name %}<th>HealthCentre</th> {% endif %}   
+			<th>Total</th>
+		   </theader>
+			{% for lc in display.locateds %} 
+			   <tr>
+				{% if lc.province_name %}<td><a href="#" onclick="addInURL('province', {{lc.province_id}});">{{lc.province_name}}</a></td> {% endif %}
+				{% if lc.district_name %}<td><a href="#" onclick="addInURL('district', {{lc.district_id}});">{{lc.district_name}}</a></td> {% endif %}
+				{% if lc.location_name %}<td><a href="#" onclick="addInURL('hc', {{lc.location_id}});">{{lc.location_name}}</a></td> {% endif %}   
+				<td><a href="#" onclick="getTotal( {%if lc.province_id %}{{lc.province_id }} {%else%}''{%endif%}, {%if lc.district_id %}{{lc.district_id }} {%else%}''{%endif%}, {%if lc.location_id %}{{lc.location_id }} {%else%}''{%endif%} );">{{lc.total}}</a></td>
+			   </tr>
+			{% endfor %}
+		</table>
+	</div>
+
+  {%else%}
+	{% if display.tabular %}
+	<div>
+		<table class="locationtable"> 
+		   <theader>
+			{% for h in display.tabular.heads %} 
+				{% if h == 'province_name' %} <th>Province</th>
+				{% else %}
+					{% if h == 'district_name' %}	<th>District</th>
+					{% else %}
+						{% if h == 'location_name' %} <th>HealthCentre</th>
+						{% else %}
+							{% if h == 'province_id' or h == 'district_id' or h == 'location_id' %} 
+							{% else %}<th>{{display.INDICS_HEADERS[h] or 'Total'}}</th>
+							{% endif %}
+						{% endif %}
+					{% endif %}
+				{% endif %} 
+				
+			{% endfor %}
+		   </theader>
+			{% for dt in display.tabular.data %} 
+			   <tr>
+				{% for h in display.tabular.heads %}
+					
+					{% if h == 'province_name' %} 
+						<td><a href="#" onclick="addInURL('province', {{dt[display.tabular.heads.index('province_id')]['province_id']}});">
+							{{ dt[display.tabular.heads.index(h)][h] }}</a></td>
+					{% else %}
+						{% if h == 'district_name' %}
+						<td>
+						<a href="#" onclick="addInURL('district', {{dt[display.tabular.heads.index('district_id')]['district_id']}});">
+						{{ dt[display.tabular.heads.index(h)][h] }}</a></td>
+						{% else %} 
+							{% if h == 'location_name' %}
+							<td>
+							<a href="#" onclick="addInURL('hc', {{dt[display.tabular.heads.index('location_id')]['location_id']}});">
+							{{ dt[display.tabular.heads.index(h)][h] }}</a></td>
+							{% else %}
+								{% if h == 'province_id' or h == 'district_id' or h == 'location_id' %} 
+								{% else %}
+								<td>
+								<a href="#" 
+								onclick="getTotal(
+					{%if 'province_id' in display.tabular.heads and dt[display.tabular.heads.index('province_id')]['province_id'] %}
+					{{dt[display.tabular.heads.index('province_id')]['province_id'] }} {%else%}''{%endif%}, 
+					{%if 'district_id' in display.tabular.heads and dt[display.tabular.heads.index('district_id')]['district_id'] %}
+					{{dt[display.tabular.heads.index('district_id')]['district_id'] }} {%else%}''{%endif%},
+					{%if 'location_id' in display.tabular.heads and dt[display.tabular.heads.index('location_id')]['location_id'] %}
+					{{dt[display.tabular.heads.index('location_id')]['location_id'] }} {%else%}''{%endif%},
+					{% if h in ['next_week', 'next_two_week'] %}group='{{h}}'{%else%} group=''{% endif %},
+					{% if h != '' and h != 'total' and h not in ['next_week', 'next_two_week'] %}subcat='{{h}}'{%else%} subcat=''{% endif %}
+									 );"> 
+						{{ dt[display.tabular.heads.index(h)][h] }} </a></td>
+								{% endif %}
+							{% endif %}
+						{% endif %}
+					{% endif %} 
+
+					
+				{% endfor %}										
+			   </tr>	
+			{% endfor %}
+		</table>
+	</div>
+	{% else %}
+  		{%  include "basictable.html"  %}
+	{% endif %}
+  {% endif %}
+  
+{%  endblock  %}
