@@ -144,9 +144,10 @@
   
   
    <form class="login" method="POST" action="/authentication">
+   <div class="error">{{ display.flash }}</div>
     <fieldset>
       <label>Address</label>
-      <input name="addr" type="text" placeholder="Email Address" />
+      <input name="addr" type="text" placeholder="Email Address" value="{{ display.user }}" />
       <input name="next" type="hidden" value="/dashboards/home" />
     </fieldset>
     <fieldset>
