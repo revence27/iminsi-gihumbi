@@ -454,7 +454,7 @@ class Application:
 
   @cherrypy.expose
   def tables_nutr(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
     attrs = []
     nat   = orm.ORM.query('cbn_table', cnds,
       cols  = [x[0] for x in (cols + settings.CBN_DATA['cols']) if x[0][0] != '_'],
@@ -808,7 +808,7 @@ class Application:
 											
 						);
 
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('report_date',       'Date'),
       ('mother',            'Mother ID'),
@@ -837,7 +837,7 @@ class Application:
      province = kw.get('province') or None
      district = kw.get('district') or None
      location = kw.get('hc') or None
-    navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
+    navb, auth, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
       ('height',            'Height'),
@@ -875,7 +875,7 @@ class Application:
 						location = location 
 											
 						);
-    navb, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
+    navb, auth, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
       ('height',            'Height'),
@@ -915,7 +915,7 @@ class Application:
 											
 						);
 
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('report_date',       'Date'),
       ('patient_id',        'Patient ID'),
@@ -945,7 +945,7 @@ class Application:
 
   @cherrypy.expose
   def tables_reports(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('report_date',       'Date'),
       ('reporter_pk',       'Reporter ID'),
@@ -966,7 +966,7 @@ class Application:
 
   @cherrypy.expose
   def tables_reporters(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(
+    navb, auth, cnds, cols    = self.neater_tables(
       sorter  = None,
       basics  = [
         ('indexcol',          'Entry ID'),
@@ -1019,7 +1019,7 @@ class Application:
     cols  = (basics + (([] if 'province' in kw else [('province_pk',       'Province')]) +
      ([] if 'district' in kw else [('district_pk',       'District')]) +
      ([] if 'hc' in kw else [('health_center_pk',  'Health Centre')])) + extras)
-    return (navb, cnds, cols)
+    return (navb, auth, cnds, cols)
 
   @cherrypy.expose
   def dashboards_home(self, *args, **kw):
@@ -1225,7 +1225,7 @@ class Application:
 
   @cherrypy.expose
   def tables_predash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
@@ -1339,7 +1339,7 @@ class Application:
 
   @cherrypy.expose
   def tables_ancdash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
@@ -1463,7 +1463,7 @@ class Application:
 
   @cherrypy.expose
   def tables_reddash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
@@ -1587,7 +1587,7 @@ class Application:
 
   @cherrypy.expose
   def tables_nbcdash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
@@ -1684,7 +1684,7 @@ class Application:
 
   @cherrypy.expose
   def __tables_child(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
     attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'] ]
     indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
     nat     = orm.ORM.query('nbc_table', cnds,
@@ -1741,7 +1741,7 @@ class Application:
 
   @cherrypy.expose
   def tables_pncdash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
@@ -1828,7 +1828,7 @@ class Application:
 
   @cherrypy.expose
   def tables_child(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
     attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'] ]
     indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
     nat     = orm.ORM.query('nbc_table', cnds,
@@ -1873,7 +1873,7 @@ class Application:
 
   @cherrypy.expose
   def tables_vaccindash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
@@ -1974,7 +1974,7 @@ class Application:
 
   @cherrypy.expose
   def tables_ccmdash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
@@ -2070,7 +2070,7 @@ class Application:
 
   @cherrypy.expose
   def tables_deathdash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
@@ -2144,7 +2144,7 @@ class Application:
 
   @cherrypy.expose
   def tables_patient(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
     attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.RISK['attrs'] + settings.HIGH_RISK['attrs'] ]
     indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
     nat     = orm.ORM.query('pre_table', cnds,
