@@ -129,9 +129,10 @@ class ThousandAuth:
     return self.conditions()
 
 class ThousandNavigation:
-  def __init__(self, *args, **kw):
+  def __init__(self, auth, *args, **kw):
     self.args   = args
     self.kw     = kw
+    self.auth   = auth
     td          = datetime.today()
     self.fin    = datetime(year = td.year, month = td.month, day = td.day)
     self.gap    = timedelta(days = 1000 - 1)
@@ -171,20 +172,24 @@ class ThousandNavigation:
         'title' : 'Health Centre'
       }
     }
-    for pc in ['province', 'district', 'hc']:
-      if self.kw.get(pc):
-        it  = pcs[pc]
-        dem.append(ThousandLocation(it['area'](None), pc, self, it['miss'], it['title'], it['trx'] if 'trx' in it else None))
+    # for pc in ['province', 'district', 'hc']:
+    for pc in [(self.has_province(), 'province'),
+               (self.has_district(), 'district'),
+               (self.has_hc(), 'hc')]:
+      # if self.kw.get(pc):
+      if pc[0]:
+        it  = pcs[pc[1]]
+        dem.append(ThousandLocation(it['area'](None), pc[1], self, it['miss'], it['title'], it['trx'] if 'trx' in it else None))
     return dem
 
   @property
   def hierarchy(self):
-    prv = self.kw.get('province')
-    dst = self.kw.get('district')
+    prv = self.has_province()
+    dst = self.has_district()
     ans = []
-    if self.kw.get('district'):
+    if self.has_district():
       return [{'province': self.province()}, {'district':self.district()}]
-    if self.kw.get('province'):
+    if self.has_province():
       return [{'province': self.province()}]
     return []
 
@@ -192,26 +197,47 @@ class ThousandNavigation:
     gat = orm.ORM.query('chws__nation', {'indexcol = 1':''})[0]
     return gat
 
+  def __has_details(self, prv = None):
+    return orm.ORM.query('ig_admins', {'address = %s': self.auth.username()})[0]
+
+  def has_province(self, prv = None):
+    num = prv or self.kw.get('province')
+    if num:
+      return int(num)
+    return self.__has_details(prv)['province_pk']
+
   def province(self, prv = None):
-    num = int(prv or self.kw.get('province'))
+    num = self.has_province(prv)
     gat = orm.ORM.query('chws__province', {'indexcol = %s': num})[0]
     return gat
 
+  def has_district(self, prv = None):
+    num = prv or self.kw.get('district')
+    if num:
+      return int(num)
+    return self.__has_details(prv)['district_pk']
+
   def district(self, dst = None):
-    num = int(dst or self.kw.get('district'))
+    num = self.has_district(dst)
     gat = orm.ORM.query('chws__district', {'indexcol = %s': num})[0]
     return gat
 
+  def has_hc(self, prv = None):
+    num = prv or self.kw.get('hc')
+    if num:
+      return int(num)
+    return self.__has_details(prv)['health_center_pk']
+
   def hc(self, h = None):
-    num = int(h or self.kw.get('hc'))
+    num = self.has_hc(h)
     gat = orm.ORM.query('chws__healthcentre', {'indexcol = %s': num})[0]
     return gat
 
   @property
   def child(self):
-    if self.kw.get('hc'):       return ''
-    if self.kw.get('district'): return 'hc'
-    if self.kw.get('province'): return 'district'
+    if self.has_hc():       return ''
+    if self.has_district(): return 'hc'
+    if self.has_province(): return 'district'
     return 'province'
 
   @property
@@ -220,18 +246,18 @@ class ThousandNavigation:
 
   @property
   def childareas(self):
-    if self.kw.get('hc'):
+    if self.has_hc():
       return []
-    if self.kw.get('district'):
+    if self.has_district():
       return self.areas('hc')
-    if self.kw.get('province'):
+    if self.has_province():
       return self.areas('district')
     return self.areas('province')
 
   def areas(self, level = None):
     tbl, sel, etc = {
-      'province'  : lambda _: ('chws__province', [self.province()] if self.kw.get('province') else [], {}),
-      'district'  : lambda _: ('chws__district', [self.district()] if self.kw.get('district') else [], {'province = %s': self.province()['indexcol']}),
+      'province'  : lambda _: ('chws__province', [self.province()] if self.has_province() else [], {}),
+      'district'  : lambda _: ('chws__district', [self.district()] if self.has_district() else [], {'province = %s': self.province()['indexcol']}),
       'hc'        : lambda _: ('chws__healthcentre', [], {'province = %s':self.province()['indexcol'], 'district = %s':self.district()['indexcol']})
     }[level or self.subarea](None)
     prvq      = orm.ORM.query(tbl, etc,
@@ -355,7 +381,7 @@ class Application:
       'ref'           : re.sub(r'_table$', '', chart),
       'locations'     : ['TODO'],
       'args'          : kw,
-      'nav'           : ThousandNavigation(*args, **kw),
+      'nav'           : mapping.get('navb', None),
       'static_path'   : self.static_path
     })
     info.update(self.app_data)
@@ -366,9 +392,7 @@ class Application:
 
   @cherrypy.expose
   def index(self, *args, **kw):
-    flash = cherrypy.session.get('flash', '')
-    if 'flash' in cherrypy.session:
-      del cherrypy.session['flash']
+    flash = cherrypy.session.pop('flash', '')
     user  = cherrypy.session.get('user', '')
     return self.dynamised('index', mapping = locals(), *args, **kw)
 
@@ -419,8 +443,8 @@ class Application:
     ]
   @cherrypy.expose
   def dashboards_nut(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('birth_date', auth)
     attrs   = self.NUT_DESCR
     nat     = self.civilised_fetch('ig_babies_adata', cnds, attrs)
@@ -429,9 +453,20 @@ class Application:
     return self.dynamised('nut', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
+  def tables_nutr(self, *args, **kw):
+    navb, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    attrs = []
+    nat   = orm.ORM.query('cbn_table', cnds,
+      cols  = [x[0] for x in (cols + settings.CBN_DATA['cols']) if x[0][0] != '_'],
+      sort  = ('report_date', False),
+    )
+    patient = nat[0]  
+    return self.dynamised('child_table', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
   def dashboards_nutr(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     nut = orm.ORM.query('cbn_table', cnds,
       cols      = ['COUNT(*) AS allnuts'],
@@ -459,8 +494,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_redalert(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     attrs   = self.PREGNANCIES_DESCR
     # nat     = self.civilised_fetch('red_table', cnds, attrs)
@@ -483,8 +518,8 @@ class Application:
     return self.dynamised('ccm', *args, **kw)
 
   def locals_for_births(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     pcnds   = copy.copy(cnds)
     pcnds[("lmp + ('%d DAYS' :: INTERVAL)" % (settings.GESTATION, )) + ' <= %s']  = navb.finish
@@ -587,8 +622,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_vaccination(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     vacced  = orm.ORM.query('chi_table', cnds,
       cols  = ['COUNT(*) AS allkids'],
@@ -970,8 +1005,8 @@ class Application:
       ('patient_id',        'Mother ID'),
       ('lmp',               'LMP')
     ], *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = {}
     pid     = kw.get('pid')
     tid     = kw.get( 'id')
@@ -988,8 +1023,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_home(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     return self.dynamised('home', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
@@ -999,8 +1034,7 @@ class Application:
     auth                      = ThousandAuth(eml)
     cherrypy.session['user']  = eml
     if kw.get('logout'):
-      if 'email' in cherrypy.session:
-        del cherrypy.session['email']
+      cherrypy.session.pop('email', '')
       raise cherrypy.HTTPRedirect('/')
     if auth.check(pwd):
       cherrypy.session['email'] = eml
@@ -1020,13 +1054,9 @@ class Application:
   # 2.  DB-validated tracking of current position
   @cherrypy.expose
   def exports_general(self, *args, **kw):
-    navb      = ThousandNavigation(*args, **kw)
     auth      = ThousandAuth(cherrypy.session['email'])
-    tbl, srt  = {
-      '_'       : ('thousanddays_reports', None),
-      'predash' : ('pre_table', None),
-      'mothers' : ('ig_mothers', 'indexcol')
-    }.get(kw.get('key', '_'))
+    navb      = ThousandNavigation(auth, *args, **kw)
+    tbl, srt  = settings.EXPORT_KEYS.get(kw.get('key', '_'))
     cnds  = navb.conditions(srt or 'report_date', auth)
     btc   = 5000
     pos   = int(kw.get('pos', '0'))
@@ -1078,8 +1108,8 @@ class Application:
 
   @cherrypy.expose
   def exports_delivery(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     nat     = orm.ORM.query('bir_table', cnds)
     nat[0]
@@ -1089,8 +1119,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_reporting(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions(None, auth)
     nat     = orm.ORM.query('ig_reporters', cnds, cols = ['COUNT(*) AS total'])
     total   = nat[0]['total']
@@ -1132,8 +1162,8 @@ class Application:
     ]
   @cherrypy.expose
   def dashboards_pregnancies(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     attrs   = self.PREGNANCIES_DESCR
     nat     = self.civilised_fetch('ig_pregnancies', cnds, attrs)
@@ -1144,8 +1174,8 @@ class Application:
   #### START OF PREGNANCY ###
   @cherrypy.expose
   def dashboards_predash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     total = orm.ORM.query(  'pre_table', 
@@ -1294,8 +1324,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_ancdash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     attrs = [(x.split()[0], dict(settings.ANC['attrs'])[x]) for x in dict (settings.ANC['attrs'])]
@@ -1403,7 +1433,8 @@ class Application:
   #### START OF RED ALERT ###
   @cherrypy.expose
   def dashboards_reddash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
+    auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date')
     exts = {}
     
@@ -1505,8 +1536,8 @@ class Application:
   #### START OF NEWBORN ###
   @cherrypy.expose
   def dashboards_nbcdash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     total = orm.ORM.query(  'nbc_table', 
@@ -1670,8 +1701,8 @@ class Application:
   #### START OF POSTNATAL ###
   @cherrypy.expose
   def dashboards_pncdash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     total = orm.ORM.query(  'pnc_table', 
@@ -1814,8 +1845,8 @@ class Application:
   #### START OF VACCINATION ###
   @cherrypy.expose
   def dashboards_vaccindash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
@@ -1912,7 +1943,8 @@ class Application:
   #### START OF CCM ###
   @cherrypy.expose
   def dashboards_ccmdash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
+    auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date')
     exts = {}
     
@@ -2019,8 +2051,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_deathdash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
@@ -2140,8 +2172,8 @@ class Application:
   ]
   @cherrypy.expose
   def dashboards_babies(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('birth_date', auth)
     attrs   = self.BABIES_DESCR
     nat     = self.civilised_fetch('ig_babies', cnds, attrs)
@@ -2150,8 +2182,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_delivs(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('lmp', auth)
     cnds[("""(lmp + '%d DAYS')""" % (settings.GESTATION, )) + """ >= %s"""] = navb.finish
     attrs   = self.PREGNANCIES_DESCR
@@ -2167,8 +2199,8 @@ class Application:
   ]
   @cherrypy.expose
   def dashboards_admins(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     naddr   = kw.get('addr')
     dadmin  = kw.get('del')
     if dadmin:
@@ -2220,8 +2252,8 @@ class Application:
     ]
   @cherrypy.expose
   def dashboards_mothers(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     pregs   = orm.ORM.query('ig_mothers', cnds, cols = ['(SUM(pregnancies) - COUNT(*)) AS total'])[0]['total']
     attrs   = self.MOTHERS_DESCR
@@ -2231,8 +2263,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_pregnancy(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     nat     = orm.ORM.query('pre_table', cnds,
       cols      = ['COUNT(*) AS allpregs'],
@@ -2330,8 +2362,8 @@ class Application:
 
   @cherrypy.expose
   def data_reports(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
     auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     cnds.update({'report_type = %s':kw.get('subcat')})
     cherrypy.response.headers['Content-Type'] = 'application/json'

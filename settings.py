@@ -15,6 +15,13 @@ MAX_WEIGHT      = 65
 SALT_STRENGTH   = 2
 AUTH_HOME       = '/dashboards/home'
 
+# ref : (table, sort column)
+# Default sort column (None) is: report_date
+EXPORT_KEYS     = {
+  '_'       : ('thousanddays_reports', None),
+  'predash' : ('pre_table', None),
+  'mothers' : ('ig_mothers', 'indexcol')
+}
 
 LOCATION_INFO = [
 			('sector_pk',            'Sector'),
@@ -120,6 +127,15 @@ ANC = {
 	'query_str':[]
 
 	}
+
+
+CBN_DATA = {
+		'cols' : [
+				      ('lmp AS dob', 'LMP'),
+				      ('report_date', 'Submission Date'),
+				      ('report_date', 'Submission Date'),
+				    ]
+		}
 
 
 NBC_DATA = {
