@@ -71,13 +71,33 @@ background: #5bb8f9;
 
 
 .newborntext{
-	color: #288dae;
+	color: #3f2860;
 }
 .newbornbackground{
-	background-color: #288dae
+	background-color: #3f2860;
 }
 .newborncircle{
 	background: url(../images/newborncircle.png);
+}
+
+.pregnanciestext{
+	color: #90c5a9;
+}
+.pregnanciesbackground{
+	background-color: #90c5a9;
+}
+.pregnanciescircle{
+	background: url(../images/newborncircle.png);
+}
+
+.postnataltext{
+	color: #7a9a95;
+}
+.postnatalbackground{
+	background-color: #90c5a9;
+}
+.postnatalcircle{
+	background: url(../images/postnatalcircle.png);
 }
 
 
@@ -113,6 +133,7 @@ background: #5bb8f9;
 }
 
 #user{
+	text-align: right;
 	height: 40px;
 	width: 50%;
 	float: right;
@@ -293,11 +314,11 @@ font-family: 'Open Sans', sans-serif;
 
 
 .infoname{
-	
+	padding-top:20px;
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
 	font-size: 28px;
-	color: #16b494;
+	
 }
 
 .infodata{
@@ -398,7 +419,7 @@ padding-top: 20px;
 	display: inline-block;
 	float: left;
 	padding-left:15px;
-	background: url(../images/circle.png);
+	
 }
 
 .datapointccm{
@@ -468,7 +489,7 @@ padding-top: 20px;
 }
 
 .number:hover{ 
-	color: #1f89bf;
+	color: #fff;
 }
 .risknumber:hover{ 
 	color: #1f89bf;

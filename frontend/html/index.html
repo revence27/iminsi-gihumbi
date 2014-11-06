@@ -102,7 +102,7 @@
             <li>Francais</li>
           </ul>
         </div>
-        <div id="user">Username</div>
+        <div id="user">{% if display.auth %}{{	display.auth.username()	}}{% endif %}</div>
          <div id="ministry" style="width:100%; text-align:center;">
             <img style="max-width:100px;" src="../static/images/Rwandacoat.png" />
           </div>
