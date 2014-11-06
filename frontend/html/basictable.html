@@ -52,10 +52,10 @@
     {{  nav.listing[-1].name  }}  {{  nav.listing[-1].title }}
   </div>
   <div class="exporter">
-    <form method="POST" action="/exports/{{  ref }}">
+    <form method="POST" action="/exports/general">
       {%  include "hlocator.html"  %}
       {%  include "hdater.html"  %}
-      <input type="hidden" value="export" name="wanna" />
+      <input type="hidden" value="key" name="dth_reports" />
       <input type="submit" value="Export" />
     </form>
   </div>
