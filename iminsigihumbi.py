@@ -243,10 +243,10 @@ class ThousandNavigation:
   def conditions(self, tn, ini = None):
     ans = ini.conditions() if ini else {}
     if tn:
-      ans = {
+      ans.update({
         (tn + ' >= %s')  : self.start,
         (tn + ' <= %s')  : self.finish
-      }
+      })
     if 'province' in self.kw:
       ans['province_pk = (SELECT old_pk FROM chws__province WHERE indexcol = %s LIMIT 1)']  = self.kw.get('province')
     if 'district' in self.kw:
@@ -453,6 +453,7 @@ class Application:
 ''')
       }
     )
+    # raise Exception, nut.query
     total   = nut[0]['allnuts']
     return self.dynamised('nutr', mapping = locals(), *args, **kw)
 
