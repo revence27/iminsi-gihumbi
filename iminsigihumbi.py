@@ -979,12 +979,24 @@ class Application:
     return (navb, cnds, cols)
 
   @cherrypy.expose
+  def dashboards_home(self, *args, **kw):
+    flash = cherrypy.session.get('flash', '')
+    return self.dynamised('home', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
   def authentication(self, *args, **kw):
-    auth  = ThousandAuth(kw.get('email'))
+    eml                       = kw.get('addr')
+    pwd                       = kw.get('pwd')
+    auth                      = ThousandAuth(eml)
+    cherrypy.session['user']  = eml
     if kw.get('logout'):
-      del cherrypy.session['email']
-    if auth.check(kw.get('password')):
-      cherrypy.session['email'] = kw.get('email')
+      if 'email' in cherrypy.session:
+        del cherrypy.session['email']
+    if auth.check(pwd):
+      cherrypy.session['email'] = eml
+    else:
+      cherrypy.session['flash'] = 'Access Denied'
+      raise cherrypy.HTTPRedirect('/')
     if kw.get('next'):
       raise cherrypy.HTTPRedirect(kw.get('next'))
     raise cherrypy.HTTPRedirect('/')
