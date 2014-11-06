@@ -985,6 +985,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_home(self, *args, **kw):
+    navb    = ThousandNavigation(*args, **kw)
+    auth    = ThousandAuth(cherrypy.session['email'])
     return self.dynamised('home', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
