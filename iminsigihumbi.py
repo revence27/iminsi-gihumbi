@@ -101,7 +101,7 @@ class ThousandAuth:
     self.usern  = usn
 
   def check(self, pwd):
-    him = orm.ORM.query('ig_admins', {'username = %s': self.usern})
+    him = orm.ORM.query('ig_admins', {'address = %s': self.usern})
     if him.count() < 1:
       return False
     him = him[0]
@@ -111,7 +111,7 @@ class ThousandAuth:
 
   def conditions(self):
     ans = {}
-    him = orm.ORM.query('ig_admins', {'username = %s': self.usern})[0]
+    him = orm.ORM.query('ig_admins', {'address = %s': self.usern})[0]
     if him['province_pk']:
       ans['province_pk = %s'] = him['province_pk']
     if him['district_pk']:
@@ -978,6 +978,7 @@ class Application:
      ([] if 'hc' in kw else [('health_center_pk',  'Health Centre')])) + extras)
     return (navb, cnds, cols)
 
+  @cherrypy.expose
   def authentication(self, *args, **kw):
     auth  = ThousandAuth(kw.get('email'))
     if kw.get('logout'):
