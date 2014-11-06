@@ -95,13 +95,14 @@
    
       <div id="header">
         
-        <div id="langs" style="width:100%;">
+        <div id="langs">
           <ul>
             <li>English</li>
             <li>Kinyarwanda</li>
             <li>Francais</li>
           </ul>
         </div>
+        <div id="user">Username</div>
          <div id="ministry" style="width:100%; text-align:center;">
             <img style="max-width:100px;" src="../static/images/Rwandacoat.png" />
           </div>
@@ -136,17 +137,17 @@
 
 <div class="content"><div class="ic"></div>
   <div class="container_12">
-    <div class="grid_12">
-      <h3 style="text-align: center; padding-bottom: 30px; font-family: 'Open Sans', sans-serif; font-size:40px; font-weight: lighter;">DashBoards</h3>
+    
+      <h3 style="text-align: center; padding-bottom: 20px; padding-top:30px; font-family: 'Open Sans', sans-serif; font-size:40px; font-weight: lighter;">Login</h3>
       
-    </div>
+    
   
   
-   <form method="POST" action="/authentication">
+   <form class="login" method="POST" action="/authentication">
     <fieldset>
       <label>Address</label>
-      <input name="addr" type="text" placeholder="User Address" />
-      <input name="next" type="hidden" value="/dashboards/predash" />
+      <input name="addr" type="text" placeholder="Email Address" />
+      <input name="next" type="hidden" value="/dashboards/home" />
     </fieldset>
     <fieldset>
       <label>Password</label>
