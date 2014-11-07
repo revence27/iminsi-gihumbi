@@ -68,17 +68,18 @@ background: #5bb8f9;
 
 
 /**********************************************/
-
-
 .newborntext{
-	color: #3f2860;
+	color: #93b1c6;
 }
 .newbornbackground{
-	background-color: #3f2860;
+	background-color: #93b1c6;
 }
 .newborncircle{
 	background: url(../images/newborncircle.png);
 }
+
+
+
 
 .pregnanciestext{
 	color: #90c5a9;
@@ -87,16 +88,42 @@ background: #5bb8f9;
 	background-color: #90c5a9;
 }
 .pregnanciescircle{
-	background: url(../images/newborncircle.png);
+	background: url(../images/pregnanciescircle.png);
 }
+
+
+
 
 .postnataltext{
 	color: #7a9a95;
 }
 .postnatalbackground{
-	background-color: #90c5a9;
+	background-color: #7a9a95;
 }
 .postnatalcircle{
+	background: url(../images/postnatalcircle.png);
+}
+
+
+
+.nutritiontext{
+	color: #7a9a95;
+}
+.nutritionbackground{
+	background-color: #7a9a95;
+}
+.nutritioncircle{
+	background: url(../images/postnatalcircle.png);
+}
+
+
+.childhealthtext{
+	color: #7a9a95;
+}
+.childhealthground{
+	background-color: #7a9a95;
+}
+.childhealthcircle{
 	background: url(../images/postnatalcircle.png);
 }
 

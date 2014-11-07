@@ -79,8 +79,17 @@
   {% if ref in ['nbcdash'] %}
   {% set module = 'newborn' %}
   {% endif %}
+  {% if ref in ['nutr'] %}
+  {% set module = 'nutrition' %}
+  {% endif %}
   {% if ref in ['pncdash'] %}
   {% set module = 'postnatal' %}
+  {% endif %}
+  {% if ref in ['ccmdash'],['vaccindash'] %}
+  {% set module = 'childhealth' %}
+  {% endif %}
+  {% if ref in ['reddash'],['deathdash'] %}
+  {% set module = 'reddeath' %}
   {% endif %}
   
   
@@ -104,10 +113,10 @@
           <li class="home">
             <a href="/dashboards/home"><span>Home</span></a>
            <ul>
-		   <li class="{%  if  ref == 'pregnancy' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("predash") }}'><span>Pregnancies</span></a></li>
-		   <li class="{%  if  ref == 'anc' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("nbcdash") }}'><span>New Borns</span></a></li>
-		   <li class="{%  if  ref == 'brithreport' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("ccmdash") }}'><span>Child Health</span></a></li>
-		   <li class="{%  if  ref == 'vaccination' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("vaccination") }}'><span>Post Natal</span></a></li>
+		   <li class="{%  if  ref == 'pregnancy' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("predash", minus = ["group"])}}'><span>Pregnancies</span></a></li>
+		   <li class="{%  if  ref == 'anc' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("nbcdash", view= "graphic") }}'><span>New Borns</span></a></li>
+		   <li class="{%  if  ref == 'brithreport' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("ccmdash", view= "graphic") }}'><span>Child Health</span></a></li>
+		   <li class="{%  if  ref == 'vaccination' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("vaccination", view= "graphic") }}'><span>Post Natal</span></a></li>
 		   <li class="{%  if  ref == 'vaccination' %} active{%  endif %}"><a href='/dashboards/{{ nav.link("nutrition") }}'><span>Nutrition</span></a></li>
   		   </ul>
        </li>
@@ -165,9 +174,9 @@
       
       
       <div class="view">
-      <div class="tabular {% if view == 'log' %} {{ module }}background {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
-      <div class="tabular {% if view == 'table'%} {{ module }}background {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
-      <div class="graphic {% if view == 'graphic' %} {{ module }}background {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
+      <div class="tabular {% if view == 'log' %} newbornbackground {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
+      <div class="tabular {% if view == 'table'%} newbornbackground {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
+      <div class="graphic {% if view == 'graphic' %} newbornbackground {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
 
       </div>
 	</div>
