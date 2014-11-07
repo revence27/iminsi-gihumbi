@@ -1,3 +1,6 @@
+{% set module = 'pregnancies' %}
+
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -174,9 +177,9 @@
       
       
       <div class="view">
-      <div class="tabular {% if view == 'log' %} newbornbackground {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
-      <div class="tabular {% if view == 'table'%} newbornbackground {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
-      <div class="graphic {% if view == 'graphic' %} newbornbackground {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
+      <div class="tabular {% if view == 'log' %} reddeathbackground {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
+      <div class="tabular {% if view == 'table'%} reddeathbackground {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
+      <div class="graphic {% if view == 'graphic' %} reddeathbackground {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
 
       </div>
 	</div>

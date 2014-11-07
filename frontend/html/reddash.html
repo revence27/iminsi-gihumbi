@@ -17,10 +17,10 @@
 
 {%  block mainpart  %}
 
-<div class="smallcontainer">
+<div class="smallcontainer" style="margin-top:30px;">
    
      <img class="icon" src="{{  static_path }}/images/circlehighrisk.png" />
-    <div class="infoname" style="font-size: 20px;">Total Red Alerts</div>
+    <div class="infoname reddeathtext" style="font-size: 20px;">Total Red Alerts</div>
     <div class="moretotal" ><a href="{{ nav.link('/tables/reddash', summary = 'on')}}">View by Location</a></div>
     <div class="infodata goodnum">
       <a href="{{ nav.link('/tables/reddash' )}}">{{  display.red[0]['total']|neat_numbers }}</a>
@@ -32,7 +32,7 @@
   <div class="humblecontainer">
 
 	{%  for red in display.red_attrs %}
-	  <div class="datapoint">
+	  <div class="datapoint reddeathcircle">
 	  
 	    {%  set num = display.red[0][red[0]] %}
 	    
@@ -50,13 +50,13 @@
 
   </div>
 
-  <div class="humblecontainer">
+  <div class="humblecontainer" style="margin-left:300px;">
 
-    <div class="infoname" style="padding-left:200px; padding-top:50px; padding-bottom: 20px;">Interventions</div>
+    <div class="infoname reddeathtext" style="padding-left:200px; padding-top:50px; padding-bottom: 20px;">Interventions</div>
     
 
 	{%  for rar in display.rar_attrs %}
-	  <div class="datapoint">
+	  <div class="datapoint pregnanciescircle">
 	  
 	    {%  set num = display.rar[0][rar[0]] %}
 	    

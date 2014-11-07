@@ -95,10 +95,10 @@ background: #5bb8f9;
 
 
 .postnataltext{
-	color: #7a9a95;
+	color: #bcc747;
 }
 .postnatalbackground{
-	background-color: #7a9a95;
+	background-color: #bcc747;
 }
 .postnatalcircle{
 	background: url(../images/postnatalcircle.png);
@@ -107,24 +107,35 @@ background: #5bb8f9;
 
 
 .nutritiontext{
-	color: #7a9a95;
+	color: #dde0cd;
 }
 .nutritionbackground{
-	background-color: #7a9a95;
+	background-color: #dde0cd;
 }
 .nutritioncircle{
-	background: url(../images/postnatalcircle.png);
+	background: url(../images/nutritioncirlce.png);
 }
 
 
 .childhealthtext{
-	color: #7a9a95;
+	color: #634271;
 }
-.childhealthground{
-	background-color: #7a9a95;
+.childhealthbackground{
+	background-color: #634271;
 }
 .childhealthcircle{
-	background: url(../images/postnatalcircle.png);
+	background: url(../images/childhealthcircle.png);
+}
+
+
+.reddeathtext{
+	color: #e7512d;
+}
+.reddeathbackground{
+	background-color: #e7512d;
+}
+.reddeathcircle{
+	background: url(../images/reddeath.png);
 }
 
 
