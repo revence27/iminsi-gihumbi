@@ -463,12 +463,12 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
-    cnds.update({settings.DEATH_DATA['query_str']: ''})
+    cnds.update({settings.CBN_DATA['query_str']: ''})
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     else:
-     INDICS = settings.DEATH_DATA['attrs']
+     INDICS = settings.CBN_DATA['attrs']
     if kw.get('summary'):
      province = kw.get('province') or None
      district = kw.get('district') or None
@@ -478,10 +478,10 @@ class Application:
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
 
-     wcl.append({'field_name': '(%s)' % settings.DEATH_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
+     wcl.append({'field_name': '(%s)' % settings.CBN_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
-      locateds = summarize_by_location(primary_table = 'dth_table', MANY_INDICS = INDICS, where_clause = wcl, 
+      locateds = summarize_by_location(primary_table = 'cbn_view', MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location,
@@ -510,14 +510,14 @@ class Application:
     attrs = []
     
     cols    += settings.LOCATION_INFO   
-    nat     = orm.ORM.query('dth_table', cnds,
+    nat     = orm.ORM.query('cbn_view', cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp) AS dob', 'Date Of Birth'),
  
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Nutrition %s' % (' (%s)' % (self.find_descr(DESCRI + settings.DEATH_DATA['attrs'], 
+    desc  = 'Nutrition %s' % (' (%s)' % (self.find_descr(DESCRI + settings.CBN_DATA['attrs'], 
 						sc ) or 'ALL', 
 					) )
     return self.dynamised('cbn_table', mapping = locals(), *args, **kw)
@@ -538,24 +538,16 @@ class Application:
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
-    nut = orm.ORM.query('cbn_table', cnds,
+    nut = orm.ORM.query('cbn_view', cnds,
       cols      = ['COUNT(*) AS allnuts'],
       extended  = {
-        'notbreast':('COUNT(*)', 'nb_bool IS NOT NULL'),
-        'ebreast':('COUNT(*)', 'ebf_bool IS NOT NULL'),
-        'cbreast':('COUNT(*)', 'cbf_bool IS NOT NULL'),
-        'unknown':('COUNT(*)', 'cbf_bool IS NULL AND ebf_bool IS NULL AND nb_bool IS NULL'),
-
-        'stunting':('COUNT(*)', '''child_height_float < 
-(SELECT sd2neg FROM ig_deviations WHERE problem = 'stunting' AND month = ((EXTRACT(DAYS FROM (report_date - lmp)) / 30)) :: INTEGER LIMIT 1)
-'''),
-        'underweight':('COUNT(*)', '''child_weight_float <
-(SELECT sd2neg FROM ig_deviations WHERE problem = 'underweight' AND month = ((EXTRACT(DAYS FROM (report_date - lmp)) / 30)) :: INTEGER LIMIT 1)
-            
-'''),
-        'wasting':('COUNT(*)', '''child_weight_float <
-(RANDOM() * 10.0)
-''')
+        'nb_bool':('COUNT(*)', 'nb_bool IS NOT NULL'),
+        'ebf_bool':('COUNT(*)', 'ebf_bool IS NOT NULL'),
+        'cbf_bool':('COUNT(*)', 'cbf_bool IS NOT NULL'),
+        # 'unknown':('COUNT(*)', 'cbf_bool IS NULL AND ebf_bool IS NULL AND nb_bool IS NULL'),
+        'stunting_bool':('COUNT(*)', 'stunting_bool'),
+        'underweight_bool':('COUNT(*)', 'underweight_bool'),
+        'wasting_bool':('COUNT(*)', 'wasting_bool')
       }
     )
     # raise Exception, nut.query

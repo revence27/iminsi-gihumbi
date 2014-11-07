@@ -130,11 +130,17 @@ ANC = {
 
 
 CBN_DATA = {
-		'cols' : [
-				      ('lmp AS dob', 'LMP'),
-				      ('report_date', 'Submission Date'),
-				      ('report_date', 'Submission Date'),
-				    ]
+		'attrs': [
+        (u'nb_bool IS NOT NULL', u'Not Breast-feeding'),
+        (u'ebf_bool IS NOT NULL', u'Exclusive Breast-feeding'),
+        (u'cbf_bool IS NOT NULL', u'Complementary Breast-feeding'),
+        (u'cbf_bool IS NULL AND ebf_bool IS NULL AND nb_bool IS NULL', u'Unknown Breast-feeding Status'),
+        (u'stunting_bool IS NOT NULL', u'Stunting'),
+        (u'underweight_bool IS NOT NULL', u'Underweight'),
+        (u'wasting_bool IS NOT NULL', u'Wasting')
+					],
+
+		'query_str': '((cbf_bool IS NOT NULL) OR (ebf_bool IS NOT NULL) OR (nb_bool IS NOT NULL))'
 		}
 
 
