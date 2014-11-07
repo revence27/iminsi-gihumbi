@@ -1,5 +1,5 @@
 {%  extends "novabase.html" %}
-{%  block title %}Pregnancy Risks {%  endblock  %}
+{%  block title %}Pregnancies{%  endblock  %}
 {%  block subtitle %} Pregnancy Risks {%  endblock  %}
 
 {% block menu %}
@@ -39,7 +39,7 @@
       <a href="{{ nav.link('/tables/predash', group = display['group'])}}">{{  display.nat[0]['total']|neat_numbers}}</a>
     </div>
     <div class="graphicard">
-      <img class="icon" src="{{  static_path }}/images/pregnantwoman.jpg" />
+      <img class="icon" src="{{  static_path }}/images/pregnancies.jpg" />
     </div>
 
     <div class="infoname pregnanciestext">Total Pregnancies</div>
@@ -61,7 +61,7 @@
       <a href="{{ nav.link("/tables/predash") }}">{{  display.nat[0]['total']|neat_numbers }}</a>
     </div>
     <div class="graphicard">
-      <img class="icon" src="{{  static_path }}/images/pregnantwoman.jpg" />
+      <img class="icon" src="{{  static_path }}/images/pregnancies.jpg" />
     </div>
   </div>
   

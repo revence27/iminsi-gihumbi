@@ -55,7 +55,7 @@
 <div class="datapointrisks" style="background: url(../static/images/circle.png);">
     
     <div class="moreoptions startshidden" > <a href="">View by Location</a></div>
-    <div class="risknumber"><a href="{{ nav.link('/dashboards/nbcdash', group = 'no_risk')}}">{{  display.nat[0]['no_risk']|neat_numbers }}</a></div>
+    <div class="risknumber"><a href="{{ nav.link('/dashboards/nbcdash', group = 'no_risk', view= 'graphic')}}">{{  display.nat[0]['no_risk']|neat_numbers }}</a></div>
   </div>
   <div class="descrrisk">   No Risks</div>
  </div>
@@ -64,7 +64,7 @@
   <div class="datapointrisks" style="background: url(../static/images/circleatrisk.png);">
     
     <div class="moreoptions startshidden" > <a href="">View by Location</a></div>
-    <div class="risknumber"><a href="{{ nav.link('/dashboards/nbcdash', group = 'at_risk')}}">{{  display.nat[0]['at_risk']|neat_numbers }}</a></div>
+    <div class="risknumber"><a href="{{ nav.link('/dashboards/nbcdash', group = 'at_risk', view= 'graphic')}}">{{  display.nat[0]['at_risk']|neat_numbers }}</a></div>
   </div>
   <div class="descrrisk">At Risk</div>
   </div>
@@ -73,7 +73,7 @@
   <div class="datapointrisks" style="background: url(../static/images/circlehighrisk.png);">
     
     <div class="moreoptions startshidden" > <a href="">View by Location</a></div>
-    <div class="risknumber"><a href="{{ nav.link('/dashboards/nbcdash', group = 'high_risk')}}">{{  display.nat[0]['high_risk']|neat_numbers }}</a></div>
+    <div class="risknumber"><a href="{{ nav.link('/dashboards/nbcdash', group = 'high_risk', view= 'graphic')}}">{{  display.nat[0]['high_risk']|neat_numbers }}</a></div>
   </div>
   <div class="descrrisk" >High Risk</div>
   </div>
