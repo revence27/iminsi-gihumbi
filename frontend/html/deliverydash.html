@@ -1,0 +1,80 @@
+{%  extends "deliverybase.html" %}
+{% block menu %}
+ <li class="homelink">
+            <a href="/dashboards/predash"><span>Pregnancies</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/delivery"><span>Deliveries</span></a>
+          </li>
+         
+          <li class="homelink">
+            <a href="/dashboards/ancdash"><span>ANC</span></a>
+          </li>
+           
+{% endblock %}
+
+
+{% block position %}
+
+<li>&#187; Delivery</li>
+
+{% endblock %}
+
+{%  block mainpart  %}
+  <div class="smallcontainer">
+   
+     <img class="icon" src="{{  static_path }}/images/delivery.jpg" />
+    <!-- 
+    <div class="infoname" style="font-size: 20px;">Deliveries in Next Week</div>
+    <div class="moretotal" ><a href="{{ nav.link('/tables/deliverydash', group = 'next_week', summary = 'on')}}">View by Location</a></div>
+    <div class="infodata goodnum">
+      <a href="{{ nav.link('/tables/deliverydash', group = 'next_week' )}}">{{  display.next_week[0]['total']|neat_numbers }}</a>
+    </div>
+    
+    <div class="infoname" style="font-size: 20px;">Deliveries in Next two Weeks</div>
+    <div class="moretotal" ><a href="{{ nav.link('/tables/deliverydash', group = 'next_two_week', summary = 'on')}}">View by Location</a></div>
+    <div class="infodata goodnum">
+      <a href="{{ nav.link('/tables/deliverydash', group = 'next_two_week' )}}">{{  display.next_two_week[0]['total']|neat_numbers }}</a>
+    </div>
+    -->
+    
+    
+  </div>
+  <div class="humblecontainer">
+  <div class="infopair" style="display:block">
+      <div class="prem" style="display: inline; float:left;padding-right:30px;">
+        <div class="infoname">Total Deliveries</div>
+        <div class="moretotal" ><a href="{{ nav.link('/tables/deliverydash', summary = 'on')}}">View by Location</a></div>
+        <div class="number"><a href="{{ nav.link('/tables/deliverydash' )}}">{{  display.nat[0]['total']|neat_numbers }}</a></div>
+      </div>
+      
+      <div class="scnd" style="">
+        <div class="infoname">&nbsp;</div>
+        <div class="number">&nbsp;</div>
+      </div>
+    </div>
+  
+    <div class="infoname" style="padding-left:150px; padding-top:50px;">By Delivery Locations</div>
+    <div class="vals">
+      {%  for dl in display.attrs %}
+	  <div class="datapoint">
+	  
+	    {%  set num = display.nat[0][dl[0]] %}
+	    
+	    <div class="descr">{{  dl[1] }}</div>
+	    <div class="moreoptions startshidden" >
+		 <a href="/tables/{{  nav.link('deliverydash', subcat = dl[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
+	    </div>
+	    <div class="number">
+		{% if  num %}<a href="/tables/{{  nav.link('deliverydash', subcat = dl[0], minus = ['pid', 'id'])  }}">{{ num|neat_numbers }}</a>
+		{% else  %}  {{  num|neat_numbers }}  {%  endif %}
+	    </div>
+	    
+  	   </div>
+	{%  endfor  %}
+    </div>
+    
+  </div>
+
+
+{%  endblock  %}
