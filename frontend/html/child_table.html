@@ -65,6 +65,8 @@
 <h2>Reports</h2>
 {% include 'child_report_table.html' %} 
 
+
+
 <h2>CBN Reports</h2>
  <table width="100%">
   <thead>
@@ -92,5 +94,108 @@
   </tr>
   {% endfor %}
   </table>
+  <script src="{{ static_path }}/javascripts/highcharts.js"></script>
+  <div id="cbnweight" style="width: 50%;float:left;"></div>
+  <div id="cbnheight" style="width: 50%;float:right;"></div>
+ 
+  
+  
+		<script type="text/javascript">
+$(function () {
+        $('#cbnweight').highcharts({
+            title: {
+                text: 'Weigth flactuation',
+                x: -20 //center
+            },
+            
+            xAxis: {
+                categories: [
+						{%  for cbn in display.cbn_reports.list() %}
+						"{{  cbn['report_date'] }}",
+						
+						{% endfor %}
+					]
+            },
+            yAxis: {
+                title: {
+                    text: 'Patient Wieghts'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: ' Kgs'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: [{
+                name: 'Weight',
+                data: [
+                       {%  for cbn in display.cbn_reports.list() %}
+                       {{  cbn['child_weight_float'] }},
+                       
+                       {% endfor %}
+				]
+            }]
+        });
+    });
+    
+$(function () {
+    $('#cbnheight').highcharts({
+        title: {
+            text: 'Height flactuation',
+            x: -20 //center
+        },
+        
+        xAxis: {
+            categories: [
+						{%  for cbn in display.cbn_reports.list() %}
+						"{{  cbn['report_date'] }}",
+						{% endfor %}
+						]
+        },
+        yAxis: {
+            title: {
+                text: 'Patient Heights'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: 'cms'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'Height',
+            data: [
+                   {%  for cbn in display.cbn_reports.list() %}
+                   {%  if cbn['child_height_float'] %}
+                   {{  cbn['child_height_float'] }},
+                   {% else %}
+                   0,
+                   {% endif %}
+                   
+                   {% endfor %}
+			]
+        }]
+    });
+});
+    
 
+		</script>
 {%  endblock  %}

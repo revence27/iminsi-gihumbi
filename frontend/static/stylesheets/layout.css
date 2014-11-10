@@ -50,6 +50,95 @@ background: #5bb8f9;
 }
 
 
+/*********************************************/
+
+
+.login{
+	 margin-left: auto; 
+	 margin-right: auto; 
+	 width:250px;
+	 font-size: 20px;
+}
+
+.login input[type=submit] {
+	margin-top:20px;
+	margin-left: 30%;
+	cursor: pointer;
+}
+
+
+/**********************************************/
+.newborntext{
+	color: #93b1c6;
+}
+.newbornbackground{
+	background-color: #93b1c6;
+}
+.newborncircle{
+	background: url(../images/newborncircle.png);
+}
+
+
+
+
+.pregnanciestext{
+	color: #90c5a9;
+}
+.pregnanciesbackground{
+	background-color: #90c5a9;
+}
+.pregnanciescircle{
+	background: url(../images/pregnanciescircle.png);
+}
+
+
+
+
+.postnataltext{
+	color: #bcc747;
+}
+.postnatalbackground{
+	background-color: #bcc747;
+}
+.postnatalcircle{
+	background: url(../images/postnatalcircle.png);
+}
+
+
+
+.nutritiontext{
+	color: #dde0cd;
+}
+.nutritionbackground{
+	background-color: #dde0cd;
+}
+.nutritioncircle{
+	background: url(../images/nutritioncirlce.png);
+}
+
+
+.childhealthtext{
+	color: #634271;
+}
+.childhealthbackground{
+	background-color: #634271;
+}
+.childhealthcircle{
+	background: url(../images/childhealthcircle.png);
+}
+
+
+.reddeathtext{
+	color: #e7512d;
+}
+.reddeathbackground{
+	background-color: #e7512d;
+}
+.reddeathcircle{
+	background: url(../images/reddeath.png);
+}
+
+
 
 
 /*********************************************/
@@ -81,7 +170,15 @@ background: #5bb8f9;
 	float: left;
 }
 
-
+#user{
+	text-align: right;
+	height: 40px;
+	width: 50%;
+	float: right;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 15px;
+	color: #fff;
+}
 
 #langs{
 	height: 40px;
@@ -255,11 +352,11 @@ font-family: 'Open Sans', sans-serif;
 
 
 .infoname{
-	
+	padding-top:20px;
 	font-family: 'Open Sans', sans-serif;
 	font-weight:lighter;
 	font-size: 28px;
-	color: #16b494;
+	
 }
 
 .infodata{
@@ -360,7 +457,7 @@ padding-top: 20px;
 	display: inline-block;
 	float: left;
 	padding-left:15px;
-	background: url(../images/circle.png);
+	
 }
 
 .datapointccm{
@@ -430,7 +527,7 @@ padding-top: 20px;
 }
 
 .number:hover{ 
-	color: #1f89bf;
+	color: #fff;
 }
 .risknumber:hover{ 
 	color: #1f89bf;

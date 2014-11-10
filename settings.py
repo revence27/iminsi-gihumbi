@@ -13,7 +13,15 @@ BMI_MAX         = 25
 MIN_WEIGHT      = 45
 MAX_WEIGHT      = 65
 SALT_STRENGTH   = 2
+AUTH_HOME       = '/dashboards/home'
 
+# ref : (table, sort column)
+# Default sort column (None) is: report_date
+EXPORT_KEYS     = {
+  '_'       : ('thousanddays_reports', None),
+  'predash' : ('pre_table', None),
+  'mothers' : ('ig_mothers', 'indexcol')
+}
 
 LOCATION_INFO = [
 			('sector_pk',            'Sector'),
@@ -109,16 +117,31 @@ PREGNANCY_DATA = [
       ('report_date', 'Submission Date'),
     ]
 
-ANC_DATA = { 
+ANC = { 
 	'attrs': [
 			('anc2_bool IS NOT NULL', 'ANC2'),
 			('anc3_bool IS NOT NULL', 'ANC3'),
 			('anc4_bool IS NOT NULL', 'ANC4'),
 		],
 
-	'query_str': '((anc2_bool IS NOT NULL) OR (anc3_bool IS NOT NULL) OR (anc4_bool IS NOT NULL))'
+	'query_str':[]
 
 	}
+
+
+CBN_DATA = {
+		'attrs': [
+        (u'nb_bool IS NOT NULL', u'Not Breast-feeding'),
+        (u'ebf_bool IS NOT NULL', u'Exclusive Breast-feeding'),
+        (u'cbf_bool IS NOT NULL', u'Complementary Breast-feeding'),
+        (u'cbf_bool IS NULL AND ebf_bool IS NULL AND nb_bool IS NULL', u'Unknown Breast-feeding Status'),
+        (u'stunting_bool IS NOT NULL', u'Stunting'),
+        (u'underweight_bool IS NOT NULL', u'Underweight'),
+        (u'wasting_bool IS NOT NULL', u'Wasting')
+					],
+
+		'query_str': '((cbf_bool IS NOT NULL) OR (ebf_bool IS NOT NULL) OR (nb_bool IS NOT NULL))'
+		}
 
 
 NBC_DATA = {
@@ -345,7 +368,6 @@ DELIVERY_DATA = {
 		'query_str':'((hp_bool IS NOT NULL) OR (cl_bool IS NOT NULL) OR (or_bool IS NOT NULL) OR (ho_bool IS NOT NULL))',
 		
 		}
-
 
 APP_DATA  = {
   'indicators'  : [

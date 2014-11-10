@@ -113,7 +113,12 @@
   </tr>
   {% endfor %}
   </table>
-
+ 
+  <script src="{{ static_path }}/javascripts/highcharts.js"></script>
+  
+  <div id="anc" style="width:50%; height: 200px;">
+  
+</div>
 
 
 
@@ -142,5 +147,50 @@
   {% endfor %}
   </table>
 
+
+		<script type="text/javascript">
+$(function () {
+        $('#anc').highcharts({
+            title: {
+                text: 'ANC weight flactuation',
+                x: -20 //center
+            },
+            
+            xAxis: {
+                categories: ['ANC1', 'ANC2', 'ANC3', 'ANC4']
+            },
+            yAxis: {
+                title: {
+                    text: 'Patient Wieghts'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: 'Kgs'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: [{
+                name: 'Weight',
+                data: [
+                       {%  for anc in display.anc_reports.list() %}
+                       {{  anc['mother_weight_float'] }},
+                       
+                       {% endfor %}
+				]
+            }]
+        });
+    });
+    
+
+		</script>
 
 {%  endblock  %}
