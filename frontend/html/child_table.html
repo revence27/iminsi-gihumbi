@@ -8,6 +8,7 @@
 {% endblock %}
 
 {%  block mainpart  %}
+{#
 <h2>Child</h2>
 <table width="100%">
   <thead>
@@ -65,7 +66,7 @@
 <h2>Reports</h2>
 {% include 'child_report_table.html' %} 
 
-
+#}
 
 <h2>CBN Reports</h2>
  <table width="100%">
@@ -104,7 +105,7 @@
 $(function () {
         $('#cbnweight').highcharts({
             title: {
-                text: 'Weigth flactuation',
+                text: 'Weigth',
                 x: -20 //center
             },
             
@@ -150,7 +151,7 @@ $(function () {
 $(function () {
     $('#cbnheight').highcharts({
         title: {
-            text: 'Height flactuation',
+            text: 'Height',
             x: -20 //center
         },
         

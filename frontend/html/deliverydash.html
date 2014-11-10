@@ -4,12 +4,16 @@
             <a href="/dashboards/predash"><span>Pregnancies</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/delivery"><span>Deliveries</span></a>
-          </li>
-         
-          <li class="homelink">
             <a href="/dashboards/ancdash"><span>ANC</span></a>
           </li>
+          <li class="homelink">
+            <a href="/dashboards/deliverynotdash"><span>Deliveries Notifications</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/deliverydash"><span>Deliveries</span></a>
+          </li>
+         
+
            
 {% endblock %}
 
@@ -57,7 +61,7 @@
     <div class="infoname" style="padding-left:150px; padding-top:50px;">By Delivery Locations</div>
     <div class="vals">
       {%  for dl in display.attrs %}
-	  <div class="datapoint">
+	  <div class="datapoint pregnanciescircle">
 	  
 	    {%  set num = display.nat[0][dl[0]] %}
 	    

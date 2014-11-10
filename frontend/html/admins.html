@@ -17,9 +17,9 @@
     <input type="submit" />
   </form>
 </div>
-<div class="humblecontainer">
+<div class="humblecontainer" >
   {%  for r in display.nat.list() %}
-    <div class="datapoint">
+    <div class="">
       <form method="POST" class="admin">
         <input type="hidden" value="{{  r['indexcol'] }}" name="del" />
         <div>{{ r['address'] }}</div>
