@@ -1,4 +1,13 @@
 {%  extends "basicpregnancies.html" %}
+{% block menu %}
+	
+          <li class="homelink">
+            <a href="/dashboards/reddash?view=graphic"><span>RedAlert</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/deathdash?view=graphic"><span>Deaths</span></a>
+          </li>
+{% endblock %}
 {% block position %}
 
 <li>&#187; <a href="/dashboards/deathdash">Death</a></li>

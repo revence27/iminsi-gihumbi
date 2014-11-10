@@ -5,10 +5,17 @@
 
 {% block menu %}
 		 <li class="">
+<<<<<<< HEAD
             <a href="/dashboards/ccmdash"><span>CCM</span></a>
           </li>
           <li class="homelink">
             <a href="/dashboards/vaccindash"><span>Vaccinations</span></a>
+=======
+            <a href="/dashboards/ccmdash?view=graphic"><span>CCM</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/vaccindash?view=graphic"><span>Vaccinations</span></a>
+>>>>>>> 007722399748a865e051ea5db237dc03d51dd47e
           </li>
 {% endblock %}
 
@@ -19,7 +26,11 @@
 <div class="smallcontainer">
    
      <img class="icon" src="{{  static_path }}/images/ccm.jpg" />
+<<<<<<< HEAD
     <div class="infoname" style="font-size: 20px;">Number of Children</div>
+=======
+    <div class="infoname childhealthtext" style="font-size: 20px;">Number of Children</div>
+>>>>>>> 007722399748a865e051ea5db237dc03d51dd47e
     <div class="moretotal" ><a href="{{ nav.link('/tables/ccmdash', summary = 'on')}}">View by Location</a></div>
     <div class="infodata goodnum">
       <a href="{{ nav.link('/tables/ccmdash' )}}">{{  display.ccm[0]['total']|neat_numbers }}</a>
@@ -31,7 +42,11 @@
   <div class="humblecontainer">
 
 	{%  for ca in display.ccm_attrs %}
+<<<<<<< HEAD
 	  <div class="datapoint">
+=======
+	  <div class="datapoint childhealthcircle">
+>>>>>>> 007722399748a865e051ea5db237dc03d51dd47e
 	  
 	    {%  set num = display.ccm[0][ca[0]] %}
 	    
@@ -51,11 +66,19 @@
 
   <div class="humblecontainer">
 
+<<<<<<< HEAD
     <div class="infoname" style="padding-left:200px; padding-top:50px; padding-bottom: 20px;">Interventions</div>
     
 
 	{%  for ra in display.cmr_attrs %}
 	  <div class="datapoint">
+=======
+    <div class="infoname childhealthtext" style="padding-left:200px; padding-top:50px; padding-bottom: 20px;">Interventions</div>
+    
+
+	{%  for ra in display.cmr_attrs %}
+	  <div class="datapoint pregnanciescircle	">
+>>>>>>> 007722399748a865e051ea5db237dc03d51dd47e
 	  
 	    {%  set num = display.cmr[0][ra[0]] %}
 	    

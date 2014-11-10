@@ -6,10 +6,10 @@
 {% block menu %}
 	
           <li class="homelink">
-            <a href="/dashboards/reddash"><span>RedAlert</span></a>
+            <a href="/dashboards/reddash?view=graphic"><span>RedAlert</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/deathdash"><span>Deaths</span></a>
+            <a href="/dashboards/deathdash?view=graphic"><span>Deaths</span></a>
           </li>
 {% endblock %}
 
@@ -19,7 +19,7 @@
 
 <div class="smallcontainer" style="margin-top:30px;">
    
-     <img class="icon" src="{{  static_path }}/images/circlehighrisk.png" />
+     <img class="icon" src="{{  static_path }}/images/redalert.jpg" />
     <div class="infoname reddeathtext" style="font-size: 20px;">Total Red Alerts</div>
     <div class="moretotal" ><a href="{{ nav.link('/tables/reddash', summary = 'on')}}">View by Location</a></div>
     <div class="infodata goodnum">
