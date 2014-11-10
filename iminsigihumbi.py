@@ -1598,7 +1598,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_deliverynotdash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
+    auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date')
     exts = {}
     
@@ -1725,7 +1726,8 @@ class Application:
 
   @cherrypy.expose
   def dashboards_deliverydash(self, *args, **kw):
-    navb    = ThousandNavigation(*args, **kw)
+    auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date')
     exts = {}
     
