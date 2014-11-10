@@ -5,10 +5,10 @@
 {% block menu %}
 	
           <li class="homelink">
-            <a href="/dashboards/reddash"><span>RedAlert</span></a>
+            <a href="/dashboards/reddash?view=graphic"><span>RedAlert</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/deathdash"><span>Deaths</span></a>
+            <a href="/dashboards/deathdash?view=graphic"><span>Deaths</span></a>
           </li>
 {% endblock %}
 {%  block mainpart  %}
@@ -22,13 +22,13 @@
   
 {%  include "basicdisplay.html"  %}
 
-  <div class="humblecontainer">
+  <div class="humblecontainer" style="margin-left:300px;">
 
     <div class="infoname" style="padding-left:200px; padding-top:50px; padding-bottom: 20px;">Incident Area</div>
     
 
 	{%  for bl in display.bylocs_attrs %}
-	  <div class="datapoint">
+	  <div class="datapoint pregnanciescircle">
 	  
 	    {%  set num = display.bylocs[0][bl[0]] %}
 	    

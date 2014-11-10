@@ -1600,7 +1600,7 @@ class Application:
   def dashboards_deliverynotdash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
-    cnds    = navb.conditions('report_date')
+    cnds    = navb.conditions('report_date', auth)
     exts = {}
     
     today = datetime.today().date()
@@ -1728,7 +1728,11 @@ class Application:
   def dashboards_deliverydash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
+<<<<<<< HEAD
     cnds    = navb.conditions('report_date')
+=======
+    cnds    = navb.conditions('report_date', auth)
+>>>>>>> marvin/master
     exts = {}
     
     attrs = [(x[0].split()[0], x[1]) for x in settings.DELIVERY_DATA['attrs']]
@@ -2185,6 +2189,8 @@ class Application:
 			  cols = ['COUNT(*) AS total'], 
 			  extended = vac_series_exts,
 			)
+
+
 
     return self.dynamised('vaccindash', mapping = locals(), *args, **kw)
 

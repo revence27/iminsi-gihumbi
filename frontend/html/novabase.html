@@ -1,5 +1,46 @@
-{% set module = 'pregnancies' %}
-
+{% set module = 'none' %}
+ 
+ {% if ref == 'predash'  %}
+  {% set module = 'pregnancies' %}
+  {% endif %}
+  {% if ref == 'ancdash'  %}
+  {% set module = 'pregnancies' %} 
+  {% endif %}
+  {% if ref == 'delivery'  %}
+  {% set module = 'pregnancies' %}
+  {% endif %}
+  
+  
+  
+  {% if ref == 'nbcdash' %}
+  {% set module = 'newborn' %}
+  {% endif  %}
+  
+  
+  {% if ref == 'nutr'  %}
+  {% set module = 'nutrition' %}
+  {% endif %}
+  
+  
+  {% if ref == 'pncdash'  %}
+  {% set module = 'postnatal' %}
+  {% endif %}
+  
+  
+  {% if ref == 'ccmdash'  %}
+  {% set module = 'childhealth' %}
+  {% endif %}
+  {% if ref == 'vaccindash'  %}
+  {% set module = 'childhealth' %}
+  {% endif %}
+  
+  
+  {% if ref == 'reddash'  %}
+  {% set module = 'reddeath' %}
+  {% endif %}
+  {% if ref == 'deathdash'  %}
+  {% set module = 'reddeath' %}
+  {% endif %}
 
 <!DOCTYPE html>
 <html>
@@ -75,27 +116,6 @@
 	</script>    
   </head>
   <body>
-  
-  {% if ref in ['predash','ancdash','delivery'] %}
-  {% set module = 'pregnancies' %}
-  {% endif %}
-  {% if ref in ['nbcdash'] %}
-  {% set module = 'newborn' %}
-  {% endif %}
-  {% if ref in ['nutr'] %}
-  {% set module = 'nutrition' %}
-  {% endif %}
-  {% if ref in ['pncdash'] %}
-  {% set module = 'postnatal' %}
-  {% endif %}
-  {% if ref in ['ccmdash'],['vaccindash'] %}
-  {% set module = 'childhealth' %}
-  {% endif %}
-  {% if ref in ['reddash'],['deathdash'] %}
-  {% set module = 'reddeath' %}
-  {% endif %}
-  
-  
   
   
     <div id="top">
@@ -175,11 +195,11 @@
 
 </div>
       
-      
+   
       <div class="view">
-      <div class="tabular {% if view == 'log' %} reddeathbackground {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
-      <div class="tabular {% if view == 'table'%} reddeathbackground {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
-      <div class="graphic {% if view == 'graphic' %} reddeathbackground {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
+      <div class="tabular {% if view == 'log' %} {{ module }}background {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
+      <div class="tabular {% if view == 'table'%} {{ module }}background {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
+      <div class="graphic {% if view == 'graphic' %} {{ module }}background {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
 
       </div>
 	</div>

@@ -1,17 +1,18 @@
 {%  extends "basicpregnancies.html" %}
 {% block menu %}
-		 <li class="">
-            <a href="/dashboards/ccmdash"><span>CCM</span></a>
+	
+          <li class="homelink">
+            <a href="/dashboards/reddash?view=graphic"><span>RedAlert</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/vaccindash"><span>Vaccinations</span></a>
+            <a href="/dashboards/deathdash?view=graphic"><span>Deaths</span></a>
           </li>
 {% endblock %}
 {% block position %}
 
-<li>&#187; <a href="/dashboards/vaccindash">Vaccination</a></li>
+<li>&#187; <a href="/dashboards/reddash">Red Alets</a></li>
 
-<li>&#187; <a href=/dashboards/vaccindash?group={{ group }}>{{ group }}</a></li>
+<li>&#187; <a href=/dashboards/reddash?group={{ group }}>{{ group }}</a></li>
 
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
