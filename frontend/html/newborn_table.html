@@ -1,0 +1,202 @@
+{%  extends "basicmothers.html" %}
+{% block position %}
+
+<li>&#187; <a href="/dashboards/nbcdash">Child</a></li>
+
+<li>&#187; {{ pid }}</li>
+
+{% endblock %}
+
+{%  block mainpart  %}
+{#
+<h2>Child</h2>
+<table width="100%">
+  <thead>
+    <tr>
+      <th>Mother ID</th>
+      <th>Reporter Phone</th>
+      <th>Province</th>
+      <th>District</th>
+      <th>HealthCentre</th>
+      <th>Sector</th>
+      <th>Cell</th>
+      <th>Village</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  
+    <td>{{display.patient.patient_id}}</td>
+    <td>{{display.patient.reporter_phone}}</td>
+    <td>{{display.patient.province}}</td>
+    <td>{{display.patient.district}}</td>
+    <td>{{display.patient.healthcentre}}</td>
+    <td>{{display.patient.sector}}</td>
+    <td>{{display.patient.cell}}</td>
+    <td>{{display.patient.village}}</td>
+  
+  </tr>
+ </tbody>
+</table>
+<h2>Symptoms</h2>
+<table width="100%">
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+
+ {%  if  display.attrs %}
+
+        
+          {%  for bc in display.attrs %}
+          <tr>{%  if  display.nat[0][bc[0].split()[0]] == True %}<td> {{bc[0].split('_')[0]}}</td><td>{{  bc[1] }}</td>{% endif %}</tr>
+          {%  endfor  %}
+        
+        
+{% else %}
+  <tr>
+    <td colspan="2"><center>No Symptoms</center></td>
+  </tr>
+{% endif %}
+</table>
+
+
+<h2>Reports</h2>
+{% include 'child_report_table.html' %} 
+
+#}
+
+<h2>CBN Reports</h2>
+ <table width="100%">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Date</th>
+      <th>Height</th>
+      <th>Weight</th>
+    </tr>
+  </thead>
+  {%  for cbn in display.cbn_reports.list() %}
+  <tr>
+  <td>
+  {{  cbn['indexcol'] }}
+  </td>
+  <td>
+  {{  cbn['report_date'] }}
+  </td>
+  <td>
+  {{  cbn['child_height_float'] }}cm
+  </td>
+  <td>
+  {{  cbn['child_weight_float'] }}kg
+  </td>
+  </tr>
+  {% endfor %}
+  </table>
+  <script src="{{ static_path }}/javascripts/highcharts.js"></script>
+  <div id="cbnweight" style="width: 50%;float:left;"></div>
+  <div id="cbnheight" style="width: 50%;float:right;"></div>
+ 
+  
+  
+		<script type="text/javascript">
+$(function () {
+        $('#cbnweight').highcharts({
+            title: {
+                text: 'Weigth',
+                x: -20 //center
+            },
+            
+            xAxis: {
+                categories: [
+						{%  for cbn in display.cbn_reports.list() %}
+						"{{  cbn['report_date'] }}",
+						
+						{% endfor %}
+					]
+            },
+            yAxis: {
+                title: {
+                    text: 'Patient Wieghts'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: ' Kgs'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: [{
+                name: 'Weight',
+                data: [
+                       {%  for cbn in display.cbn_reports.list() %}
+                       {{  cbn['child_weight_float'] }},
+                       
+                       {% endfor %}
+				]
+            }]
+        });
+    });
+    
+$(function () {
+    $('#cbnheight').highcharts({
+        title: {
+            text: 'Height',
+            x: -20 //center
+        },
+        
+        xAxis: {
+            categories: [
+						{%  for cbn in display.cbn_reports.list() %}
+						"{{  cbn['report_date'] }}",
+						{% endfor %}
+						]
+        },
+        yAxis: {
+            title: {
+                text: 'Patient Heights'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: 'cms'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'Height',
+            data: [
+                   {%  for cbn in display.cbn_reports.list() %}
+                   {%  if cbn['child_height_float'] %}
+                   {{  cbn['child_height_float'] }},
+                   {% else %}
+                   0,
+                   {% endif %}
+                   
+                   {% endfor %}
+			]
+        }]
+    });
+});
+    
+
+		</script>
+{%  endblock  %}
