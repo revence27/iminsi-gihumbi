@@ -1,25 +1,27 @@
 {%  extends "basicpregnancies.html" %}
 
 {% block menu %}
- <li class="homelink">
-            <a href="/dashboards/predash"><span>Pregnancies</span></a>
+		  <li class="homelink">
+            <a href='/dashboards/{{ nav.link("predash", view= "graphic") }}'><span>Pregnancies</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/delivery"><span>Deliveries</span></a>
+            <a href='/dashboards/{{ nav.link("ancdash", view= "graphic") }}'><span>ANC</span></a>
           </li>
-         
           <li class="homelink">
-            <a href="/dashboards/ancdash"><span>ANC</span></a>
+            <a href='/dashboards/{{ nav.link("deliverynotdash", view= "graphic") }}'><span>Deliveries Notifications</span></a>
+          </li>
+          <li class="homelink">
+            <a href='/dashboards/{{ nav.link("deliverydash", view= "graphic") }}'><span>Deliveries</span></a>
           </li>
           
 {% endblock %}
 
 {% block position %}
 
-<li>&#187; <a href="/dashboards/predash">Pregnancy</a></li>
-
-<li>&#187; <a href=/dashboards/predash?group={{ group }}>{{ group }}</a></li>
-
+<li>&#187; <a href='/dashboards/{{ nav.link("predash", view= "graphic") }}'>Pregnancy</a></li>
+{% if group %}
+<li>&#187; <a href='/dashboards/{{ nav.link("predash", view= "graphic", group= group) }}'>{{ group }}</a></li>
+{% endif %}
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
 

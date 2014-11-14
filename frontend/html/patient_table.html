@@ -89,6 +89,7 @@
 
 
 
+
 <!-- ANC Information -->
 <h1>ANC Reports</h1>
  <table width="100%">
@@ -157,7 +158,7 @@ $(function () {
             },
             
             xAxis: {
-                categories: ['ANC1', 'ANC2', 'ANC3', 'ANC4']
+                categories: ['Pre', 'ANC2', 'ANC3', 'ANC4']
             },
             yAxis: {
                 title: {
@@ -180,7 +181,9 @@ $(function () {
             },
             series: [{
                 name: 'Weight',
-                data: [
+                data: [{% for report in display.pre_reports %}
+                {{report.mother_weight_float}}
+                {% endfor %},
                        {%  for anc in display.anc_reports.list() %}
                        {{  anc['mother_weight_float'] }},
                        

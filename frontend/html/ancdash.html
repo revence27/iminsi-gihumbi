@@ -3,17 +3,18 @@
 {%  block subtitle %} Antenatal Care Visit {%  endblock  %}
 {% block menu %}
  		  <li class="homelink">
-            <a href="/dashboards/predash"><span>Pregnancies</span></a>
-          </li>
-		  <li class="homelink">
-            <a href="/dashboards/ancdash"><span>ANC</span></a>
+            <a href='/dashboards/{{ nav.link("predash", view= "graphic") }}'><span>Pregnancies</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/deliverynotdash"><span>Deliveries Notifications</span></a>
+            <a href='/dashboards/{{ nav.link("ancdash", view= "graphic") }}'><span>ANC</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/deliverydash"><span>Deliveries</span></a>
+            <a href='/dashboards/{{ nav.link("deliverynotdash", view= "graphic") }}'><span>Deliveries Notifications</span></a>
           </li>
+          <li class="homelink">
+            <a href='/dashboards/{{ nav.link("deliverydash", view= "graphic") }}'><span>Deliveries</span></a>
+          </li>
+         
          
           
           
