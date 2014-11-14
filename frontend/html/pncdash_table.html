@@ -1,10 +1,10 @@
 {%  extends "basicpregnancies.html" %}
 {% block position %}
 
-<li>&#187; <a href="/dashboards/pncdash">Postnatal</a></li>
-
+<li>&#187; <a href='/dashboards/{{ nav.link("pncdash", view= "graphic") }}'>Postnatal</a></li>
+{% if group %}
 <li>&#187; <a href=/dashboards/pncdash?group={{ group }}>{{ group }}</a></li>
-
+{% endif %}
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
 

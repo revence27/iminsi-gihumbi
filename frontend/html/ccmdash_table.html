@@ -9,10 +9,10 @@
 {% endblock %}
 {% block position %}
 
-<li>&#187; <a href="/dashboards/ccmdash">CCM</a></li>
-
+<li>&#187; <a href='/dashboards/{{ nav.link("ccmdash", view= "graphic") }}'>CCM</a></li>
+{% if group %}
 <li>&#187; <a href=/dashboards/ccmdash?group={{ group }}>{{ group }}</a></li>
-
+{% endif %}
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
 

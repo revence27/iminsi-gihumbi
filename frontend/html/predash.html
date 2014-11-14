@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block position %}
-<li>&#187; <a href='/dashboards/{{ nav.link("predash", view= "graphic") }}'>Pregnancy</a></li>
+<li>&#187; <a href='/dashboards/{{ nav.link("predash", view= "graphic", minus = ["group"]) }}'>Pregnancy</a></li>
 {% if group %}
 <li> &#187; {{ group }}</li>
 {% endif %}
