@@ -1,26 +1,25 @@
 {%  extends "basicpregnancies.html" %}
-<<<<<<< HEAD
-{%  block subtitle %}  Red Alerts {%  endblock  %}
-=======
-<<<<<<< HEAD
-=======
->>>>>>> ee333c15ceebf1e6b1e7f173d0b6652cb2cdcf37
+
 {% block menu %}
-	
-          <li class="homelink">
-            <a href="/dashboards/reddash?view=graphic"><span>RedAlert</span></a>
+ <li class="homelink">
+            <a href="/dashboards/predash"><span>Pregnancies</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/deathdash?view=graphic"><span>Deaths</span></a>
+            <a href="/dashboards/deliverydash"><span>Deliveries</span></a>
           </li>
+         
+          <li class="homelink">
+            <a href="/dashboards/ancdash"><span>ANC</span></a>
+          </li>
+          
 {% endblock %}
->>>>>>> 007722399748a865e051ea5db237dc03d51dd47e
+
 {% block position %}
 
-<li>&#187; <a href="/dashboards/reddash">Red Alets</a></li>
-{% if group %}
-<li>&#187; <a href=/dashboards/reddash?group={{ group }}>{{ group }}</a></li>
-{% endif %}
+<li>&#187; <a href="/dashboards/ancdash">ANC</a></li>
+
+<li>&#187; <a href=/dashboards/ancdash?group={{ group }}>{{ group }}</a></li>
+
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
 

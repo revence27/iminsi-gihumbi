@@ -1,0 +1,37 @@
+{%  extends "basicmothers.html" %}
+{% block position %}
+
+<li>&#187; <a href="/dashboards/predash">Pregnancy</a></li>
+
+<li>&#187; {{ pid }}</li>
+
+{% endblock %}
+
+{%  block mainpart  %}
+
+<h2>Patient</h2>
+{% for report in display.data %}
+{% if report[2].count() > 0 %}
+<h3> {{report[0][0]}} </h3>
+<table width="100%">
+  <thead>
+    <tr>
+      {% for  attr in report[1] %}<th>{{attr[1]}}</th>{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+  
+    
+    	{% for data in report[2].list() %}
+		<tr>
+			{% for  attr in report[1] %} <td>{{ data[attr[0]]|get_display }}</td>{% endfor %}
+		</tr>
+    	{% endfor %}
+  
+  
+ </tbody>
+</table>
+{% endif %}
+{% endfor %}
+
+{%  endblock  %}
