@@ -1,4 +1,5 @@
 {%  extends "basicpregnancies.html" %}
+{%  block subtitle %}  Red Alerts {%  endblock  %}
 {% block menu %}
 	
           <li class="homelink">
@@ -11,9 +12,9 @@
 {% block position %}
 
 <li>&#187; <a href="/dashboards/reddash">Red Alets</a></li>
-
+{% if group %}
 <li>&#187; <a href=/dashboards/reddash?group={{ group }}>{{ group }}</a></li>
-
+{% endif %}
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
 
