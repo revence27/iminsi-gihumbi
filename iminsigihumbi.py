@@ -1414,8 +1414,12 @@ class Application:
   def dashboards_ancdash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
+
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT PREGNANCY, AND LET THE USER GO BACK AND FORTH
     pre_cnds    = navb.conditions(None, auth)
-    pre_cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.finish) : ''})
+    pre_cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+    pre_cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) : ''})
+
     exts = {}
     attrs = [(x.split()[0], dict(settings.ANC_DATA['attrs'])[x]) for x in dict (settings.ANC_DATA['attrs'])]
 
@@ -1426,18 +1430,20 @@ class Application:
 
     cnds    = navb.conditions(None, auth)
     cnds.update({settings.ANC_DATA['query_str']: ''})
-    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.finish) : ''})
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.start) : ''})
+    #print cnds
     exts.update(dict([(x[0].split()[0], ('COUNT(*)', x[0])) for x in settings.ANC_DATA['attrs'] ])) 
     nat = orm.ORM.query(  'anc_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
 			  extended = exts
-			)
+			);print nat.query
     return self.dynamised('ancdash', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def tables_ancdash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols   = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
@@ -1445,10 +1451,14 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
+
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT PREGNANCY, AND LET THE USER GO BACK AND FORTH
+    cnds    = navb.conditions(None, auth)
     cnds.update({settings.ANC_DATA['query_str']: ''})
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.start) : ''})
     primary_table = 'anc_table'
-    if kw.get('group') == 'anc1':	primary_table = 'pre_table'
- 
+
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
@@ -1460,18 +1470,31 @@ class Application:
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
-     wcl.append({'field_name': '(%s)' % settings.ANC_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
-
+     
      if kw.get('subcat') is None: INDICS = settings.ANC_DATA['attrs']
+
+     if kw.get('group') == 'anc1':
+      primary_table = 'pre_table'
+      wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
+      wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) ), 'compare': '', 'value': '', 'extra': True})
+      INDICS = [('no_risk', 'No Risk', '(%s)' % settings.NO_RISK['query_str'] ), 
+		('at_risk', 'At Risk', '(%s)' % settings.RISK['query_str']),
+		 ('high_risk', 'High Risk', '(%s)' % settings.HIGH_RISK['query_str']),
+		]
+     else: 
+      wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
+      wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.start) ), 'compare': '', 'value': '', 'extra': True})
+      wcl.append({'field_name': '(%s)' % settings.ANC_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
       
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
+      #print INDICS
       locateds = summarize_by_location(primary_table = primary_table, MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location,
-						start =  navb.start,
-						end = navb.finish,
+						#start =  navb.start,
+						#end = navb.finish,
 											
 						)
       tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
@@ -1492,20 +1515,29 @@ class Application:
       cnds[sc]  = ''
     # TODO: optimise
     attrs = settings.ANC_DATA['attrs']
-
-    cols    += settings.LOCATION_INFO   
-    nat     = orm.ORM.query(primary_table, cnds,
+    #print cnds
+    cols    += settings.LOCATION_INFO
+     
+    if kw.get('group') == 'anc1':
+     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT PREGNANCY, AND LET THE USER GO BACK AND FORTH
+     cnds    = navb.conditions(None, auth)
+     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+     cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) : ''})
+     primary_table = 'pre_table'
+     attrs = [('(%s) AS at_risky' % settings.RISK['query_str'], 'AtRisky'),]
+     DESCRI.append(('anc1', 'Pregnancy'))   
+    nat     = orm.ORM.query( primary_table , cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp + INTERVAL \'%d days\') AS edd' % settings.GESTATION, 'EDDate'),
-					('(%s) AS at_risky' % settings.RISK['query_str'], 'AtRisky'),  
 					('(%s) AS high_risky' % settings.HIGH_RISK['query_str'], 'HighRisky'),
  
 					] + attrs) if x[0][0] != '_'],
       
-    )
+    )#;print nat.query
     desc  = 'ANC%s' % (' (%s)' % (self.find_descr(DESCRI + settings.ANC_DATA['attrs'], sc or kw.get('group')), 
 					) if sc or kw.get('group') else '', )
     return self.dynamised('ancdash_table', mapping = locals(), *args, **kw)
+
   ### END OF ANC ###
 
   #### START OF RED ALERT ###
@@ -1513,6 +1545,7 @@ class Application:
   def dashboards_reddash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
@@ -1549,6 +1582,10 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
+    cnds    = navb.conditions(None, auth)
+    cnds.update({"(report_date) >= '%s'" % (navb.start) : ''})
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     primary_table = 'red_table'
     if kw.get('subcat') and kw.get('subcat') in [x[0].split()[0] for x in settings.RAR_DATA['attrs']]:
      primary_table = 'rar_table'
@@ -1744,6 +1781,7 @@ class Application:
   def dashboards_deliverydash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
@@ -1788,7 +1826,12 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
+    cnds    = navb.conditions(None, auth)
+    cnds.update({"(report_date) >= '%s'" % (navb.start) : ''})
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     primary_table = 'bir_table'
+
     if kw.get('group'):
      primary_table = 'pre_table'
      today = datetime.today().date()
@@ -1871,12 +1914,15 @@ class Application:
   def dashboards_nbcdash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
+
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions(None, auth)
-    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.NBC_GESTATION, navb.finish) : ''})
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.NBC_GESTATION, navb.start) : ''})
     exts = {}
     total = orm.ORM.query(  'nbc_table', 
 			  cnds,
-                          cols = ['COUNT(DISTINCT patient_id) AS total'],
+                          cols = ['COUNT(*) AS total'],
 			)[0]['total']
     if kw.get('group') == 'no_risk':
       title = 'No Risk'
@@ -1884,17 +1930,17 @@ class Application:
       cnds.update({settings.NBC_DATA['NO_RISK']['query_str']: ''})
       nat = orm.ORM.query(  'nbc_table', 
 			  cnds,
-                          cols = ['COUNT(DISTINCT patient_id) AS total'],
+                          cols = ['COUNT(*) AS total'],
 			)
     elif kw.get('group') == 'at_risk':
       title = 'At Risk'
       group = 'at_risk'
       cnds.update({settings.NBC_DATA['RISK']['query_str']: ''})
       attrs = [(x.split()[0], dict(settings.NBC_DATA['RISK']['attrs'])[x]) for x in dict (settings.NBC_DATA['RISK']['attrs'])]
-      exts.update(dict([(x.split()[0], ('COUNT(DISTINCT patient_id)',x)) for x in dict (settings.NBC_DATA['RISK']['attrs'])]))
+      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.NBC_DATA['RISK']['attrs'])]))
       nat = orm.ORM.query(  'nbc_table', 
 			  cnds, 
-			  cols = ['COUNT(DISTINCT patient_id) AS total'], 
+			  cols = ['COUNT(*) AS total'], 
 			  extended = exts,
 			)
     elif kw.get('group') == 'high_risk':
@@ -1902,19 +1948,19 @@ class Application:
       group = 'high_risk'
       cnds.update({settings.NBC_DATA['HIGH_RISK']['query_str']: ''})
       attrs = [(x.split()[0], dict(settings.NBC_DATA['HIGH_RISK']['attrs'])[x]) for x in dict (settings.NBC_DATA['HIGH_RISK']['attrs'])]
-      exts.update(dict([(x.split()[0], ('COUNT(DISTINCT patient_id)',x)) for x in dict (settings.NBC_DATA['HIGH_RISK']['attrs'])]))
+      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.NBC_DATA['HIGH_RISK']['attrs'])]))
       nat = orm.ORM.query(  'nbc_table', 
 			  cnds, 
-			  cols = ['COUNT(DISTINCT patient_id) AS total'], 
+			  cols = ['COUNT(*) AS total'], 
 			  extended = exts,
 			)
     else:
       nat = orm.ORM.query(  'nbc_table', 
 			  cnds, 
-			  cols = ['COUNT(DISTINCT patient_id) AS total'], 
-			  extended = {'no_risk': ('COUNT(DISTINCT patient_id)', settings.NBC_DATA['NO_RISK']['query_str']), 
-					'at_risk': ('COUNT(DISTINCT patient_id)', settings.NBC_DATA['RISK']['query_str']),
-					'high_risk': ('COUNT(DISTINCT patient_id)', settings.NBC_DATA['HIGH_RISK']['query_str']),
+			  cols = ['COUNT(*) AS total'], 
+			  extended = {'no_risk': ('COUNT(*)', settings.NBC_DATA['NO_RISK']['query_str']), 
+					'at_risk': ('COUNT(*)', settings.NBC_DATA['RISK']['query_str']),
+					'high_risk': ('COUNT(*)', settings.NBC_DATA['HIGH_RISK']['query_str']),
 					}
 			)
     return self.dynamised('nbcdash', mapping = locals(), *args, **kw)
@@ -1931,8 +1977,11 @@ class Application:
     auth    = ThousandAuth(cherrypy.session['email'])
     DESCRI = []
     INDICS = []
+
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions(None, auth)
-    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.NBC_GESTATION, navb.finish) : ''})
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.NBC_GESTATION, navb.start) : ''})
 
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      if kw.get('group'):
@@ -1965,15 +2014,16 @@ class Application:
 		 ('high_risk', 'High Risk', '(%s)' % settings.NBC_DATA['HIGH_RISK']['query_str']),
 		]#; print INDICS
 
-     wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.NBC_GESTATION, navb.finish) ), 'compare': '', 'value': '', 'extra': True})
+     wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
+     wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.NBC_GESTATION, navb.start) ), 'compare': '', 'value': '', 'extra': True})
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
       locateds = summarize_by_location(primary_table = 'nbc_table', MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location,
-						start =  navb.start,
-						end = navb.finish,
+						#start =  navb.start,
+						#end = navb.finish,
 											
 						)
       tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
@@ -2008,7 +2058,8 @@ class Application:
     cols    += settings.LOCATION_INFO   
     nat     = orm.ORM.query('nbc_table', cnds,
       cols  = [x[0] for x in (cols + [
-					('(lmp) AS dob', 'Date Of Birth'), 
+					('(lmp) AS dob', 'Date Of Birth'),
+					('(%s) AS at_risky' % settings.NBC_DATA['RISK']['query_str'], 'AtRisky'), 
 					('(%s) AS high_risky' % settings.NBC_DATA['HIGH_RISK']['query_str'], 'HighRisky'),
  
 					] + attrs) if x[0][0] != '_'],
@@ -2056,7 +2107,10 @@ class Application:
   def dashboards_pncdash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
-    cnds    = navb.conditions('report_date', auth)
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
+    cnds    = navb.conditions(None, auth)
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.PNC_GESTATION, navb.start) : ''})
     exts = {}
     total = orm.ORM.query(  'pnc_table', 
 			  cnds,
@@ -2102,6 +2156,11 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
+    cnds    = navb.conditions(None, auth)
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.PNC_GESTATION, navb.start) : ''})
+
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      if kw.get('group'):
       if kw.get('group') == 'no_risk':
@@ -2129,14 +2188,17 @@ class Application:
 		('at_risk', 'At Risk', '(%s)' % settings.PNC_DATA['RISK']['query_str']),
 		]#; print INDICS
      
+     wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
+     wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.PNC_GESTATION, navb.start) ), 'compare': '', 'value': '', 'extra': True})
+
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
       locateds = summarize_by_location(primary_table = 'pnc_table', MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location,
-						start =  navb.start,
-						end = navb.finish,
+						#start =  navb.start,
+						#end = navb.finish,
 											
 						)
       tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
@@ -2200,6 +2262,7 @@ class Application:
   def dashboards_vaccindash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
@@ -2236,6 +2299,11 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
+    cnds    = navb.conditions(None, auth)
+    cnds.update({"(report_date) >= '%s'" % (navb.start) : ''})
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
@@ -2300,6 +2368,7 @@ class Application:
   def dashboards_ccmdash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date')
     exts = {}
     
@@ -2337,6 +2406,10 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
+    cnds    = navb.conditions(None, auth)
+    cnds.update({"(report_date) >= '%s'" % (navb.start) : ''})
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     primary_table = 'ccm_table'
     if kw.get('subcat') and kw.get('subcat') in [x[0].split()[0] for x in settings.CMR_DATA['attrs']]:
      primary_table = 'cmr_table'
@@ -2408,6 +2481,7 @@ class Application:
   def dashboards_deathdash(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
     navb    = ThousandNavigation(auth, *args, **kw)
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
@@ -2443,6 +2517,10 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
+    cnds    = navb.conditions(None, auth)
+    cnds.update({"(report_date) >= '%s'" % (navb.start) : ''})
+    cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     cnds.update({settings.DEATH_DATA['query_str']: ''})
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})

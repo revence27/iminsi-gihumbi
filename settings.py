@@ -9,6 +9,7 @@ DBPASSWORD = 'thousanddays'
 WEBAPP          = 'iminsigihumbi'
 GESTATION       = 270
 NBC_GESTATION   = 28
+PNC_GESTATION   = 42
 BMI_MIN         = 19
 BMI_MAX         = 25
 MIN_WEIGHT      = 45
