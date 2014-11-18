@@ -1655,6 +1655,14 @@ class Application:
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     exts = {}
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
+    pre_cnds    = navb.conditions(None, auth)
+    pre_cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+    pre_cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) : ''})
+    pre = orm.ORM.query(  'pre_table', 
+			  pre_cnds, 
+			  cols = ['COUNT(*) AS total']
+			)
     
     today = datetime.today().date()
     next_monday = today + timedelta(days=-today.weekday(), weeks=1)
@@ -1671,7 +1679,26 @@ class Application:
     			  cnds, 
     			  cols = ['COUNT(*) AS total'],
                           extended = exts, 
-    			)
+    			)#; print nat.query
+
+    details = {}
+    for attr in attrs:
+     attr_cnds = navb.conditions(None, auth)
+     attr_cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+     attr_cnds.update({attr[2]: ''})
+     #print attr_cnds
+     details.update({ 
+			attr[0] :
+			orm.ORM.query(  'pre_table', 
+			  attr_cnds, 
+			  cols = ['COUNT(*) AS total'], 
+			  extended = {'no_risk': ('COUNT(*)', settings.NO_RISK['query_str']), 
+					'at_risk': ('COUNT(*)', settings.RISK['query_str']),
+					'high_risk': ('COUNT(*)', settings.HIGH_RISK['query_str']),
+					}
+			) 
+		   })
+    
 
     return self.dynamised('deliverynotdash', mapping = locals(), *args, **kw)
 
@@ -1691,12 +1718,24 @@ class Application:
     next_two_monday = today + timedelta(days=-today.weekday(), weeks=2)
     next_two_sunday = next_two_monday + timedelta(days = 6)
 
+    navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT PREGNANCY, AND LET THE USER GO BACK AND FORTH
+    pre_cnds    = navb.conditions(None, auth)
+    pre_cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
+    pre_cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) : ''})
+
     DESCRI = [('next_week', 'Deliveries in Next Week'), ('next_two_week', 'Deliveries in Next two Weeks')]
     INDICS = [
+	('pre', 'Pregnancies', "(report_date <= '%s') AND (lmp + INTERVAL '%s days') >= '%s'" % ( navb.finish, settings.GESTATION , navb.start)),
 	('next_week', 'Deliveries in Next Week', "(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , next_monday, next_sunday)),
 	('next_two_week', 'Deliveries in Next two Weeks', "(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , next_two_monday, next_two_sunday)),
+	
 	]
 
+    SUB_INDICS = { 'no_risk': '(%s)' % settings.NO_RISK['query_str'] , 
+		   'at_risk': '(%s)' % settings.RISK['query_str'],
+		   'high_risk': '(%s)' % settings.HIGH_RISK['query_str'],
+		 }
+    if kw.get('subgroup'): cnds.update({SUB_INDICS[kw.get('subgroup')]: ''})
     if kw.get('group') == 'next_week':
      INDICS = [
 	('next_week', 'Deliveries in Next Week', "(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , next_monday, next_sunday))
@@ -1709,6 +1748,11 @@ class Application:
 	]
      start = next_two_monday; end = next_two_sunday
      cnds.update({"(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , start, end): ''})
+    elif kw.get('group') == 'pre':
+     INDICS = [
+	('pre', 'Pregnancies', "(report_date <= '%s') AND (lmp + INTERVAL '%s days') >= '%s'" % ( navb.finish, settings.GESTATION , navb.start)),
+	]
+     cnds.update({"(report_date <= '%s') AND (lmp + INTERVAL '%s days') >= '%s'" % ( navb.finish, settings.GESTATION , navb.start): ''})
     else:
      cnds.update({  "%s OR %s" % ( 
 			"(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , next_monday, next_sunday),
@@ -1728,18 +1772,26 @@ class Application:
       start = next_monday; end = next_sunday
       wcl.append({'field_name': '(%s)' % "(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , start, end),
                   'compare': '', 'value': '', 'extra': True})
+
      if kw.get('group') == 'next_two_week':
       start = next_two_monday; end = next_two_sunday
       wcl.append({'field_name': '(%s)' % "(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , start, end),
                   'compare': '', 'value': '', 'extra': True})
+
+     if kw.get('group') == 'pre':
+      wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
+      wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) ), 'compare': '', 'value': '', 'extra': True})
+
+     if kw.get('subgroup'):	wcl.append({'field_name': '(%s)' % SUB_INDICS[kw.get('subgroup')], 'compare': '', 'value': '', 'extra': True}) 
+    
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
       locateds = summarize_by_location(primary_table = 'pre_table', MANY_INDICS = INDICS, where_clause = wcl, 
 						province = province,
 						district = district,
 						location = location,
-						start =  navb.start,
-						end = navb.finish,
+						#start =  navb.start,
+						#end = navb.finish,
 											
 						)
       tabular = give_me_table(locateds, MANY_INDICS = INDICS, LOCS = { 'nation': None, 'province': province, 'district': district, 'location': location } )
@@ -1748,7 +1800,7 @@ class Application:
     sc      = kw.get('subcat')
     if kw.get('compare') and kw.get('value'): sc += kw.get('compare') + kw.get('value')
     markup  = {
-      'patient_id': lambda x, _, __: '<a href="/tables/child?pid=%s">%s</a>' % (x, x),
+      'patient_id': lambda x, _, __: '<a href="/tables/patient?pid=%s">%s</a>' % (x, x),
       'wt_float': lambda x, _, __: '%s' % (int(x) if x else ''),
       'lmp': lambda x, _, __: '%s' % (datetime.date(x) if x else ''),
       'province_pk': lambda x, _, __: '%s' % (self.provinces.get(str(x)), ),
@@ -1763,11 +1815,16 @@ class Application:
     # TODO: optimise
     attrs = []
     
-    cols    += settings.LOCATION_INFO   
+    cols    += settings.LOCATION_INFO
+    if kw.get('group') == 'pre':
+     DESCRI.append(('pre', 'Pregnancies'))
+     cnds = pre_cnds   
     nat     = orm.ORM.query('pre_table', cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp + INTERVAL \'%d days\') AS edd' % settings.GESTATION, 'EDDate'),
- 
+					('(%s) AS at_risky' % settings.RISK['query_str'], 'AtRisky'), 
+					('(%s) AS high_risky' % settings.HIGH_RISK['query_str'], 'HighRisky'),
+
 					] + attrs) if x[0][0] != '_'],
       
     )
