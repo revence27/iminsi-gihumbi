@@ -1677,7 +1677,7 @@ class Application:
 
   @cherrypy.expose
   def tables_deliverynotdash(self, *args, **kw):
-    navb, cnds, cols    = self.neater_tables(basics = [
+    navb, auth, cnds, cols    = self.neater_tables(basics = [
       ('indexcol',          'Entry ID'),
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),

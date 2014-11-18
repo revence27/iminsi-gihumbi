@@ -101,7 +101,7 @@
       <th>Weight</th>
     </tr>
   </thead>
-  {%  for anc in display.anc_reports.list() %}
+  {%  for anc in display.anc_reports.list()|reverse %}
   <tr>
   <td>
   {{  anc['indexcol'] }}
@@ -185,7 +185,7 @@ $(function () {
                 data: [{% for report in display.pre_reports %}
                 {{report.mother_weight_float}}
                 {% endfor %},
-                       {%  for anc in display.anc_reports.list() %}
+                       {%  for anc in display.anc_reports.list()|reverse %}
                        {{  anc['mother_weight_float'] }},
                        
                        {% endfor %}
