@@ -1,4 +1,5 @@
 {%  extends "basicpregnancies.html" %}
+{%  block subtitle %}  Vaccinations {%  endblock  %}
 {% block menu %}
 		 <li class="">
             <a href="/dashboards/ccmdash"><span>CCM</span></a>
@@ -10,9 +11,9 @@
 {% block position %}
 
 <li>&#187; <a href="/dashboards/vaccindash">Vaccination</a></li>
-
+{%  if group %}
 <li>&#187; <a href=/dashboards/vaccindash?group={{ group }}>{{ group }}</a></li>
-
+{% endif %}
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
 

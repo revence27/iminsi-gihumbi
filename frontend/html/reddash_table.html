@@ -1,6 +1,10 @@
 {%  extends "basicpregnancies.html" %}
 <<<<<<< HEAD
+{%  block subtitle %}  Red Alerts {%  endblock  %}
 =======
+<<<<<<< HEAD
+=======
+>>>>>>> ee333c15ceebf1e6b1e7f173d0b6652cb2cdcf37
 {% block menu %}
 	
           <li class="homelink">
@@ -14,9 +18,9 @@
 {% block position %}
 
 <li>&#187; <a href="/dashboards/reddash">Red Alets</a></li>
-
+{% if group %}
 <li>&#187; <a href=/dashboards/reddash?group={{ group }}>{{ group }}</a></li>
-
+{% endif %}
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
 

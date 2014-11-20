@@ -37,24 +37,27 @@
 }
 
 
+
+/*************************************************/
 .pre{
-	box-shadow: 0 0 0 16px rgba(144, 197, 169, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
+	box-shadow: 0 0 0 16px rgba(144, 197, 176, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
 }
 .new{
-	box-shadow: 0 0 0 16px rgba(147, 177, 198, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
+	box-shadow: 0 0 0 16px rgba(144, 193, 197, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
 }
 .nut{
-	box-shadow: 0 0 0 16px rgba(163, 78, 36, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
+	box-shadow: 0 0 0 16px rgba(144, 168, 197, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
 }
 .post{
-	box-shadow: 0 0 0 16px rgba(169, 33, 89, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
+	box-shadow: 0 0 0 16px rgba(154, 144, 197, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
 }
 .child{
-	box-shadow: 0 0 0 16px rgba(99, 66, 113, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
+	box-shadow: 0 0 0 16px rgba(190, 144, 197, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
 }
 .reddeath{
-	box-shadow: 0 0 0 16px rgba(231, 81, 45, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
+	box-shadow: 0 0 0 16px rgba(220, 66, 102, 0.65) inset, 0 1px 2px rgba(0, 0, 0, 0.1)
 }
+/*****************************************************************/
 
 
 .circle:hover{

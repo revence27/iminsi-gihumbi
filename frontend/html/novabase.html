@@ -6,7 +6,10 @@
   {% if ref == 'ancdash'  %}
   {% set module = 'pregnancies' %} 
   {% endif %}
-  {% if ref == 'delivery'  %}
+  {% if ref == 'deliverydash'  %}
+  {% set module = 'pregnancies' %}
+  {% endif %}
+  {% if ref == 'deliverynotdash'  %}
   {% set module = 'pregnancies' %}
   {% endif %}
   
@@ -35,11 +38,11 @@
   {% endif %}
   
   
-  {% if ref == 'reddash'  %}
-  {% set module = 'reddeath' %}
+  {% if ref == 'patient'  %}
+  {% set module = 'single' %}
   {% endif %}
-  {% if ref == 'deathdash'  %}
-  {% set module = 'reddeath' %}
+  {% if ref == 'child'  %}
+  {% set module = 'single' %}
   {% endif %}
 
 <!DOCTYPE html>
@@ -195,13 +198,14 @@
 
 </div>
       
+   {% if module != 'single' %}
    
       <div class="view">
       <div class="tabular {% if view == 'log' %} {{ module }}background {% endif %} "><a href="/tables/{{ nav.link(ref, view = 'log', minus = ['summary']) }}">Log</a></div>
       <div class="tabular {% if view == 'table'%} {{ module }}background {% endif %}"><a href="/tables/{{ nav.link(ref, summary = 'on', view = 'table')}}">Table</a></div>
       <div class="graphic {% if view == 'graphic' %} {{ module }}background {% endif %}"><a href="/dashboards/{{ nav.link(ref, view = 'graphic', minus = ['summary'])}}">Graphic</a></div>
-
       </div>
+  {% endif %}
 	</div>
 	</div>
       

@@ -69,10 +69,10 @@ background: #5bb8f9;
 
 /**********************************************/
 .newborntext{
-	color: #90c1c5;
+	color: #93b1c6;
 }
 .newbornbackground{
-	background-color: #90c1c5;
+	background-color: #93b1c6;
 }
 .newborncircle{
 	background: url(../images/newborncircle.png);
@@ -82,10 +82,10 @@ background: #5bb8f9;
 
 
 .pregnanciestext{
-	color: #90c5b0;
+	color: #90c5a9;
 }
 .pregnanciesbackground{
-	background-color: #90c5b0;
+	background-color: #90c5a9;
 }
 .pregnanciescircle{
 	background: url(../images/pregnanciescircle.png);
@@ -95,10 +95,10 @@ background: #5bb8f9;
 
 
 .postnataltext{
-	color: #9a90c5;
+	color: #a92159;
 }
 .postnatalbackground{
-	background-color: #9a90c5;
+	background-color: #a92159;
 }
 .postnatalcircle{
 	background: url(../images/postnatalcircle.png);
@@ -107,10 +107,10 @@ background: #5bb8f9;
 
 
 .nutritiontext{
-	color: #90a8c5;
+	color: #a34e24;
 }
 .nutritionbackground{
-	background-color: #90a8c5;
+	background-color: #a34e24;
 }
 .nutritioncircle{
 	background: url(../images/nutritioncirlce.png);
@@ -118,10 +118,10 @@ background: #5bb8f9;
 
 
 .childhealthtext{
-	color: #be90c5;
+	color: #634271;
 }
 .childhealthbackground{
-	background-color: #be90c5;
+	background-color: #634271;
 }
 .childhealthcircle{
 	background: url(../images/childhealthcircle.png);
@@ -129,10 +129,10 @@ background: #5bb8f9;
 
 
 .reddeathtext{
-	color: #dc4266;
+	color: #e7512d;
 }
 .reddeathbackground{
-	background-color: #e7512e;
+	background-color: #e7512d;
 }
 .reddeathcircle{
 	background: url(../images/reddeath.png);
@@ -511,7 +511,7 @@ padding-top: 20px;
 
 .number{ 
 	font-family: 'Open Sans', sans-serif;
-	font-size: 30px;
+	font-size: 28px;
 	color: #000;
 	cursor: pointer;
 	text-align: center;
@@ -533,13 +533,12 @@ padding-top: 20px;
 	color: #1f89bf;
 }
 .descr{
-	padding-top: 50px;
-	padding-left:10px;
+	padding-top: 35px;
+	padding-left:15px;
 	font-family: 'Open Sans', sans-serif;
-	width:120px;
-	font-size: 15px;
-	color: #fff;
-	text-algin: center;
+	
+	font-size: 14px;
+	color: #17458b;
 }
 
 .descrrisk{
