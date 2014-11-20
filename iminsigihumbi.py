@@ -2157,6 +2157,32 @@ class Application:
     cbn_reports =   orm.ORM.query('cbn_table', cnds)
     return self.dynamised('child_table', mapping = locals(), *args, **kw)
 
+  @cherrypy.expose
+  def tables_childgrowth(self, *args, **kw):
+    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'] ]
+    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
+    nat     = orm.ORM.query('nbc_table', cnds,
+      				cols  = [x[0] for x in (cols + indexed_attrs + settings.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
+				sort = ('report_date', False),
+    			)
+    patient = nat[0]  
+    reminders = []
+    nbc_reports = [ x for x in nat.list() ]#; print attrs
+    cbn_reports =   orm.ORM.query('cbn_table', cnds, cols = [
+							"patient_id", 
+							"child_number_float",
+							"lmp", 
+							"report_date",
+							"child_weight_float AS weight",  
+							"child_height_float AS height",
+							],
+						 )
+    chartData = json.dumps([ {'weight': cbn['weight'] , 'height': cbn['height'], 'age': (cbn['report_date'] - cbn['lmp']).days / 30.4374 } for cbn in cbn_reports.list()])
+    print chartData
+    
+    return self.dynamised('growthchart', mapping = locals(), *args, **kw)
+
   ### END OF NEWBORN ####
 
   #### START OF POSTNATAL ###
