@@ -101,7 +101,7 @@ def summarize_by_location(primary_table = 'pre_table', tables = [], where_clause
  inner_joins = []
  group_by = []
  wcl = '' 
-
+ #print province, district, location
  if nationwide:
   fields.append( {'value': 'indexcol', 'alias': 'province_id', 'table': 'chws__province'})
   fields.append( {'value': 'name', 'alias': 'province_name', 'table': 'chws__province'} )
