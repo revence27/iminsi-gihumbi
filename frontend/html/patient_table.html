@@ -4,12 +4,18 @@
 
 <li>&#187; <a href="/dashboards/predash">Pregnancy</a></li>
 
+
+
 <li>&#187; {{ pid }}</li>
 
 {% endblock %}
 
 {%  block mainpart  %}
 <h2>Patient</h2>
+<div style="float:right; padding-bottom:10px;font-family: 'Open Sans', sans-serif; font-size: 15px; ">
+<a href="{{ nav.link('/tables/patienthistory', pid = pid )}}">View Patient Record</a>
+</div>
+
 <table width="100%">
   <thead>
     <tr>

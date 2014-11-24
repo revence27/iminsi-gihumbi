@@ -5,10 +5,10 @@
 
 {% block menu %}
 		 <li class="">
-            <a href="/dashboards/ccmdash"><span>CCM</span></a>
+            <a href='/dashboards/{{ nav.link("ccmdash", view= "graphic") }}'><span>CCM</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/vaccindash"><span>Vaccinations</span></a>
+            <a href='/dashboards/{{ nav.link("vaccindash", view= "graphic") }}'><span>Vaccinations</span></a>
           </li>
 {% endblock %}
 
@@ -31,12 +31,12 @@
   <div class="humblecontainer">
 
 	{%  for ca in display.ccm_attrs %}
-	  <div class="datapoint  pregnanciescircle">
+	  <div class="datapoint  childhealthcircle">
 	  
 	    {%  set num = display.ccm[0][ca[0]] %}
 	    
 	    <div class="descr">{{  ca[1] }}</div>
-	    <div class="moreoptions startshidden" >
+	    <div class=" startshidden" >
 		 <a href="/tables/{{  nav.link('ccmdash', subcat = ca[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
 	    </div>
 	    <div class="number">
@@ -55,7 +55,7 @@
     
 
 	{%  for ra in display.cmr_attrs %}
-	  <div class="datapoint  pregnanciescircle">
+	  <div class="datapoint  childhealthcircle">
 	  
 	    {%  set num = display.cmr[0][ra[0]] %}
 	    

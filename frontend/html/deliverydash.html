@@ -29,6 +29,12 @@
   <div class="smallcontainer">
    
      <img class="icon" src="{{  static_path }}/images/delivery.jpg" />
+      <div class="prem" style="display: inline; float:left;padding-right:30px;">
+        <div class="infoname">Total Deliveries</div>
+        <div class="moretotal" ><a href="{{ nav.link('/tables/deliverydash', summary = 'on')}}">View by Location</a></div>
+        <div class="number"><a href="{{ nav.link('/tables/deliverydash' )}}">{{  display.nat[0]['total']|neat_numbers }}</a></div>
+      </div>
+     
     <!-- 
     <div class="infoname" style="font-size: 20px;">Deliveries in Next Week</div>
     <div class="moretotal" ><a href="{{ nav.link('/tables/deliverydash', group = 'next_week', summary = 'on')}}">View by Location</a></div>
@@ -46,19 +52,7 @@
     
   </div>
   <div class="humblecontainer">
-  <div class="infopair" style="display:block">
-      <div class="prem" style="display: inline; float:left;padding-right:30px;">
-        <div class="infoname">Total Deliveries</div>
-        <div class="moretotal" ><a href="{{ nav.link('/tables/deliverydash', summary = 'on')}}">View by Location</a></div>
-        <div class="number"><a href="{{ nav.link('/tables/deliverydash' )}}">{{  display.nat[0]['total']|neat_numbers }}</a></div>
-      </div>
-      
-      <div class="scnd" style="">
-        <div class="infoname">&nbsp;</div>
-        <div class="number">&nbsp;</div>
-      </div>
-    </div>
-  
+
     <div class="infoname" style="padding-left:150px; padding-top:50px;">By Delivery Locations</div>
     <div class="vals">
       {%  for dl in display.attrs %}

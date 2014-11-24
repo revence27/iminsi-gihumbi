@@ -287,7 +287,7 @@ DEATH_DATA = {
                 'bylocs': {
 				'attrs': [
 						(u'hp_bool IS NOT NULL', u'At Hospital'),
-						(u'cl_bool IS NOT NULL', u'At Clinic'),
+						(u'cl_bool IS NOT NULL', u'At Health Centre'),
 						(u'or_bool IS NOT NULL', u'On Route'),
 						(u'ho_bool IS NOT NULL', u'At home'),
 											

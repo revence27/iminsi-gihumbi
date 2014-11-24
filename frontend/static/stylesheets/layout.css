@@ -840,10 +840,13 @@ padding-left:10px;
 
  #uniceflogo 
 { 
-	 left: 513px; 
-	 top: 186px; 
+	font-family: 'Open Sans', sans-serif;
+	font-weight: bold;
+	font-size: 18px;
+	 left: 480px; 
+	 top: 200px; 
 	 position: absolute; 
-	 width: 118px;
+	 width: 200px;
 	 height: 29px;
 	 z-index:4;
 } 
@@ -860,11 +863,11 @@ padding-left:10px;
 
  #ministrylogo 
 { 
-	 left: 658px; 
-	 top: 154px; 
+	 left: 500px; 
+	 top: 50px; 
 	 position: absolute; 
-	 width: 61px;
-	 height: 64px;
+	 width: 150px;
+	 height: 150px;
 	 z-index:4;
 }
 

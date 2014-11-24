@@ -145,7 +145,7 @@
    <div class="error">{{ display.flash }}</div>
     <fieldset>
       <label>Address</label>
-      <input name="addr" type="text" placeholder="Email Address" value="{{ display.user }}" />
+      <input name="addr" type="text" placeholder="Email Address" value="{% if display.user %}{{ display.user }}{% endif %}" />
       <input name="next" type="hidden" value="/dashboards/home" />
     </fieldset>
     <fieldset>
@@ -184,14 +184,10 @@
 			info@rapidsms.gov.rw
 			rapidsms@unicef.com
 			</div>
-			<div id="FollowusonSocialNetw">
-			<strong>Follow us</strong>
-			<br></>Follow us on our soical networks and comment, interact and socailise with our community
-			</div>
-			<div id="social"><img src="../static/images/Layer17.png"></div>
-			<div id="uniceflogo"><img src="../static/images/Layer18.png"></div>
+			
+			<div id="uniceflogo">Rapid Sms Rwanda V3</div>
 			<div id="rapidsmsfooterlogo"><img src="../static/images/Layer19.png"></div>
-			<div id="ministrylogo"><img src="../static/images/Layer20.png"></div>
+			<div id="ministrylogo"><img src="../static/images/rwanda.png"></div>
 			<!--  -->
         
       </div>
