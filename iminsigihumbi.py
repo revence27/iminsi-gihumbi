@@ -137,6 +137,9 @@ class ThousandAuth:
       raise Exception, 'Access denied.'
     return self.conditions()
 
+  def him(self):
+    return orm.ORM.query('ig_admins', {'address = %s': self.usern})[0]
+
 class ThousandNavigation:
   def __init__(self, auth, *args, **kw):
     self.args   = args
@@ -480,9 +483,9 @@ class Application:
     else:
      INDICS = settings.CBN_DATA['attrs']
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -869,9 +872,9 @@ class Application:
   @cherrypy.expose
   def tables_pregnancies(self, *args, **kw):
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 'compare': '', 'value': ''}] if kw.get('subcat') else []
      locateds = summarize_by_location(primary_table = 'ig_pregnancies', where_clause = wcl, 
 						province = province,
@@ -906,9 +909,9 @@ class Application:
   @cherrypy.expose
   def tables_nut(self, *args, **kw):
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
     navb, auth, cnds, cols    = self.neater_tables(sorter = 'birth_date', basics = [
       ('indexcol',          'Entry ID'),
       ('birth_date',        'Birth Date'),
@@ -937,9 +940,9 @@ class Application:
   @cherrypy.expose
   def tables_babies(self, *args, **kw):
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 'compare': '', 'value': ''}] if kw.get('subcat') else []
      locateds = summarize_by_location(primary_table = 'ig_babies', where_clause = wcl, 
 						province = province,
@@ -976,9 +979,9 @@ class Application:
   @cherrypy.expose
   def tables_mothers(self, *args, **kw):
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 'compare': '', 'value': ''}] if kw.get('subcat') else []
      locateds = summarize_by_location(primary_table = 'ig_mothers', where_clause = wcl, 
 						province = province,
@@ -1253,6 +1256,7 @@ class Application:
     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) : ''})
     #cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.finish) : ''})
+
     exts = {}
     total = orm.ORM.query(  'pre_table', 
 			  cnds,
@@ -1315,7 +1319,7 @@ class Application:
     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) : ''})
     #cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.finish) : ''})
-
+    
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      if kw.get('group'):
       if kw.get('group') == 'no_risk':
@@ -1324,9 +1328,9 @@ class Application:
        kw.update({'compare': ' IS NOT'})
        kw.update({'value': ' NULL'})
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -1463,9 +1467,9 @@ class Application:
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -1597,9 +1601,9 @@ class Application:
     else:
      INDICS = settings.RED_DATA['attrs']
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -1760,9 +1764,9 @@ class Application:
 			) : ''})
 
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -1906,9 +1910,9 @@ class Application:
      if kw.get('group'): DESCRI = [('next_week', 'Deliveries in Next Week'), ('next_two_week', 'Deliveries in Next two Weeks')]
      else: INDICS = settings.DELIVERY_DATA['attrs']
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -2048,9 +2052,9 @@ class Application:
        kw.update({'compare': ' IS NOT'})
        kw.update({'value': ' NULL'})
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -2252,9 +2256,9 @@ class Application:
        kw.update({'compare': ' IS NOT'})
        kw.update({'value': ' NULL'})
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -2393,9 +2397,9 @@ class Application:
     else:
      INDICS = settings.VAC_DATA['VAC_COMPLETION']['attrs'] + settings.VAC_DATA['VAC_SERIES']['attrs']
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -2504,9 +2508,9 @@ class Application:
     else:
      INDICS = settings.CCM_DATA['attrs']
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
@@ -2611,9 +2615,9 @@ class Application:
     else:
      INDICS = settings.DEATH_DATA['attrs'] #+ settings.DEATH_DATA['bylocs']['attrs']
     if kw.get('summary'):
-     province = kw.get('province') or None
-     district = kw.get('district') or None
-     location = kw.get('hc') or None
+     province = kw.get('province') or auth.him()['province_pk']
+     district = kw.get('district') or auth.him()['district_pk']
+     location = kw.get('hc') or auth.him()['health_center_pk']
      wcl = [{'field_name': '%s' % kw.get('subcat'), 
 		'compare': '%s' % kw.get('compare') if kw.get('compare') else '', 
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
