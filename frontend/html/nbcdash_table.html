@@ -1,10 +1,11 @@
 {%  extends "basicpregnancies.html" %}
+{%  block subtitle %}  New Borns {%  endblock  %}
 {% block position %}
 
 <li>&#187; <a href="/dashboards/nbcdash">Newborn</a></li>
-
+{% if group %}
 <li>&#187; <a href=/dashboards/nbcdash?group={{ group }}>{{ group }}</a></li>
-
+{% endif %}
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
 

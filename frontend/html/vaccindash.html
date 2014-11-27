@@ -4,10 +4,10 @@
 {%  block trunkstyle  %} style="background: url('{{ static_path }}/images/vacc.jpg') no-repeat fixed center"{%  endblock  %}
 {% block menu %}
 		 <li class="">
-            <a href="/dashboards/ccmdash"><span>CCM</span></a>
+            <a href='/dashboards/{{ nav.link("ccmdash", view= "graphic") }}'><span>CCM</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/vaccindash"><span>Vaccinations</span></a>
+            <a href='/dashboards/{{ nav.link("vaccindash", view= "graphic") }}'><span>Vaccinations</span></a>
           </li>
 {% endblock %}
 {%  block mainpart  %}
@@ -41,16 +41,7 @@
   	   </div>
 	{%  endfor  %}
       
-  <div class="title">Drop-Out Rate</div>
-        <div class="data">
-          
-            <div class="datapoint" style="height:40%">
-              <div class="value">234</div>
-              <div class="label">V1</div>
-            </div>
-          
-        </div>
-
+  
  
  </div>
 {%  endblock  %}

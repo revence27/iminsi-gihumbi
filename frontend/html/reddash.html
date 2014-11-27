@@ -1,6 +1,6 @@
 {%  extends "novabase.html" %}
-{%  block title %}Community Case Management {%  endblock  %}
-{%  block subtitle %} Community Case Management {%  endblock  %}
+
+{%  block subtitle %} Red Alerts {%  endblock  %}
 {%  block trunkstyle  %} style="background: url('{{ static_path }}/images/anc.jpg') no-repeat fixed center"{%  endblock  %}
 
 {% block menu %}
@@ -37,7 +37,7 @@
 	    {%  set num = display.red[0][red[0]] %}
 	    
 	    <div class="descr">{{  red[1] }}</div>
-	    <div class="moreoptions startshidden" >
+	    <div class=" startshidden" >
 		 <a href="/tables/{{  nav.link('reddash', subcat = red[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
 	    </div>
 	    <div class="number">
@@ -61,7 +61,7 @@
 	    {%  set num = display.rar[0][rar[0]] %}
 	    
 	    <div class="descr">{{  rar[1] }}</div>
-	    <div class="moreoptions startshidden" >
+	    <div class="startshidden" >
 		 <a href="/tables/{{  nav.link('reddash', subcat = rar[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
 	    </div>
 	    <div class="number">

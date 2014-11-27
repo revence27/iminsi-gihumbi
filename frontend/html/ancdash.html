@@ -3,17 +3,18 @@
 {%  block subtitle %} Antenatal Care Visit {%  endblock  %}
 {% block menu %}
  		  <li class="homelink">
-            <a href="/dashboards/predash"><span>Pregnancies</span></a>
-          </li>
-		  <li class="homelink">
-            <a href="/dashboards/ancdash"><span>ANC</span></a>
+            <a href='/dashboards/{{ nav.link("predash", view= "graphic") }}'><span>Pregnancies</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/deliverynotdash"><span>Deliveries Notifications</span></a>
+            <a href='/dashboards/{{ nav.link("ancdash", view= "graphic") }}'><span>ANC</span></a>
           </li>
           <li class="homelink">
-            <a href="/dashboards/deliverydash"><span>Deliveries</span></a>
+            <a href='/dashboards/{{ nav.link("deliverynotdash", view= "graphic") }}'><span>Deliveries Notifications</span></a>
           </li>
+          <li class="homelink">
+            <a href='/dashboards/{{ nav.link("deliverydash", view= "graphic") }}'><span>Deliveries</span></a>
+          </li>
+         
          
           
           
@@ -36,13 +37,13 @@
 
 
 <div class="smallcontainer">
-    <div class="infoname">Total Of {{display.title}} ANC Visits</div>
-    <div class="moretotal" ><a href="{{ nav.link('/tables/ancdash', summary = 'on')}}">View by Location</a></div>
+    <div class="infoname">Total Pregnancies</div>
+    <div class="moretotal" ><a href="{{ nav.link('/tables/ancdash', group = 'anc1', summary = 'on')}}">View by Location</a></div>
     <div class="infodata goodnum playable">
-      <a href="{{ nav.link('/tables/ancdash', group = display['group'])}}">{{  display.nat[0]['total']|neat_numbers}}</a>
+      <a href="{{ nav.link('/tables/ancdash', group = 'anc1')}}">{{  display.pre[0]['total']|neat_numbers}}</a>
     </div>
     <div class="graphicard">
-      <img class="icon" src="{{  static_path }}/images/pregnantwoman1.jpg" />
+      
     </div>
 
     

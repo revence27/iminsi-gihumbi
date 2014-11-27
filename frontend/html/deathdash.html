@@ -1,6 +1,6 @@
 {%  extends "novabase.html" %}
 {%  block title %}{{  nav.listing[-1].name  }} {{  nav.listing[-1].title }} Vaccinations {%  endblock  %}
-{%  block subtitle %} Vaccinations {%  endblock  %}
+{%  block subtitle %} Death Reports {%  endblock  %}
 {%  block trunkstyle  %} style="background: url('{{ static_path }}/images/vacc.jpg') no-repeat fixed center"{%  endblock  %}
 {% block menu %}
 	
@@ -13,7 +13,7 @@
 {% endblock %}
 {%  block mainpart  %}
   <div class="smallcontainer">
-    <div class="infoname" style="font-size:18px; padding-top:20px;">Total Deaths</div>
+    <div class="infoname reddeathtext" style="font-size:24px; padding-top:20px;">Total Deaths</div>
     <div class="moretotal" ><a href="{{ nav.link('/tables/deathdash', summary = 'on')}}">View by Location</a></div>
     <div class="infodata goodnum">
       <a href="{{ nav.link('/tables/deathdash' )}}">{{  display.nat[0]['total']|neat_numbers }}</a>
@@ -28,12 +28,11 @@
     
 
 	{%  for bl in display.bylocs_attrs %}
-	  <div class="datapoint pregnanciescircle">
+	  <div class="datapoint" style="height:200px;">
 	  
 	    {%  set num = display.bylocs[0][bl[0]] %}
-	    
-	    <div class="descr">{{  bl[1] }}</div>
-	    <div class="moreoptions startshidden" >
+	    <img class="icon" src="{{  static_path }}/images/{{  bl[1] }}.png" />
+	    <div class="startshidden" >
 		 <a href="/tables/{{  nav.link('deathdash', subcat = bl[0], minus = ['pid', 'id'], summary = 'on')  }}">View by Location</a>
 	    </div>
 	    <div class="number">

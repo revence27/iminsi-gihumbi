@@ -1,7 +1,10 @@
 {%  extends "basicmothers.html" %}
+{%  block subtitle %}  Mother Reports {%  endblock  %}
 {% block position %}
 
 <li>&#187; <a href="/dashboards/predash">Pregnancy</a></li>
+
+
 
 <li>&#187; {{ pid }}</li>
 
@@ -9,6 +12,10 @@
 
 {%  block mainpart  %}
 <h2>Patient</h2>
+<div style="float:right; padding-bottom:10px;font-family: 'Open Sans', sans-serif; font-size: 15px; ">
+<a href="{{ nav.link('/tables/patienthistory', pid = pid )}}">View Patient Record</a>
+</div>
+
 <table width="100%">
   <thead>
     <tr>
@@ -89,6 +96,7 @@
 
 
 
+
 <!-- ANC Information -->
 <h1>ANC Reports</h1>
  <table width="100%">
@@ -99,7 +107,7 @@
       <th>Weight</th>
     </tr>
   </thead>
-  {%  for anc in display.anc_reports.list() %}
+  {%  for anc in display.anc_reports.list()|reverse %}
   <tr>
   <td>
   {{  anc['indexcol'] }}
@@ -157,7 +165,7 @@ $(function () {
             },
             
             xAxis: {
-                categories: ['ANC1', 'ANC2', 'ANC3', 'ANC4']
+                categories: ['Pre', 'ANC2', 'ANC3', 'ANC4']
             },
             yAxis: {
                 title: {
@@ -180,8 +188,10 @@ $(function () {
             },
             series: [{
                 name: 'Weight',
-                data: [
-                       {%  for anc in display.anc_reports.list() %}
+                data: [{% for report in display.pre_reports %}
+                {{report.mother_weight_float}}
+                {% endfor %},
+                       {%  for anc in display.anc_reports.list()|reverse %}
                        {{  anc['mother_weight_float'] }},
                        
                        {% endfor %}

@@ -1,11 +1,25 @@
 {%  extends "basicpregnancies.html" %}
-{%  block subtitle %}  Post Natal  {%  endblock  %}
+
+{% block menu %}
+ <li class="homelink">
+            <a href="/dashboards/predash"><span>Pregnancies</span></a>
+          </li>
+          <li class="homelink">
+            <a href="/dashboards/deliverydash"><span>Deliveries</span></a>
+          </li>
+         
+          <li class="homelink">
+            <a href="/dashboards/ancdash"><span>ANC</span></a>
+          </li>
+          
+{% endblock %}
+
 {% block position %}
 
-<li>&#187; <a href='/dashboards/{{ nav.link("pncdash", view= "graphic") }}'>Postnatal</a></li>
-{% if group %}
-<li>&#187; <a href=/dashboards/pncdash?group={{ group }}>{{ group }}</a></li>
-{% endif %}
+<li>&#187; <a href="/dashboards/ancdash">ANC</a></li>
+
+<li>&#187; <a href=/dashboards/ancdash?group={{ group }}>{{ group }}</a></li>
+
 <li>&#187; {{ display.desc  }}</li>
 {% endblock %}
 
