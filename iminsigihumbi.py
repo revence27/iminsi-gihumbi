@@ -436,6 +436,44 @@ class Application:
     return ':-\\'
 
   @cherrypy.expose
+  def dashboards_failures(self, *args, **kw):
+    auth  = ThousandAuth(cherrypy.session['email'])
+    navb  = ThousandNavigation(auth, *args, **kw)
+    cnds  = navb.conditions(None, auth)
+    cnds.update({'NOT success':''})
+    nat = orm.ORM.query('treated_messages', cnds, cols = ['oldid'])
+    cpg, (sttit, endit), pgs = navb.pages(nat)
+    msgs  = []
+    for tm in nat[sttit:endit]:
+      msq = orm.ORM.query('failed_transfers', {'oldid = %s': tm['oldid']}, cols = ['failcode'], sort = ('failpos', True))
+      msg = orm.ORM.query('messagelog_message', {'id = %s': tm['oldid']}, cols = ['text', 'contact_id', 'id'])
+      msgs.append({'failures':msq, 'message':msg[0]})
+    return self.dynamised('failures', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
+  def dashboards_messages(self, *args, **kw):
+    auth    = ThousandAuth(cherrypy.session['email'])
+    navb    = ThousandNavigation(auth, *args, **kw)
+    cnds    = navb.conditions(None, auth)
+    msgs    = orm.ORM.query('treated_messages', cnds,
+      cols      = ['COUNT(*) AS total'],
+      extended  = {
+        'failed':     ('COUNT(*)', 'NOT success'),
+        'succeeded':  ('COUNT(*)', 'success')
+      }
+    )
+    nat       = msgs[0]
+    total     = nat['total']
+    succeeded = nat['succeeded']
+    failed    = nat['failed']
+    succpc    = 0.0
+    failpc    = 0.0
+    if total:
+      succpc  = '%.2f' % ((float(succeeded) / float(total)) * 100.0, )
+      failpc  = '%.2f' % ((float(failed) / float(total)) * 100.0, )
+    return self.dynamised('messages', mapping = locals(), *args, **kw)
+
+  @cherrypy.expose
   def dashboards_newborn(self, *args, **kw):
     return self.dynamised('newborn', *args, **kw)
 

@@ -1,0 +1,34 @@
+{%  extends "novabase.html" %}
+{%  block title %}Failed Messages {%  endblock  %}
+{%  block subtitle %} Failed Messages {%  endblock  %}
+{#  {%  block trunkstyle  %} style="background: url('{{ static_path }}/images/anc.jpg') no-repeat fixed center"{%  endblock  %} #}
+{%  block mainpart  %}
+<table>
+  <thead>
+    <th>ID</th>
+    <th>Reporter ID</th>
+    <th>Message</th>
+    <th>Failures</th>
+  </thead>
+  <tbody>
+    {%  for msg in display.msgs %}
+      <tr>
+        <td>{{  msg.message.id  }}</td>
+        <td>{{  msg.message.contact_id  }}</td>
+        <td>{{  msg.message.text  }}</td>
+        <td>
+          <table>
+            <tbody>
+              {%  for ft in msg.failures.list() %}
+                <tr>
+                  <td>{{  ft.failcode }}</td>
+                </tr>
+              {%  endfor  %}
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    {%  endfor  %}
+  </tbody>
+</table>
+{%  endblock  %}

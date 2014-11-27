@@ -1,0 +1,11 @@
+{%  extends "novabase.html" %}
+{%  block title %}Messages {%  endblock  %}
+{%  block subtitle %} Messages {%  endblock  %}
+{#  {%  block trunkstyle  %} style="background: url('{{ static_path }}/images/anc.jpg') no-repeat fixed center"{%  endblock  %} #}
+{%  block mainpart  %}
+Total messages: {{  display.total|neat_numbers }}
+<br />
+Successful messages: {{ display.succeeded|neat_numbers }} ({{  display.succpc  }}%)
+<br />
+Failed messages: <a href="./failures">{{ display.failed|neat_numbers }}</a> ({{ display.failpc  }}%)
+{%  endblock  %}
