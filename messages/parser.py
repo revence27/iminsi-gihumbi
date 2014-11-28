@@ -3,7 +3,6 @@
 
 from abc import ABCMeta, abstractmethod
 import re
-import psycopg2
 
 class ThouField:
   '''Class defining the field of a "RapidSMS 1000 Days" message field.
@@ -14,7 +13,7 @@ It also supplies contextual information about its unsuccessful parsing.'''
   column_name = None
 
   @staticmethod
-  def pull(self, cod, txt, many = False):
+  def pull(self, cod, txt, dt, many = False):
     '''A field will process thestring `txt` to parse of a valid object of its class (passed in as `self` and linked to the SMS code passed in as `cod`).
 Error cases are communicated as single-token error codes, strings that should be short, and unique for every error case.
 Returns a triple: the resulting Message object, the array of error codes, and the part of `txt` that has not been consumed to produce the Message object.'''
@@ -34,14 +33,14 @@ Returns a triple: the resulting Message object, the array of error codes, and th
       ans     = p1.strip()
       etc     = etc.strip()
       if self.expected(ans):
-        errs  = self.is_legal(ans)
+        errs  = self.is_legal(ans, dt)
         if errs:
           if type(errs) == type([]):
             err.extend(errs)
           else:
             err.append(errs)
         else:
-          got.append(ans)
+          got.append(self.convert(ans))
       else:
         if many and got:
           etc = prv
@@ -54,7 +53,19 @@ Returns a triple: the resulting Message object, the array of error codes, and th
 
   @classmethod
   @abstractmethod
-  def is_legal(self, fld):
+  def convert(self, fld):
+    '''This method is to be extended to convert the (text) value collected into a value that can be stored, which may be the same value.
+Default behaviour:
+If there are two expectations(), boolean.
+Otherwise, same value (string).'''
+    exps  = self.expectations()
+    if len(exps) == 2:
+      return exps[0].lower() == fld.lower()
+    return fld
+
+  @classmethod
+  @abstractmethod
+  def is_legal(self, fld, dt):
     'This method is to be extended to restrict fields, in the event that the `expectations` mechanism is insufficient.'
     pass
 
@@ -96,7 +107,7 @@ TODO: At present, every field is supposed to be a TEXT. This is clearly false in
 
   @classmethod
   def dbvalue(self, it, kasa):
-    'Returns the value if `it` escaped with the database cursor `kasa`.'
+    'Returns the value of `it` escaped with the database cursor `kasa`.'
     return kasa.mogrify('%s', (it,))
 
   @classmethod
@@ -121,3 +132,16 @@ TODO: Currently gives no heed to the opinions of the field itself.'''
     'Initialise the field and its associated value `val`, specifying whether it is one of `many` associated as a group with the message.'
     self.working_value  = val
     self.several_fields = many
+
+  def data(self):
+    if self.several_fields:
+      return self.working_value
+    return self.working_value[0]
+
+  def __unicode__(self):
+    if self.several_fields:
+      return u' '.join(self.data())
+    return unicode(self.data())
+
+  def __str__(self):
+    return unicode(self)

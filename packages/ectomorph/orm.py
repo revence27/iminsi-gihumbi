@@ -457,7 +457,7 @@ class ORM:
     '''Assemble into query the parts that order (ORDER BY).'''
     od  = order.get('order', None)
     if not od: return ''
-    return ' ORDER BY ' + od
+    return u' ORDER BY ' + od
 
   @classmethod
   def assemble_limits(self, lims):
@@ -465,7 +465,7 @@ class ORM:
     limits  = lims.get('limit', None)
     offset  = lims.get('offset', None)
     if not any([limits, offset]): return ''
-    return '%s%s' % (' LIMIT %d' % (limits, ) if limits else '', ' OFFSET %d' % (offset, ) if offset else '')
+    return u'%s%s' % (u' LIMIT %d' % (limits, ) if limits else u'', u' OFFSET %d' % (offset, ) if offset else u'')
 
   @classmethod
   def assemble_conditions(self, cnds):
@@ -487,20 +487,20 @@ If 'Invert Query' is supplied as one of the condition keys, the entire set of co
         else:
           if hasattr(rez, '__iter__'):
             # dat = curz.mogrify(cond, (rez,))
-            dat = '(%s)' % ((', '.join([curz.mogrify('%s', (it, )) for it in rez])), )
+            dat = u'(%s)' % ((u', '.join([curz.mogrify(u'%s', (it, )) for it in rez])), )
             dat = cond % (dat, )
           else:
             dat = curz.mogrify(cond, (rez, ))
-        ans.append('(%s)' % (dat, ))
+        ans.append(u'(%s)' % (dat, ))
       curz.close()
-    return (' WHERE ' if conds else '') + (('NOT (%s)' if neg else '%s') % (' AND '.join(ans)))
+    return (u' WHERE ' if conds else u'') + ((u'NOT (%s)' if neg else u'%s') % (u' AND '.join(ans)))
 
   @classmethod
   def assemble_sort(self, dem):
     '''Assemble into query the parts that sort (ORDER BY).'''
-    if not dem: return ''
+    if not dem: return u''
     cn, dr = dem
-    return ' ORDER BY %s %s/*ENDING*/' % (cn, 'ASC' if dr else 'DESC')
+    return u' ORDER BY %s %s/*ENDING*/' % (cn, u'ASC' if dr else u'DESC')
 
   seen_actives  = {}
   @classmethod
@@ -519,6 +519,21 @@ If 'Invert Query' is supplied as one of the condition keys, the entire set of co
     us  = self.seen_actives[qid]
     us.add(qnom)
     return us
+
+  @classmethod
+  def connection(self):
+    'Returns the current connection.'
+    return self.postgres
+
+  @classmethod
+  def cursor(self):
+    'Returns a cursor for the current connection.'
+    return self.connection().cursor()
+
+  @classmethod
+  def raw_query(self, q):
+    'Runs this query against a new cursor of the current connection, returning the raw result.'
+    return self.cursor().execute(q)
 
   @classmethod
   def query(self, tn, djconds = {}, **kwargs):
@@ -545,31 +560,31 @@ Prints:
       return {
         str:                ctyp,
         unicode:            ctyp,
-        int:                'INTEGER /*NOT NULL*/',
-        long:               'INTEGER /*NOT NULL*/',
-        float:              'FLOAT /*NOT NULL*/',
-        bool:               'BOOLEAN /*NOT NULL*/',
-        Decimal:            'FLOAT /*NOT NULL*/',
-        datetime.datetime:  'TIMESTAMP',
-        datetime.date:      'TIMESTAMP WITHOUT TIME ZONE',
-        datetime.time:      'TIMESTAMP'
+        int:                u'INTEGER /*NOT NULL*/',
+        long:               u'INTEGER /*NOT NULL*/',
+        float:              u'FLOAT /*NOT NULL*/',
+        bool:               u'BOOLEAN /*NOT NULL*/',
+        Decimal:            u'FLOAT /*NOT NULL*/',
+        datetime.datetime:  u'TIMESTAMP',
+        datetime.date:      u'TIMESTAMP WITHOUT TIME ZONE',
+        datetime.time:      u'TIMESTAMP'
       }[type(val)]
     except KeyError:
-      raise Exception, ('Supply type for column %s (has a %s, %s)?' % (cn, str(type(val)), str(val)))
+      raise Exception, (u'Supply type for column %s (has a %s, %s)?' % (cn, str(type(val)), str(val)))
 
   @classmethod
   def decide_type(self, vl, cn = None):
     '''Matches sample value `vl` to an SQL type. For error-reporting, cn is the name of the column for which this information is being collected.
 If `vl` is a hash, then 'type' is the SQL type, 'default' the SQL default, 'null' the nullability of the column, and 'value' would, if provided, be a replacement for `vl`.'''
-    ctyp  = 'TEXT DEFAULT NULL'
+    ctyp  = u'TEXT DEFAULT NULL'
     dval  = vl
-    if type(vl) == type((None, 'INTEGER DEFAULT NULL')):
+    if type(vl) == type((None, u'INTEGER DEFAULT NULL')):
       ctyp  = vl[1]
       dval  = vl[0]
     elif type(vl) == type({'type':'INTEGER', 'null':False, 'default':'', 'value':None}):
       dval  = vl.get('value')
       ddef  = vl.get('default')
-      dstr  = '%s %s%s' % (vl.get('type') or self.find_matching_type(dval, ctyp, cn), '' if vl.get('null') else 'NOT NULL', (' DEFAULT ' + ddef if ddef else ''))
+      dstr  = u'%s %s%s' % (vl.get('type') or self.find_matching_type(dval, ctyp, cn), u'' if vl.get('null') else u'NOT NULL', (u' DEFAULT ' + ddef if ddef else u''))
       return self.decide_type((dval, dstr), cn)
     else:
       ctyp  = self.find_matching_type(vl, ctyp, cn)
@@ -579,7 +594,7 @@ If `vl` is a hash, then 'type' is the SQL type, 'default' the SQL default, 'null
   @classmethod
   def delete(self, tn, i):
     curz    = self.postgres.cursor()
-    curz.execute('DELETE FROM %s WHERE indexcol = %s' % (tn, i))
+    curz.execute(u'DELETE FROM %s WHERE indexcol = %s' % (tn, i))
 
   @classmethod
   def store(self, tn, d, **kw):
@@ -595,7 +610,10 @@ Keywords:
     tbl     = self.ensure_table(tn)
     ans     = dat.pop('indexcol', None)
     cols    = dat.keys()
-    escer   = kwargs.pop('escapist', {})
+    escer   = {
+      type(lambda x: x) : lambda c, s, f: f[0](c, s)
+    }
+    escer.update(kwargs.pop('escapist', {}))
     self.migrate(curz, tn, kwargs.get('migrations', []))
     self.postgres.commit()
     for col in cols:
@@ -605,12 +623,12 @@ Keywords:
       elval = None
       try:
         him   = escer[type(dval)]
-        elval = him(curz, '%s', (dval, ))
+        elval = him(curz, u'%s', (dval, ))
       except KeyError:
-        elval = curz.mogrify('%s', (dval, ))
-      vals.append(elval)
+        elval = curz.mogrify(u'%s', (dval, ))
+      vals.append(elval.decode('utf-8'))
     if not ans:
-      qry = (u'INSERT INTO %s (%s) VALUES (%s) RETURNING indexcol;' % (tbl, ', '.join(cols), ', '.join(vals)))
+      qry = (u'INSERT INTO %s (%s) VALUES (%s) RETURNING indexcol;' % (tbl, u', '.join(cols), u', '.join(vals)))
       curz.execute(qry)
       ans = curz.fetchone()[0]
     else:
@@ -620,11 +638,11 @@ Keywords:
         elval = None
         try:
           him   = escer[type(dval)]
-          elval = him(curz, '%s', (dval, ))
+          elval = him(curz, u'%s', (dval, ))
         except KeyError:
-          elval = curz.mogrify('%s', (dval, ))
-        dem.append('%s = %s' % (k, elval))
-      bzt = (u'UPDATE %s SET %s WHERE indexcol = %s;' % (tbl, ', '.join(dem), curz.mogrify('%s', (ans, ))))
+          elval = curz.mogrify(u'%s', (dval, ))
+        dem.append(u'%s = %s' % (k, elval.decode('utf-8')))
+      bzt = (u'UPDATE %s SET %s WHERE indexcol = %s;' % (tbl, u', '.join(dem), curz.mogrify(u'%s', (ans, ))))
       curz.execute(bzt)
     self.postgres.commit()
     curz.close()
@@ -636,7 +654,7 @@ Keywords:
     '''Using `curz` as cursor, creates (if necessary) the column `col` in the table `tbl`, using `dval` as the sample value.'''
     sncs  = self.seen_columns.get(tbl, set())
     if not col in sncs:
-      curz.execute('SELECT TRUE FROM information_schema.columns WHERE table_name = %s AND column_name = %s', (tbl, col))
+      curz.execute(u'SELECT TRUE FROM information_schema.columns WHERE table_name = %s AND column_name = %s', (tbl, col))
       if not curz.fetchone():
         word    = None
         # Unscheduled migrations; have to be idempotent.
@@ -645,7 +663,7 @@ Keywords:
           word  = prepper(tbl, col, dval)
         else:
           ctyp, dval  = self.decide_type(dval, col)
-          word        = 'ALTER TABLE %s ADD COLUMN %s %s;' % (tbl, col, ctyp)
+          word        = u'ALTER TABLE %s ADD COLUMN %s %s;' % (tbl, col, ctyp)
         curz.execute(word)
         sncs.add(col)
     self.seen_columns[tbl] = sncs
@@ -658,21 +676,12 @@ Keywords:
     try:
       if tbl in self.seen_tables: return tbl
       curz  = self.postgres.cursor()
-      curz.execute('SELECT TRUE FROM information_schema.tables WHERE table_name = %s', (tbl,))
+      curz.execute(u'SELECT TRUE FROM information_schema.tables WHERE table_name = %s', (tbl,))
       if not curz.fetchone():
-        curz.execute('CREATE TABLE %s (indexcol SERIAL NOT NULL, created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW());' % (tbl,))
+        curz.execute(u'CREATE TABLE %s (indexcol SERIAL NOT NULL, created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW());' % (tbl,))
         curz.close()
       self.postgres.commit()
       self.seen_tables.add(tbl)
       return tbl
     except Exception, e:
       raise Exception, ('Table creation: ' + str(e))
-
-  @classmethod
-  def connection(self):
-    'Returns the current connection.'
-    return self.postgres
-  @classmethod
-  def cursor(self):
-    'Returns a cursor for the current connection.'
-    return self.connection().cursor()   

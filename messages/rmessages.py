@@ -1,12 +1,11 @@
 # encoding: utf-8
 # vim: expandtab ts=2
 
-#This is a comment. Push it, push it. Harder now!
 from abc import ABCMeta, abstractmethod
+import copy
+from datetime import datetime
 import re
-from ..messages.parser import *
-from rapidsmsrw1000.settings import THE_DATABASE as db
-# from .reports.reports import THE_DATABASE as db
+from parser import *
 
 def first_cap(s):
   '''Capitalises the first letter (without assaulting the others like Ruby's #capitalize does).'''
@@ -16,55 +15,86 @@ def first_cap(s):
 class IDField(ThouField):
   'The commonly-used ID field.'
 
-  column_name = 'patient_id'
+  column_name = 'indangamuntu'
   @classmethod
-  def is_legal(self, ans):
+  def is_legal(self, ans, dt):
     'For now, checks are limited to length assurance.'
-    return [] if len(ans) == 16 else 'pre_2'
+    return [] if len(ans) == 16 else 'bad_indangamuntu'
 
 class DateField(ThouField):
   'The descriptor for valid message fields.'
 
-  column_name = 'lmp'
+  column_name = 'daymonthyear'
   @classmethod
-  def is_legal(self, fld):
-    ans = re.match(r'(\d{2})\.(\d{2})\.(\d{4})')
-    if not ans: return 'pre_4'
+  def check_gap(self, sdate, adate):
+    return True
+
+  @classmethod
+  def is_legal(self, fld, dt):
+    ans = re.match(r'(\d{1,2})\.(\d{1,2})\.(\d{4})', fld)
+    if not ans: return 'bad_date'
+    gps   = ans.groups()
+    sdate = None
+    try:
+      sdate = datetime(year = int(gps[2]), month = int(gps[1]), day = int(gps[0]))
+    except ValueError:
+      return 'impossible_date'
+    return ([] if self.check_gap(sdate, dt) else 'incoherent_date_periods')
+
+  @classmethod
+  def convert(self, fld):
+    ans = re.match(r'(\d{1,2})\.(\d{1,2})\.(\d{4})', fld)
     gps = ans.groups()
-    return [] # Check that it is a valid date. TODO. Move to semantics part?
+    return datetime(year = int(gps[2]), month = int(gps[1]), day = int(gps[0]))
+
+class LMPDateField(DateField):
+  'Date field, strictly for LMP.'
+  # Mostly a disambiguation trick.
+  column_name = 'lmp'
+
+  @classmethod
+  def check_gap(self, sdate, adate):
+    'For now, only checking that the active date (normally today) is after the LMP date supplied.'
+    return sdate < adate
 
 class NumberField(ThouField):
   'The descriptor for number fields.'
 
   column_name = 'number'
   @classmethod
-  def is_legal(self, fld):
+  def is_legal(self, fld, dt):
     'Basically a regex.'
     return [] if re.match(r'\d+', fld) else 'bad_number'
+
+  @classmethod
+  def convert(self, fld):
+    return int(fld)
 
 class CodeField(ThouField):
   'This should match basically any simple code, plain and numbered.'
 
   column_name = 'code'
   @classmethod
-  def is_legal(self, fld):
+  def is_legal(self, fld, dt):
     'Basically a simple regex.'
     return [] if re.match(r'\w+', fld) else 'what_code'
 
 class GravidityField(NumberField):
   'Gravidity is a number.'
 
-  column_name = 'gravity_float' # (sic.)
+  column_name = 'gravidity'
   pass
 
 class ParityField(NumberField):
   'Parity is a number.'
 
-  column_name = 'parity_float'
+  column_name = 'parity'
   pass
 
 class PregCodeField(CodeField):
   'Field for Pregnancy codes.'
+
+  column_name = 'pregnancy'
   @classmethod
   def expectations(self):
     'These are all the codes related to pregnancy.'
@@ -72,6 +102,8 @@ class PregCodeField(CodeField):
 
 class PrevPregField(PregCodeField):
   'Field for Previous pregnancy codes.'
+
+  column_name = 'prev_pregnancy'
   @classmethod
   def expectations(self):
     'Codes associated with previous pregnancy.'
@@ -79,6 +111,8 @@ class PrevPregField(PregCodeField):
 
 class SymptomCodeField(CodeField):
   'Field for codes associated with symptoms.'
+
+  column_name = 'symptom'
   @classmethod
   def expectations(self):
     'These are the codes associated with symptoms.'
@@ -87,6 +121,8 @@ class SymptomCodeField(CodeField):
 
 class RedSymptomCodeField(SymptomCodeField):
   'Field for codes associated with symptoms.'
+
+  column_name = 'red_symptom'
   @classmethod
   def expectations(self):
     'These are the codes in red alerts.'
@@ -94,6 +130,8 @@ class RedSymptomCodeField(SymptomCodeField):
 
 class LocationField(CodeField):
   'Field for codes that communicate locations.'
+
+  column_name = 'location'
   @classmethod
   def expectations(self):
     'The codes for RED alerts.'
@@ -101,29 +139,48 @@ class LocationField(CodeField):
 
 class FloatedField(CodeField):
   'Field for codes that carry fractional numbers with decimal points.'
+
+  column_name = 'float_value'
   @classmethod
-  def is_legal(self, fld):
+  def is_legal(self, fld, dt):
     'Basically a regex.'
     return [] if re.match(r'\w+\d+(\.\d+)?', fld) else 'bad_floated_field'
 
+  @classmethod
+  def convert(self, fld):
+    ans = re.sub(r'[A-Z]', '', fld, 0, re.IGNORECASE)
+    return float(ans)
+
 class NumberedField(CodeField):
   'Field for codes that carry whole numbers.'
+
+  column_name = 'numbered_value'
   @classmethod
-  def is_legal(self, fld):
+  def is_legal(self, fld, dt):
     'Basically a regex.'
     return [] if re.match(r'\w+\d+', fld) else 'bad_numbered_field'
 
+  @classmethod
+  def convert(self, fld):
+    ans = re.sub(r'[A-Z]', '', fld, 0, re.IGNORECASE)
+    return int(ans)
+
 class HeightField(NumberedField):
   'Field for height codes.'
+
+  column_name = 'height'
   pass
 
 class WeightField(FloatedField):
   'Field for weight codes.'
+
+  column_name = 'weight'
   pass
 
-#TODO:  DB value for 2-long expectations() should be Bool.
 class ToiletField(CodeField):
   'Field for codes concerning toilets.'
+
+  column_name = 'toilet'
   @classmethod
   def expectations(self):
     'Toilet or no toilet?'
@@ -131,6 +188,8 @@ class ToiletField(CodeField):
 
 class HandwashField(CodeField):
   'Field for codes concerning handwwashing basic.'
+
+  column_name = 'handwash'
   @classmethod
   def expectations(self):
     'Hand-wash or no hand-wash?'
@@ -139,28 +198,34 @@ class HandwashField(CodeField):
 class PhoneBasedIDField(IDField):
   'The alternative ID field, incorporating phone number.'
   @classmethod
-  def is_legal(self, fld):
+  def is_legal(self, fld, dt):
     'Basic regex.'
     return [] if re.match(r'0\d{15}', fld) else 'bad_phone_id'
 
 class ANCField(NumberedField):
   'Ante-Natal Care visit number is a ... number.'
+
+  column_name = 'anc_visit'
   @classmethod
-  def is_legal(self, fld):
+  def is_legal(self, fld, dt):
     'Matches the code, not insisting on the string that precedes the number.'
     return [] if re.match(r'\w+\d', fld) else 'anc_code'
 
 class PNCField(NumberedField):
   'Post-Natal Care visit number is a ... number.'
+
+  column_name = 'pnc_visit'
   @classmethod
-  def is_legal(self, fld):
+  def is_legal(self, fld, dt):
     'Matches the code, not insisting on the string that precedes the number.'
     return [] if re.match(r'\w+\d', fld) else 'pnc_code'
 
 class NBCField(NumberedField):
   'New-Born Care visit number is a ... number.'
+
+  column_name = 'nbc_visit'
   @classmethod
-  def is_legal(self, fld):
+  def is_legal(self, fld, dt):
     'Matches the code, not insisting on the string that precedes the number.'
     return [] if re.match(r'\w+\d', fld) else 'nbc_code'
 
@@ -171,6 +236,8 @@ class NBCField(NumberedField):
 
 class GenderField(CodeField):
   'Gender is a a code.'
+
+  column_name = 'gender'
   @classmethod
   def expectations(self):
     'Boy or girl?'
@@ -178,17 +245,21 @@ class GenderField(CodeField):
 
 class BreastFeedField(NBCField):
   'Breast-feeding code has new-born care fields.'
+
+  column_name = 'breastfeeding'
   @classmethod
   def expectations(self):
     'The accepted codes. May be booleanisable.'
-    return ['EBF', 'NB']
+    return ['CBF', 'EBF', 'NB']
 
 class InterventionField(CodeField):
   'Field for general interventions.'
+  column_name = 'intervention_field'
+
   @classmethod
   def expectations(self):
     'Intervention codes.'
-    return ['PR', 'AA', 'AL', 'AT', 'NA']
+    return ['PR', 'AA', 'AL', 'AT', 'NA', 'PT', 'TR']
 
 class NBCInterventionField(InterventionField):
   'New-born care intervention field.'
@@ -196,6 +267,8 @@ class NBCInterventionField(InterventionField):
 
 class HealthStatusField(CodeField):
   'General health status field.'
+
+  column_name = 'health_status'
   @classmethod
   def expectations(self):
     return ['MW', 'MS', 'CW', 'CS']
@@ -216,12 +289,16 @@ class MotherHealthStatusField(HealthStatusField):
 
 class VaccinationField(NumberedField):
   'Vaccination Completion is apparently a number.'
+
+  column_name = 'vacc_completion'
   @classmethod
   def expectations(self):
     'The vaccination completion codes.'
-    return ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'VC', 'VI', 'NV']
+    # return ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'VC', 'VI', 'NV']
+    return ['V1', 'V2', 'V3', 'V4', 'V5', 'V6']
 
-class VaccinationCompletionField(VaccinationField):
+# class VaccinationCompletionField(VaccinationField):
+class VaccinationCompletionField(CodeField):
   'Vaccination Completion fields.'
   @classmethod
   def expectations(self):
@@ -230,13 +307,17 @@ class VaccinationCompletionField(VaccinationField):
 
 class MUACField(FloatedField):
   'MUAC is a decimal float.'
+
+  column_name = 'muac'
   @classmethod
-  def is_legal(self, fld):
+  def is_legal(self, fld, dt):
     'Regex alert.'
     return [] if re.match(r'MUAC\d+(\.\d+)', fld) else 'bad_muac_code'
 
 class DeathField(CodeField):
   'Field for describing death codes.'
+
+  column_name = 'death'
   @classmethod
   def expectations(self):
     'Expected death codes.'
@@ -244,13 +325,14 @@ class DeathField(CodeField):
 
 class ThouMsgError:
   'Small exception class.'
-  def __init__(self, errors):
+  def __init__(self, msg, errors):
     self.errors     = errors
+    self.message    = msg
 
 class ThouMessage:
   '''Base class describing the standard RapidSMS 1000 Days message.'''
-  fields  = []
-  created = False
+  fields      = []
+  created     = False
 
   # @staticmethod
   @classmethod
@@ -325,50 +407,52 @@ class ThouMessage:
     return erh(pz)
 
   @staticmethod
-  def parse(msg):
+  def parse(msg, ad = None):
     code, rem = ThouMessage.pull_code(msg.strip())
     klass     = UnknownMessage
     try:
       klass     = MSG_ASSOC[code.upper()]
     except KeyError:
       pass
-    return klass.process(klass, code, rem)
+    return klass.process(klass, code, rem, ad or datetime.today())
 
   # “Private”
   @staticmethod
-  def process(klass, cod, msg):
+  def process(klass, cod, msg, dt):
     errors  = []
     fobs    = []
     etc     = msg
     for fld in klass.fields:
       try:
         if type(fld) == type((1, 2)):
-          cur, err, etc  = fld[0].pull(fld[0], cod, etc, fld[1])
+          cur, err, etc  = fld[0].pull(fld[0], cod, etc, dt, fld[1])
           errors.extend([(e, fld) for e in err])
         else:
-          cur, err, etc  = fld.pull(fld, cod, etc)
+          cur, err, etc  = fld.pull(fld, cod, etc, dt)
           errors.extend([(e, fld) for e in err])
         fobs.append(cur)
       except Exception, err:
         errors.append((str(err), fld))
     if etc.strip():
-      errors.append('Superfluous text: "%s"' % (etc.strip(),))
-    return klass(cod, fobs, errors)
+      errors.append(('bad_text', 'Superfluous text: "%s"' % (etc.strip(),)))
+    return klass(cod, msg, fobs, errors, dt)
 
-  def __init__(self, cod, fobs, errs):
+  def __init__(self, cod, txt, fobs, errs, dt):
     self.code     = cod
     self.errors   = errs
-    if self.errors: raise ThouMsgError(self.errors)
-    semerrors     = self.semantics_check()
-    if semerrors: raise ThouMsgError(semerrors)
+    self.text     = txt
+    self.fields   = fobs
+    if self.errors: raise ThouMsgError(self, self.errors)
+    semerrors     = self.semantics_check(dt)
+    if semerrors: raise ThouMsgError(self, semerrors)
     def as_hash(p, n):
       p[n.__class__.subname()] = n
       return p
     self.entries  = reduce(as_hash, fobs, {})
 
   @abstractmethod
-  def semantics_check(self):
-    return ['Ariko Didier! I told you ThouMessage#semantics_check is abstract.']  # Hey, why doesn’t 'abstract' scream out? TODO.
+  def semantics_check(self, adate):
+    return ['Extend semantics_check.']  # Hey, why doesn’t 'abstract' scream out? TODO.
 
 class UnknownMessage(ThouMessage):
   '''To the Unknown Message.
@@ -377,14 +461,22 @@ Since every message has to be successfully parsed as a Message object, this is t
 
 class PregMessage(ThouMessage):
   'Pregnancy message.'
-  fields  = [IDField, DateField, DateField, GravidityField, ParityField,
+  fields  = [IDField, LMPDateField, DateField, GravidityField, ParityField,
               (PregCodeField, True),
               (SymptomCodeField, True),
              LocationField, WeightField, ToiletField, HandwashField]
 
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
 class RefMessage(ThouMessage):
   'Referral message.'
   fields  = [PhoneBasedIDField]
+
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
 
 class ANCMessage(ThouMessage):
   'Ante-natal care visit message.'
@@ -392,9 +484,17 @@ class ANCMessage(ThouMessage):
              (SymptomCodeField, True),
              LocationField, WeightField]
 
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
 class DepMessage(ThouMessage):
   'Departure message.'
   fields  = [IDField, NumberField, DateField]
+
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
 
 class RiskMessage(ThouMessage):
   'Risk report message.'
@@ -402,9 +502,17 @@ class RiskMessage(ThouMessage):
              (SymptomCodeField, True),
              LocationField, WeightField]
 
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
 class RedMessage(ThouMessage):
   'Red alert message.'
   fields  = [(RedSymptomCodeField, True), LocationField]
+
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
 
 class BirMessage(ThouMessage):
   'Birth message.'
@@ -412,15 +520,27 @@ class BirMessage(ThouMessage):
              (SymptomCodeField, True),
              LocationField, BreastFeedField, WeightField]
 
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
 class ChildMessage(ThouMessage):
   'Child message.'
   fields  = [IDField, NumberField, DateField, VaccinationField, VaccinationCompletionField,
              (SymptomCodeField, True),
              LocationField, WeightField, MUACField]
 
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
 class DeathMessage(ThouMessage):
   'Death message.'
   fields  = [IDField, NumberField, DateField, LocationField, DeathField]
+
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
 
 class ResultMessage(ThouMessage):
   'Result message.'
@@ -428,11 +548,19 @@ class ResultMessage(ThouMessage):
              (SymptomCodeField, True),
              LocationField, InterventionField, MotherHealthStatusField]
 
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
 class RedResultMessage(ThouMessage):
   'Red alert result message.'
   fields  = [IDField, DateField,
              (SymptomCodeField, True),
              LocationField, InterventionField, MotherHealthStatusField]
+
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
 
 class NBCMessage(ThouMessage):
   'New-born care message.'
@@ -440,24 +568,58 @@ class NBCMessage(ThouMessage):
              (SymptomCodeField, True),
              BreastFeedField, NBCInterventionField, NewbornHealthStatusField]
 
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
 class PNCMessage(ThouMessage):
   'Post-natal care message.'
   fields  = [IDField, PNCField, DateField,
              (SymptomCodeField, True),
              InterventionField, MotherHealthStatusField]
 
-# Testing field. Takes any of my names.
-class TextField(ThouField):
-  'What I call TextField is really a RevNameField.'
-  @classmethod
-  def expectations(self):
-    'Only my names are legal here.'
-    return ['Revence', 'Kato', 'Kalibwani']
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
 
-# Testing message.
-class RevMessage(ThouMessage):
-  'Testing message. Takes any number of legal fields.'
-  fields  = [(TextField, True)]
+class CCMMessage(ThouMessage):
+  'Commmunity Case Management message.'
+  fields  = [IDField, NumberField, DateField,
+             (SymptomCodeField, True),
+             InterventionField, MUACField]
+
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
+class CMRMessage(ThouMessage):
+  'Commmunity Management Response message.'
+  fields  = [IDField, NumberField, DateField,
+             (SymptomCodeField, True),
+             InterventionField, NewbornHealthStatusField]
+
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
+class CBNMessage(ThouMessage):
+  'Commmunity-Based Nutrition message.'
+  fields  = [IDField, NumberField, DateField, BreastFeedField, HeightField, WeightField, MUACField]
+
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
+
+class ChildHealthMessage(ThouMessage):
+  # Slightly different from other CHI. Systemic inconsistency.
+  'Child Health message.'
+  fields  = [IDField, NumberField, DateField, VaccinationField,
+             (SymptomCodeField, True),
+             LocationField, WeightField, MUACField]
+
+  def semantics_check(self, adate):
+    'TODO.'
+    return []
 
 MSG_ASSOC = {
   'PRE':  PregMessage,
@@ -474,5 +636,7 @@ MSG_ASSOC = {
   'NBC':  NBCMessage,
   'PNC':  PNCMessage,
 
-  'REV':  RevMessage,
+  'CCM':  CCMMessage,
+  'CMR':  CMRMessage,
+  'CBN':  CBNMessage
 }

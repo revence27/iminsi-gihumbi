@@ -6,33 +6,17 @@ from datetime import datetime, timedelta
 from ectomorph import orm
 from jinja2 import Environment, FileSystemLoader
 import json
+import migrations
 import random
 import re
 import settings
+import queries
 import sha
 import sys
 import urllib2, urlparse
 from summarize import *
 from mapval import *
 from pygrowup import helpers, Calculator
-
-PREGNANCY_MATCHES  = {
-  'coughing'  : ('COUNT(*)',  'ch_bool IS NOT NULL'),
-  'diarrhoea' : ('COUNT(*)',  'di_bool IS NOT NULL'),
-  'fever'     : ('COUNT(*)',  'fe_bool IS NOT NULL'),
-  'oedema'    : ('COUNT(*)',  'oe_bool IS NOT NULL'),
-  'pneumo'    : ('COUNT(*)',  'pc_bool IS NOT NULL'),
-  # 'disab'     : ('COUNT(*)',  'db_bool IS NOT NULL'),
-  # 'cordi'     : ('COUNT(*)',  'ci_bool IS NOT NULL'),
-  'necks'     : ('COUNT(*)',  'ns_bool IS NOT NULL'),
-  'malaria'   : ('COUNT(*)',  'ma_bool IS NOT NULL'),
-  'vomiting'  : ('COUNT(*)',  'vo_bool IS NOT NULL'),
-  # 'stillb'    : ('COUNT(*)',  'sb_bool IS NOT NULL'),
-  'jaun'      : ('COUNT(*)',  'ja_bool IS NOT NULL'),
-  # 'hypoth'    : ('COUNT(*)',  'hy_bool IS NOT NULL'),
-  'anaemia'   : ('COUNT(*)',  'sa_bool IS NOT NULL')
-}
-RISK_MOD = {'(gs_bool IS NOT NULL OR mu_bool IS NOT NULL OR rm_bool IS NOT NULL OR ol_bool IS NOT NULL OR yg_bool IS NOT NULL OR kx_bool IS NOT NULL OR yj_bool IS NOT NULL OR lz_bool IS NOT NULL)':''}
 
 def child_status(weight = None, height = None, date_of_birth = None, sex = None):
  status = {}
@@ -441,11 +425,11 @@ class Application:
     navb  = ThousandNavigation(auth, *args, **kw)
     cnds  = navb.conditions(None, auth)
     cnds.update({'NOT success':''})
-    nat = orm.ORM.query('treated_messages', cnds, cols = ['oldid'])
+    nat = orm.ORM.query('treated_messages', cnds, cols = ['oldid'], migrations = migrations.TREATED)
     cpg, (sttit, endit), pgs = navb.pages(nat)
     msgs  = []
     for tm in nat[sttit:endit]:
-      msq = orm.ORM.query('failed_transfers', {'oldid = %s': tm['oldid']}, cols = ['failcode'], sort = ('failpos', True))
+      msq = orm.ORM.query('failed_transfers', {'oldid = %s': tm['oldid']}, cols = ['failcode'], sort = ('failpos', True), migrations = migrations.FAILED)
       msg = orm.ORM.query('messagelog_message', {'id = %s': tm['oldid']}, cols = ['text', 'contact_id', 'id'])
       msgs.append({'failures':msq, 'message':msg[0]})
     return self.dynamised('failures', mapping = locals(), *args, **kw)
@@ -460,7 +444,8 @@ class Application:
       extended  = {
         'failed':     ('COUNT(*)', 'NOT success'),
         'succeeded':  ('COUNT(*)', 'success')
-      }
+      },
+      migrations = migrations.TREATED
     )
     nat       = msgs[0]
     total     = nat['total']
@@ -514,12 +499,12 @@ class Application:
     ] , *args, **kw)
     DESCRI = []
     INDICS = []
-    cnds.update({settings.CBN_DATA['query_str']: ''})
+    cnds.update({queries.CBN_DATA['query_str']: ''})
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     else:
-     INDICS = settings.CBN_DATA['attrs']
+     INDICS = queries.CBN_DATA['attrs']
     if kw.get('summary'):
      province = kw.get('province') or auth.him()['province_pk']
      district = kw.get('district') or auth.him()['district_pk']
@@ -529,7 +514,7 @@ class Application:
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
 
-     wcl.append({'field_name': '(%s)' % settings.CBN_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
+     wcl.append({'field_name': '(%s)' % queries.CBN_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
       locateds = summarize_by_location(primary_table = 'cbn_view', MANY_INDICS = INDICS, where_clause = wcl, 
@@ -560,7 +545,7 @@ class Application:
       cnds[sc]  = ''
     attrs = []
     
-    cols    += settings.LOCATION_INFO   
+    cols    += queries.LOCATION_INFO   
     nat     = orm.ORM.query('cbn_view', cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp) AS dob', 'Date Of Birth'),
@@ -568,17 +553,17 @@ class Application:
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Nutrition %s' % (' (%s)' % (self.find_descr(DESCRI + settings.CBN_DATA['attrs'], 
+    desc  = 'Nutrition %s' % (' (%s)' % (self.find_descr(DESCRI + queries.CBN_DATA['attrs'], 
 						sc ) or 'ALL', 
 					) )
     return self.dynamised('cbn_table', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def old_tables_nutr(self, *args, **kw):
-    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    navb, auth, cnds, cols    = self.neater_tables(basics = queries.PATIENT_DETAILS , *args, **kw)
     attrs = []
     nat   = orm.ORM.query('cbn_table', cnds,
-      cols  = [x[0] for x in (cols + settings.CBN_DATA['cols']) if x[0][0] != '_'],
+      cols  = [x[0] for x in (cols + queries.CBN_DATA['cols']) if x[0][0] != '_'],
       sort  = ('report_date', False),
     )
     patient = nat[0]  
@@ -615,7 +600,7 @@ class Application:
     nat     = orm.ORM.query('red_table', cnds)
     # raise Exception, str(nat.query)
     # total   = nat[0]['total']
-    fields  = settings.RED_ALERT_FIELDS
+    fields  = queries.RED_ALERT_FIELDS
     return self.dynamised('redalert', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
@@ -814,7 +799,7 @@ class Application:
   def tables_preg_extras(self, dest, *args, **kw):
     navb, cnds, cols    = self.tables_in_general(*args, **kw)
     upds  = {'pregcough':'coughing', 'pregdiarrhea':'diarrhoea', 'pregfever':'fever', 'pregmalaria':'malaria', 'pregvomit':'vomiting', 'pregstill':'stillb', 'pregedema':'oedema', 'pregjaundice':'jaun', 'pregpneumonia':'pneumo', 'pregdisability':'disab', 'preganemia':'anaemia', 'pregcord':'cordi', 'pregneck':'necks', 'preghypothemia':'hypoth'}
-    exts  = {PREGNANCY_MATCHES[upds[dest]][1]:''}
+    exts  = {queries.PREGNANCY_MATCHES[upds[dest]][1]:''}
     cnds.update(exts)
     nat     = orm.ORM.query('pre_table', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
@@ -825,7 +810,7 @@ class Application:
   @cherrypy.expose
   def tables_risks(self, *args, **kw):
     navb, cnds, cols    = self.tables_in_general(*args, **kw)
-    cnds.update(RISK_MOD)
+    cnds.update(queries.RISK_MOD)
     nat     = orm.ORM.query('pre_table', cnds,
       cols  = [x[0] for x in cols if x[0][0] != '_'],
     )
@@ -1303,7 +1288,7 @@ class Application:
     if kw.get('group') == 'no_risk':
       title = 'No Risk'
       group = 'no_risk'
-      cnds.update({settings.NO_RISK['query_str']: ''})
+      cnds.update({queries.NO_RISK['query_str']: ''})
       nat = orm.ORM.query(  'pre_table', 
 			  cnds,
                           cols = ['COUNT(*) AS total'],
@@ -1311,9 +1296,9 @@ class Application:
     elif kw.get('group') == 'at_risk':
       title = 'At Risk'
       group = 'at_risk'
-      cnds.update({settings.RISK['query_str']: ''})
-      attrs = [(x.split()[0], dict(settings.RISK['attrs'])[x]) for x in dict (settings.RISK['attrs'])]
-      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.RISK['attrs'])]))
+      cnds.update({queries.RISK['query_str']: ''})
+      attrs = [(x.split()[0], dict(queries.RISK['attrs'])[x]) for x in dict (queries.RISK['attrs'])]
+      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (queries.RISK['attrs'])]))
       nat = orm.ORM.query(  'pre_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -1322,9 +1307,9 @@ class Application:
     elif kw.get('group') == 'high_risk':
       title = 'High Risk'
       group = 'high_risk'
-      cnds.update({settings.HIGH_RISK['query_str']: ''})
-      attrs = [(x.split()[0], dict(settings.HIGH_RISK['attrs'])[x]) for x in dict (settings.HIGH_RISK['attrs'])]
-      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.HIGH_RISK['attrs'])]))
+      cnds.update({queries.HIGH_RISK['query_str']: ''})
+      attrs = [(x.split()[0], dict(queries.HIGH_RISK['attrs'])[x]) for x in dict (queries.HIGH_RISK['attrs'])]
+      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (queries.HIGH_RISK['attrs'])]))
       nat = orm.ORM.query(  'pre_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -1334,9 +1319,9 @@ class Application:
       nat = orm.ORM.query(  'pre_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
-			  extended = {'no_risk': ('COUNT(*)', settings.NO_RISK['query_str']), 
-					'at_risk': ('COUNT(*)', settings.RISK['query_str']),
-					'high_risk': ('COUNT(*)', settings.HIGH_RISK['query_str']),
+			  extended = {'no_risk': ('COUNT(*)', queries.NO_RISK['query_str']), 
+					'at_risk': ('COUNT(*)', queries.RISK['query_str']),
+					'high_risk': ('COUNT(*)', queries.HIGH_RISK['query_str']),
 					}
 			)
     return self.dynamised('predash', mapping = locals(), *args, **kw)
@@ -1348,7 +1333,7 @@ class Application:
       ('patient_id',            'Mother ID'),
       ('reporter_phone',            'Reporter Phone'),
       
-    ] + settings.PREGNANCY_DATA , *args, **kw)
+    ] + queries.PREGNANCY_DATA , *args, **kw)
     DESCRI = []
     INDICS = []
 
@@ -1361,7 +1346,7 @@ class Application:
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      if kw.get('group'):
       if kw.get('group') == 'no_risk':
-       cnds.update({'(%s)' % settings.NO_RISK['query_str']: ''})
+       cnds.update({'(%s)' % queries.NO_RISK['query_str']: ''})
       else:
        kw.update({'compare': ' IS NOT'})
        kw.update({'value': ' NULL'})
@@ -1375,18 +1360,18 @@ class Application:
 	   }] if kw.get('subcat') else []
      if kw.get('subcat') is None:
       if kw.get('group') == 'no_risk':
-       wcl.append({'field_name': '(%s)' % settings.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+       wcl.append({'field_name': '(%s)' % queries.NO_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
        INDICS = []
       if kw.get('group') == 'at_risk':
-       wcl.append({'field_name': '(%s)' % settings.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-       INDICS = settings.RISK['attrs']
+       wcl.append({'field_name': '(%s)' % queries.RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+       INDICS = queries.RISK['attrs']
       if kw.get('group') == 'high_risk':
-       wcl.append({'field_name': '(%s)' % settings.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
-       INDICS = settings.HIGH_RISK['attrs']
+       wcl.append({'field_name': '(%s)' % queries.HIGH_RISK['query_str'], 'compare': '', 'value': '', 'extra': True})
+       INDICS = queries.HIGH_RISK['attrs']
       if kw.get('group') is None:
-       INDICS = [('no_risk', 'No Risk', '(%s)' % settings.NO_RISK['query_str'] ), 
-		('at_risk', 'At Risk', '(%s)' % settings.RISK['query_str']),
-		 ('high_risk', 'High Risk', '(%s)' % settings.HIGH_RISK['query_str']),
+       INDICS = [('no_risk', 'No Risk', '(%s)' % queries.NO_RISK['query_str'] ), 
+		('at_risk', 'At Risk', '(%s)' % queries.RISK['query_str']),
+		 ('high_risk', 'High Risk', '(%s)' % queries.HIGH_RISK['query_str']),
 		]#; print INDICS
 
      wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
@@ -1425,26 +1410,26 @@ class Application:
       cnds[sc]  = ''
     attrs = []
     if kw.get('group') == 'no_risk':
-     cnds.update({'(%s)' % settings.NO_RISK['query_str']: ''})
+     cnds.update({'(%s)' % queries.NO_RISK['query_str']: ''})
      DESCRI.append(('no_risk', 'No Risk'))
     if kw.get('group') == 'at_risk':
-     cnds.update({'(%s)' % settings.RISK['query_str']: ''})
+     cnds.update({'(%s)' % queries.RISK['query_str']: ''})
      DESCRI.append(('at_risk', 'At Risk'))
     if kw.get('group') == 'high_risk':
-     cnds.update({'(%s)' % settings.HIGH_RISK['query_str']: ''})
+     cnds.update({'(%s)' % queries.HIGH_RISK['query_str']: ''})
      DESCRI.append(('high_risk', 'High Risk'))
 
-    cols    += settings.LOCATION_INFO   
+    cols    += queries.LOCATION_INFO   
     nat     = orm.ORM.query('pre_table', cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp + INTERVAL \'%d days\') AS edd' % settings.GESTATION, 'EDDate'),
-					('(%s) AS at_risky' % settings.RISK['query_str'], 'AtRisky'), 
-					('(%s) AS high_risky' % settings.HIGH_RISK['query_str'], 'HighRisky'),
+					('(%s) AS at_risky' % queries.RISK['query_str'], 'AtRisky'), 
+					('(%s) AS high_risky' % queries.HIGH_RISK['query_str'], 'HighRisky'),
  
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(DESCRI + settings.RISK['attrs'] + settings.HIGH_RISK['attrs'], sc or kw.get('group')), 
+    desc  = 'Pregnancies%s' % (' (%s)' % (self.find_descr(DESCRI + queries.RISK['attrs'] + queries.HIGH_RISK['attrs'], sc or kw.get('group')), 
 					) if sc or kw.get('group') else '', )
     return self.dynamised('predash_table', mapping = locals(), *args, **kw)
 
@@ -1463,7 +1448,7 @@ class Application:
     pre_cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) : ''})
 
     exts = {}
-    attrs = [(x.split()[0], dict(settings.ANC_DATA['attrs'])[x]) for x in dict (settings.ANC_DATA['attrs'])]
+    attrs = [(x.split()[0], dict(queries.ANC_DATA['attrs'])[x]) for x in dict (queries.ANC_DATA['attrs'])]
 
     pre = orm.ORM.query(  'pre_table', 
 			  pre_cnds, 
@@ -1471,11 +1456,11 @@ class Application:
 			)
 
     cnds    = navb.conditions(None, auth)
-    cnds.update({settings.ANC_DATA['query_str']: ''})
+    cnds.update({queries.ANC_DATA['query_str']: ''})
     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.start) : ''})
     #print cnds
-    exts.update(dict([(x[0].split()[0], ('COUNT(*)', x[0])) for x in settings.ANC_DATA['attrs'] ])) 
+    exts.update(dict([(x[0].split()[0], ('COUNT(*)', x[0])) for x in queries.ANC_DATA['attrs'] ])) 
     nat = orm.ORM.query(  'anc_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -1496,7 +1481,7 @@ class Application:
 
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT PREGNANCY, AND LET THE USER GO BACK AND FORTH
     cnds    = navb.conditions(None, auth)
-    cnds.update({settings.ANC_DATA['query_str']: ''})
+    cnds.update({queries.ANC_DATA['query_str']: ''})
     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.start) : ''})
     primary_table = 'anc_table'
@@ -1513,20 +1498,20 @@ class Application:
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
      
-     if kw.get('subcat') is None: INDICS = settings.ANC_DATA['attrs']
+     if kw.get('subcat') is None: INDICS = queries.ANC_DATA['attrs']
 
      if kw.get('group') == 'anc1':
       primary_table = 'pre_table'
       wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
       wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) ), 'compare': '', 'value': '', 'extra': True})
-      INDICS = [('no_risk', 'No Risk', '(%s)' % settings.NO_RISK['query_str'] ), 
-		('at_risk', 'At Risk', '(%s)' % settings.RISK['query_str']),
-		 ('high_risk', 'High Risk', '(%s)' % settings.HIGH_RISK['query_str']),
+      INDICS = [('no_risk', 'No Risk', '(%s)' % queries.NO_RISK['query_str'] ), 
+		('at_risk', 'At Risk', '(%s)' % queries.RISK['query_str']),
+		 ('high_risk', 'High Risk', '(%s)' % queries.HIGH_RISK['query_str']),
 		]
      else: 
       wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
       wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.start) ), 'compare': '', 'value': '', 'extra': True})
-      wcl.append({'field_name': '(%s)' % settings.ANC_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
+      wcl.append({'field_name': '(%s)' % queries.ANC_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
       
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
@@ -1556,9 +1541,9 @@ class Application:
     if sc:
       cnds[sc]  = ''
     # TODO: optimise
-    attrs = settings.ANC_DATA['attrs']
+    attrs = queries.ANC_DATA['attrs']
     #print cnds
-    cols    += settings.LOCATION_INFO
+    cols    += queries.LOCATION_INFO
      
     if kw.get('group') == 'anc1':
      navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT PREGNANCY, AND LET THE USER GO BACK AND FORTH
@@ -1566,17 +1551,17 @@ class Application:
      cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
      cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION, navb.start) : ''})
      primary_table = 'pre_table'
-     attrs = [('(%s) AS at_risky' % settings.RISK['query_str'], 'AtRisky'),]
+     attrs = [('(%s) AS at_risky' % queries.RISK['query_str'], 'AtRisky'),]
      DESCRI.append(('anc1', 'Pregnancy'))   
     nat     = orm.ORM.query( primary_table , cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp + INTERVAL \'%d days\') AS edd' % settings.GESTATION, 'EDDate'),
-					('(%s) AS high_risky' % settings.HIGH_RISK['query_str'], 'HighRisky'),
+					('(%s) AS high_risky' % queries.HIGH_RISK['query_str'], 'HighRisky'),
  
 					] + attrs) if x[0][0] != '_'],
       
     )#;print nat.query
-    desc  = 'ANC%s' % (' (%s)' % (self.find_descr(DESCRI + settings.ANC_DATA['attrs'], sc or kw.get('group')), 
+    desc  = 'ANC%s' % (' (%s)' % (self.find_descr(DESCRI + queries.ANC_DATA['attrs'], sc or kw.get('group')), 
 					) if sc or kw.get('group') else '', )
     return self.dynamised('ancdash_table', mapping = locals(), *args, **kw)
 
@@ -1591,21 +1576,21 @@ class Application:
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
-    red_attrs = [(x[0].split()[0], x[1]) for x in settings.RED_DATA['attrs']]
+    red_attrs = [(x[0].split()[0], x[1]) for x in queries.RED_DATA['attrs']]
     red_exts = exts
     red_cnds = cnds
-    red_cnds.update({settings.RED_DATA['query_str']: ''})
-    red_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.RED_DATA['attrs']]))
+    red_cnds.update({queries.RED_DATA['query_str']: ''})
+    red_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in queries.RED_DATA['attrs']]))
     red = orm.ORM.query(  'red_table', 
 			  red_cnds, 
 			  cols = ['COUNT(*) AS total'], 
 			  extended = red_exts,
 			)
 
-    rar_attrs = [(x[0].split()[0], x[1]) for x in settings.RAR_DATA['attrs']]
+    rar_attrs = [(x[0].split()[0], x[1]) for x in queries.RAR_DATA['attrs']]
     rar_cnds = navb.conditions('report_date')
-    rar_cnds.update({settings.RAR_DATA['query_str']: ''})
-    rar_exts = dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.RAR_DATA['attrs']])
+    rar_cnds.update({queries.RAR_DATA['query_str']: ''})
+    rar_exts = dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in queries.RAR_DATA['attrs']])
     rar = orm.ORM.query(  'rar_table', 
 			  rar_cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -1629,15 +1614,15 @@ class Application:
     cnds.update({"(report_date) >= '%s'" % (navb.start) : ''})
     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     primary_table = 'red_table'
-    if kw.get('subcat') and kw.get('subcat') in [x[0].split()[0] for x in settings.RAR_DATA['attrs']]:
+    if kw.get('subcat') and kw.get('subcat') in [x[0].split()[0] for x in queries.RAR_DATA['attrs']]:
      primary_table = 'rar_table'
-     cnds.update({settings.RAR_DATA['query_str']: ''})
-    else: cnds.update({settings.RED_DATA['query_str']: ''}) 
+     cnds.update({queries.RAR_DATA['query_str']: ''})
+    else: cnds.update({queries.RED_DATA['query_str']: ''}) 
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     else:
-     INDICS = settings.RED_DATA['attrs']
+     INDICS = queries.RED_DATA['attrs']
     if kw.get('summary'):
      province = kw.get('province') or auth.him()['province_pk']
      district = kw.get('district') or auth.him()['district_pk']
@@ -1676,12 +1661,12 @@ class Application:
     # TODO: optimise
     attrs = []
     
-    cols    += settings.LOCATION_INFO   
+    cols    += queries.LOCATION_INFO   
     nat     = orm.ORM.query(primary_table, cnds,
       cols  = [x[0] for x in (cols + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Red Alerts %s' % (' (%s)' % (self.find_descr(DESCRI + settings.RED_DATA['attrs'] + settings.RAR_DATA['attrs'], 
+    desc  = 'Red Alerts %s' % (' (%s)' % (self.find_descr(DESCRI + queries.RED_DATA['attrs'] + queries.RAR_DATA['attrs'], 
 						sc) or 'ALL', 
 					) )
     return self.dynamised('reddash_table', mapping = locals(), *args, **kw)
@@ -1734,9 +1719,9 @@ class Application:
 			orm.ORM.query(  'pre_table', 
 			  attr_cnds, 
 			  cols = ['COUNT(*) AS total'], 
-			  extended = {'no_risk': ('COUNT(*)', settings.NO_RISK['query_str']), 
-					'at_risk': ('COUNT(*)', settings.RISK['query_str']),
-					'high_risk': ('COUNT(*)', settings.HIGH_RISK['query_str']),
+			  extended = {'no_risk': ('COUNT(*)', queries.NO_RISK['query_str']), 
+					'at_risk': ('COUNT(*)', queries.RISK['query_str']),
+					'high_risk': ('COUNT(*)', queries.HIGH_RISK['query_str']),
 					}
 			) 
 		   })
@@ -1773,9 +1758,9 @@ class Application:
 	
 	]
 
-    SUB_INDICS = { 'no_risk': '(%s)' % settings.NO_RISK['query_str'] , 
-		   'at_risk': '(%s)' % settings.RISK['query_str'],
-		   'high_risk': '(%s)' % settings.HIGH_RISK['query_str'],
+    SUB_INDICS = { 'no_risk': '(%s)' % queries.NO_RISK['query_str'] , 
+		   'at_risk': '(%s)' % queries.RISK['query_str'],
+		   'high_risk': '(%s)' % queries.HIGH_RISK['query_str'],
 		 }
     if kw.get('subgroup'): cnds.update({SUB_INDICS[kw.get('subgroup')]: ''})
     if kw.get('group') == 'next_week':
@@ -1857,15 +1842,15 @@ class Application:
     # TODO: optimise
     attrs = []
     
-    cols    += settings.LOCATION_INFO
+    cols    += queries.LOCATION_INFO
     if kw.get('group') == 'pre':
      DESCRI.append(('pre', 'Pregnancies'))
      cnds = pre_cnds   
     nat     = orm.ORM.query('pre_table', cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp + INTERVAL \'%d days\') AS edd' % settings.GESTATION, 'EDDate'),
-					('(%s) AS at_risky' % settings.RISK['query_str'], 'AtRisky'), 
-					('(%s) AS high_risky' % settings.HIGH_RISK['query_str'], 'HighRisky'),
+					('(%s) AS at_risky' % queries.RISK['query_str'], 'AtRisky'), 
+					('(%s) AS high_risky' % queries.HIGH_RISK['query_str'], 'HighRisky'),
 
 					] + attrs) if x[0][0] != '_'],
       
@@ -1884,9 +1869,9 @@ class Application:
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
-    attrs = [(x[0].split()[0], x[1]) for x in settings.DELIVERY_DATA['attrs']]
-    cnds.update({settings.DELIVERY_DATA['query_str']: ''})
-    exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.DELIVERY_DATA['attrs']]))
+    attrs = [(x[0].split()[0], x[1]) for x in queries.DELIVERY_DATA['attrs']]
+    cnds.update({queries.DELIVERY_DATA['query_str']: ''})
+    exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in queries.DELIVERY_DATA['attrs']]))
     nat = orm.ORM.query(  'bir_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -1940,13 +1925,13 @@ class Application:
      end = start + timedelta(days = 6)
      cnds.update({"(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , start, end): ''})
     else:
-     cnds.update({settings.DELIVERY_DATA['query_str']: ''})
+     cnds.update({queries.DELIVERY_DATA['query_str']: ''})
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     else:
      if kw.get('group'): DESCRI = [('next_week', 'Deliveries in Next Week'), ('next_two_week', 'Deliveries in Next two Weeks')]
-     else: INDICS = settings.DELIVERY_DATA['attrs']
+     else: INDICS = queries.DELIVERY_DATA['attrs']
     if kw.get('summary'):
      province = kw.get('province') or auth.him()['province_pk']
      district = kw.get('district') or auth.him()['district_pk']
@@ -1959,7 +1944,7 @@ class Application:
      if kw.get('group'):
       wcl.append({'field_name': '(%s)' % "(lmp + INTERVAL '%s days') BETWEEN '%s' AND '%s'" % (settings.GESTATION , start, end),
                   'compare': '', 'value': '', 'extra': True})
-     else: wcl.append({'field_name': '(%s)' % settings.DELIVERY_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
+     else: wcl.append({'field_name': '(%s)' % queries.DELIVERY_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
       locateds = summarize_by_location(primary_table = primary_table, MANY_INDICS = INDICS, where_clause = wcl, 
@@ -1991,7 +1976,7 @@ class Application:
     # TODO: optimise
     attrs = []
     
-    cols    += settings.LOCATION_INFO   
+    cols    += queries.LOCATION_INFO   
     nat     = orm.ORM.query(primary_table, cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp) AS dob', 'Date Of Birth'),
@@ -1999,7 +1984,7 @@ class Application:
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Deliveries %s' % (' (%s)' % (self.find_descr(DESCRI + settings.DELIVERY_DATA['attrs'], 
+    desc  = 'Deliveries %s' % (' (%s)' % (self.find_descr(DESCRI + queries.DELIVERY_DATA['attrs'], 
 						sc or kw.get('group') ) or 'ALL', 
 					) )
     return self.dynamised('deliverydash_table', mapping = locals(), *args, **kw)
@@ -2026,7 +2011,7 @@ class Application:
     if kw.get('group') == 'no_risk':
       title = 'No Risk'
       group = 'no_risk'
-      cnds.update({settings.NBC_DATA['NO_RISK']['query_str']: ''})
+      cnds.update({queries.NBC_DATA['NO_RISK']['query_str']: ''})
       nat = orm.ORM.query(  'nbc_table', 
 			  cnds,
                           cols = ['COUNT(*) AS total'],
@@ -2034,9 +2019,9 @@ class Application:
     elif kw.get('group') == 'at_risk':
       title = 'At Risk'
       group = 'at_risk'
-      cnds.update({settings.NBC_DATA['RISK']['query_str']: ''})
-      attrs = [(x.split()[0], dict(settings.NBC_DATA['RISK']['attrs'])[x]) for x in dict (settings.NBC_DATA['RISK']['attrs'])]
-      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.NBC_DATA['RISK']['attrs'])]))
+      cnds.update({queries.NBC_DATA['RISK']['query_str']: ''})
+      attrs = [(x.split()[0], dict(queries.NBC_DATA['RISK']['attrs'])[x]) for x in dict (queries.NBC_DATA['RISK']['attrs'])]
+      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (queries.NBC_DATA['RISK']['attrs'])]))
       nat = orm.ORM.query(  'nbc_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -2045,9 +2030,9 @@ class Application:
     elif kw.get('group') == 'high_risk':
       title = 'High Risk'
       group = 'high_risk'
-      cnds.update({settings.NBC_DATA['HIGH_RISK']['query_str']: ''})
-      attrs = [(x.split()[0], dict(settings.NBC_DATA['HIGH_RISK']['attrs'])[x]) for x in dict (settings.NBC_DATA['HIGH_RISK']['attrs'])]
-      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.NBC_DATA['HIGH_RISK']['attrs'])]))
+      cnds.update({queries.NBC_DATA['HIGH_RISK']['query_str']: ''})
+      attrs = [(x.split()[0], dict(queries.NBC_DATA['HIGH_RISK']['attrs'])[x]) for x in dict (queries.NBC_DATA['HIGH_RISK']['attrs'])]
+      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (queries.NBC_DATA['HIGH_RISK']['attrs'])]))
       nat = orm.ORM.query(  'nbc_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -2057,9 +2042,9 @@ class Application:
       nat = orm.ORM.query(  'nbc_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
-			  extended = {'no_risk': ('COUNT(*)', settings.NBC_DATA['NO_RISK']['query_str']), 
-					'at_risk': ('COUNT(*)', settings.NBC_DATA['RISK']['query_str']),
-					'high_risk': ('COUNT(*)', settings.NBC_DATA['HIGH_RISK']['query_str']),
+			  extended = {'no_risk': ('COUNT(*)', queries.NBC_DATA['NO_RISK']['query_str']), 
+					'at_risk': ('COUNT(*)', queries.NBC_DATA['RISK']['query_str']),
+					'high_risk': ('COUNT(*)', queries.NBC_DATA['HIGH_RISK']['query_str']),
 					}
 			)
     return self.dynamised('nbcdash', mapping = locals(), *args, **kw)
@@ -2085,7 +2070,7 @@ class Application:
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      if kw.get('group'):
       if kw.get('group') == 'no_risk':
-       cnds.update({'(%s)' % settings.NBC_DATA['NO_RISK']['query_str']: ''})
+       cnds.update({'(%s)' % queries.NBC_DATA['NO_RISK']['query_str']: ''})
       else:
        kw.update({'compare': ' IS NOT'})
        kw.update({'value': ' NULL'})
@@ -2099,18 +2084,18 @@ class Application:
 	   }] if kw.get('subcat') else []
      if kw.get('subcat') is None:
       if kw.get('group') == 'no_risk':
-       wcl.append({'field_name': '(%s)' % settings.NBC_DATA['NO_RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
+       wcl.append({'field_name': '(%s)' % queries.NBC_DATA['NO_RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
        INDICS = []
       if kw.get('group') == 'at_risk':
-       wcl.append({'field_name': '(%s)' % settings.NBC_DATA['RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
-       INDICS = settings.NBC_DATA['RISK']['attrs']
+       wcl.append({'field_name': '(%s)' % queries.NBC_DATA['RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
+       INDICS = queries.NBC_DATA['RISK']['attrs']
       if kw.get('group') == 'high_risk':
-       wcl.append({'field_name': '(%s)' % settings.NBC_DATA['HIGH_RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
-       INDICS = settings.NBC_DATA['HIGH_RISK']['attrs']
+       wcl.append({'field_name': '(%s)' % queries.NBC_DATA['HIGH_RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
+       INDICS = queries.NBC_DATA['HIGH_RISK']['attrs']
       if kw.get('group') is None:
-       INDICS = [('no_risk', 'No Risk', '(%s)' % settings.NBC_DATA['NO_RISK']['query_str'] ), 
-		('at_risk', 'At Risk', '(%s)' % settings.NBC_DATA['RISK']['query_str']),
-		 ('high_risk', 'High Risk', '(%s)' % settings.NBC_DATA['HIGH_RISK']['query_str']),
+       INDICS = [('no_risk', 'No Risk', '(%s)' % queries.NBC_DATA['NO_RISK']['query_str'] ), 
+		('at_risk', 'At Risk', '(%s)' % queries.NBC_DATA['RISK']['query_str']),
+		 ('high_risk', 'High Risk', '(%s)' % queries.NBC_DATA['HIGH_RISK']['query_str']),
 		]#; print INDICS
 
      wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
@@ -2145,37 +2130,37 @@ class Application:
       cnds[sc]  = ''
     attrs = []
     if kw.get('group') == 'no_risk':
-     cnds.update({'(%s)' % settings.NBC_DATA['NO_RISK']['query_str']: ''})
+     cnds.update({'(%s)' % queries.NBC_DATA['NO_RISK']['query_str']: ''})
      DESCRI.append(('no_risk', 'No Risk'))
     if kw.get('group') == 'at_risk':
-     cnds.update({'(%s)' % settings.NBC_DATA['RISK']['query_str']: ''})
+     cnds.update({'(%s)' % queries.NBC_DATA['RISK']['query_str']: ''})
      DESCRI.append(('at_risk', 'At Risk'))
     if kw.get('group') == 'high_risk':
-     cnds.update({'(%s)' % settings.NBC_DATA['HIGH_RISK']['query_str']: ''})
+     cnds.update({'(%s)' % queries.NBC_DATA['HIGH_RISK']['query_str']: ''})
      DESCRI.append(('high_risk', 'High Risk'))
 
-    cols    += settings.LOCATION_INFO   
+    cols    += queries.LOCATION_INFO   
     nat     = orm.ORM.query('nbc_table', cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp) AS dob', 'Date Of Birth'),
-					('(%s) AS at_risky' % settings.NBC_DATA['RISK']['query_str'], 'AtRisky'), 
-					('(%s) AS high_risky' % settings.NBC_DATA['HIGH_RISK']['query_str'], 'HighRisky'),
+					('(%s) AS at_risky' % queries.NBC_DATA['RISK']['query_str'], 'AtRisky'), 
+					('(%s) AS high_risky' % queries.NBC_DATA['HIGH_RISK']['query_str'], 'HighRisky'),
  
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Newborn Visits%s' % (' (%s)' % (self.find_descr(DESCRI + settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'], 
+    desc  = 'Newborn Visits%s' % (' (%s)' % (self.find_descr(DESCRI + queries.NBC_DATA['RISK']['attrs'] + queries.NBC_DATA['HIGH_RISK']['attrs'], 
 						sc or kw.get('group')), 
 					) if sc or kw.get('group') else '', )
     return self.dynamised('nbcdash_table', mapping = locals(), *args, **kw)
 
   @cherrypy.expose
   def tables_nbcchild(self, *args, **kw):
-    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
-    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'] ]
-    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
+    navb, auth, cnds, cols    = self.neater_tables(basics = queries.PATIENT_DETAILS , *args, **kw)
+    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in queries.NBC_DATA['RISK']['attrs'] + queries.NBC_DATA['HIGH_RISK']['attrs'] ]
+    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in queries.INDEXED_VALS['location']]
     nat     = orm.ORM.query('nbc_table', cnds,
-      				cols  = [x[0] for x in (cols + indexed_attrs + settings.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
+      				cols  = [x[0] for x in (cols + indexed_attrs + queries.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
 				sort = ('report_date', False),
     			)
     patient = nat[0]  
@@ -2186,11 +2171,11 @@ class Application:
 
   @cherrypy.expose
   def __tables_child(self, *args, **kw):
-    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
-    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'] ]
-    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
+    navb, auth, cnds, cols    = self.neater_tables(basics = queries.PATIENT_DETAILS , *args, **kw)
+    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in queries.NBC_DATA['RISK']['attrs'] + queries.NBC_DATA['HIGH_RISK']['attrs'] ]
+    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in queries.INDEXED_VALS['location']]
     nat     = orm.ORM.query('nbc_table', cnds,
-      				cols  = [x[0] for x in (cols + indexed_attrs + settings.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
+      				cols  = [x[0] for x in (cols + indexed_attrs + queries.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
 				sort = ('report_date', False),
     			)
     patient = nat[0]  
@@ -2201,11 +2186,11 @@ class Application:
 
   @cherrypy.expose
   def tables_childgrowth(self, *args, **kw):
-    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
-    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'] ]
-    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
+    navb, auth, cnds, cols    = self.neater_tables(basics = queries.PATIENT_DETAILS , *args, **kw)
+    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in queries.NBC_DATA['RISK']['attrs'] + queries.NBC_DATA['HIGH_RISK']['attrs'] ]
+    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in queries.INDEXED_VALS['location']]
     nat     = orm.ORM.query('nbc_table', cnds,
-      				cols  = [x[0] for x in (cols + indexed_attrs + settings.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
+      				cols  = [x[0] for x in (cols + indexed_attrs + queries.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
 				sort = ('report_date', False),
     			)
     patient = nat[0]  
@@ -2244,7 +2229,7 @@ class Application:
     if kw.get('group') == 'no_risk':
       title = 'No Risk'
       group = 'no_risk'
-      cnds.update({settings.PNC_DATA['NO_RISK']['query_str']: ''})
+      cnds.update({queries.PNC_DATA['NO_RISK']['query_str']: ''})
       nat = orm.ORM.query(  'pnc_table', 
 			  cnds,
                           cols = ['COUNT(*) AS total'],
@@ -2252,9 +2237,9 @@ class Application:
     elif kw.get('group') == 'at_risk':
       title = 'At Risk'
       group = 'at_risk'
-      cnds.update({settings.PNC_DATA['RISK']['query_str']: ''})
-      attrs = [(x.split()[0], dict(settings.PNC_DATA['RISK']['attrs'])[x]) for x in dict (settings.PNC_DATA['RISK']['attrs'])]
-      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (settings.PNC_DATA['RISK']['attrs'])]))
+      cnds.update({queries.PNC_DATA['RISK']['query_str']: ''})
+      attrs = [(x.split()[0], dict(queries.PNC_DATA['RISK']['attrs'])[x]) for x in dict (queries.PNC_DATA['RISK']['attrs'])]
+      exts.update(dict([(x.split()[0], ('COUNT(*)',x)) for x in dict (queries.PNC_DATA['RISK']['attrs'])]))
       nat = orm.ORM.query(  'pnc_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -2264,8 +2249,8 @@ class Application:
       nat = orm.ORM.query(  'pnc_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
-			  extended = {'no_risk': ('COUNT(*)', settings.PNC_DATA['NO_RISK']['query_str']), 
-					'at_risk': ('COUNT(*)', settings.PNC_DATA['RISK']['query_str']),
+			  extended = {'no_risk': ('COUNT(*)', queries.PNC_DATA['NO_RISK']['query_str']), 
+					'at_risk': ('COUNT(*)', queries.PNC_DATA['RISK']['query_str']),
 					}
 			)
     return self.dynamised('pncdash', mapping = locals(), *args, **kw)
@@ -2289,7 +2274,7 @@ class Application:
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      if kw.get('group'):
       if kw.get('group') == 'no_risk':
-       cnds.update({'(%s)' % settings.PNC_DATA['NO_RISK']['query_str']: ''})
+       cnds.update({'(%s)' % queries.PNC_DATA['NO_RISK']['query_str']: ''})
       else:
        kw.update({'compare': ' IS NOT'})
        kw.update({'value': ' NULL'})
@@ -2303,14 +2288,14 @@ class Application:
 	   }] if kw.get('subcat') else []
      if kw.get('subcat') is None:
       if kw.get('group') == 'no_risk':
-       wcl.append({'field_name': '(%s)' % settings.PNC_DATA['NO_RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
+       wcl.append({'field_name': '(%s)' % queries.PNC_DATA['NO_RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
        INDICS = []
       if kw.get('group') == 'at_risk':
-       wcl.append({'field_name': '(%s)' % settings.PNC_DATA['RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
-       INDICS = settings.PNC_DATA['RISK']['attrs']
+       wcl.append({'field_name': '(%s)' % queries.PNC_DATA['RISK']['query_str'], 'compare': '', 'value': '', 'extra': True})
+       INDICS = queries.PNC_DATA['RISK']['attrs']
       if kw.get('group') is None:
-       INDICS = [('no_risk', 'No Risk', '(%s)' % settings.PNC_DATA['NO_RISK']['query_str'] ), 
-		('at_risk', 'At Risk', '(%s)' % settings.PNC_DATA['RISK']['query_str']),
+       INDICS = [('no_risk', 'No Risk', '(%s)' % queries.PNC_DATA['NO_RISK']['query_str'] ), 
+		('at_risk', 'At Risk', '(%s)' % queries.PNC_DATA['RISK']['query_str']),
 		]#; print INDICS
      
      wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
@@ -2345,13 +2330,13 @@ class Application:
       cnds[sc]  = ''
     attrs = []
     if kw.get('group') == 'no_risk':
-     cnds.update({'(%s)' % settings.PNC_DATA['NO_RISK']['query_str']: ''})
+     cnds.update({'(%s)' % queries.PNC_DATA['NO_RISK']['query_str']: ''})
      DESCRI.append(('no_risk', 'No Risk'))
     if kw.get('group') == 'at_risk':
-     cnds.update({'(%s)' % settings.PNC_DATA['RISK']['query_str']: ''})
+     cnds.update({'(%s)' % queries.PNC_DATA['RISK']['query_str']: ''})
      DESCRI.append(('at_risk', 'At Risk'))
 
-    cols    += settings.LOCATION_INFO   
+    cols    += queries.LOCATION_INFO   
     nat     = orm.ORM.query('pnc_table', cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp) AS dob', 'Date Of Birth'),
@@ -2359,7 +2344,7 @@ class Application:
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Postnatal Visits%s' % (' (%s)' % (self.find_descr(DESCRI + settings.PNC_DATA['RISK']['attrs'], 
+    desc  = 'Postnatal Visits%s' % (' (%s)' % (self.find_descr(DESCRI + queries.PNC_DATA['RISK']['attrs'], 
 						sc or kw.get('group')), 
 					) if sc or kw.get('group') else '', )
     return self.dynamised('pncdash_table', mapping = locals(), *args, **kw)
@@ -2367,11 +2352,11 @@ class Application:
 
   @cherrypy.expose
   def tables_child(self, *args, **kw):
-    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
-    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.NBC_DATA['RISK']['attrs'] + settings.NBC_DATA['HIGH_RISK']['attrs'] ]
-    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
+    navb, auth, cnds, cols    = self.neater_tables(basics = queries.PATIENT_DETAILS , *args, **kw)
+    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in queries.NBC_DATA['RISK']['attrs'] + queries.NBC_DATA['HIGH_RISK']['attrs'] ]
+    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in queries.INDEXED_VALS['location']]
     nat     = orm.ORM.query('nbc_table', cnds,
-      				cols  = [x[0] for x in (cols + indexed_attrs + settings.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
+      				cols  = [x[0] for x in (cols + indexed_attrs + queries.NBC_DATA['cols'] + attrs) if x[0][0] != '_'],
 				sort = ('report_date', False),
     			)
     patient = nat[0]  
@@ -2391,18 +2376,18 @@ class Application:
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
-    vac_comps_attrs = [(x[0].split()[0], x[1]) for x in settings.VAC_DATA['VAC_COMPLETION']['attrs']]
+    vac_comps_attrs = [(x[0].split()[0], x[1]) for x in queries.VAC_DATA['VAC_COMPLETION']['attrs']]
     vac_comps_exts = exts
-    vac_comps_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.VAC_DATA['VAC_COMPLETION']['attrs']]))
+    vac_comps_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in queries.VAC_DATA['VAC_COMPLETION']['attrs']]))
     vac_comps = orm.ORM.query(  'chi_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
 			  extended = vac_comps_exts,
 			)
 
-    vac_series_attrs = [(x[0].split()[0], x[1]) for x in settings.VAC_DATA['VAC_SERIES']['attrs']]
+    vac_series_attrs = [(x[0].split()[0], x[1]) for x in queries.VAC_DATA['VAC_SERIES']['attrs']]
     vac_series_exts = exts
-    vac_series_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.VAC_DATA['VAC_SERIES']['attrs']]))
+    vac_series_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in queries.VAC_DATA['VAC_SERIES']['attrs']]))
     vac_series = orm.ORM.query(  'chi_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -2433,7 +2418,7 @@ class Application:
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     else:
-     INDICS = settings.VAC_DATA['VAC_COMPLETION']['attrs'] + settings.VAC_DATA['VAC_SERIES']['attrs']
+     INDICS = queries.VAC_DATA['VAC_COMPLETION']['attrs'] + queries.VAC_DATA['VAC_SERIES']['attrs']
     if kw.get('summary'):
      province = kw.get('province') or auth.him()['province_pk']
      district = kw.get('district') or auth.him()['district_pk']
@@ -2472,7 +2457,7 @@ class Application:
       cnds[sc]  = ''
     attrs = []
     
-    cols    += settings.LOCATION_INFO   
+    cols    += queries.LOCATION_INFO   
     nat     = orm.ORM.query('chi_table', cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp) AS dob', 'Date Of Birth'),
@@ -2480,7 +2465,7 @@ class Application:
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Vaccination %s' % (' (%s)' % (self.find_descr(DESCRI + settings.VAC_DATA['VAC_COMPLETION']['attrs'] + settings.VAC_DATA['VAC_SERIES']['attrs'], 
+    desc  = 'Vaccination %s' % (' (%s)' % (self.find_descr(DESCRI + queries.VAC_DATA['VAC_COMPLETION']['attrs'] + queries.VAC_DATA['VAC_SERIES']['attrs'], 
 						sc) or 'ALL', 
 					) )
     return self.dynamised('vaccindash_table', mapping = locals(), *args, **kw)
@@ -2497,21 +2482,21 @@ class Application:
     cnds    = navb.conditions('report_date')
     exts = {}
     
-    ccm_attrs = [(x[0].split()[0], x[1]) for x in settings.CCM_DATA['attrs']]
+    ccm_attrs = [(x[0].split()[0], x[1]) for x in queries.CCM_DATA['attrs']]
     ccm_exts = exts
     ccm_cnds = cnds
-    ccm_cnds.update({settings.CCM_DATA['query_str']: ''})
-    ccm_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.CCM_DATA['attrs']]))
+    ccm_cnds.update({queries.CCM_DATA['query_str']: ''})
+    ccm_exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in queries.CCM_DATA['attrs']]))
     ccm = orm.ORM.query(  'ccm_table', 
 			  ccm_cnds, 
 			  cols = ['COUNT(*) AS total'], 
 			  extended = ccm_exts,
 			)
 
-    cmr_attrs = [(x[0].split()[0], x[1]) for x in settings.CMR_DATA['attrs']]
+    cmr_attrs = [(x[0].split()[0], x[1]) for x in queries.CMR_DATA['attrs']]
     cmr_cnds = navb.conditions('report_date')
-    cmr_cnds.update({settings.CMR_DATA['query_str']: ''})
-    cmr_exts = dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.CMR_DATA['attrs']])
+    cmr_cnds.update({queries.CMR_DATA['query_str']: ''})
+    cmr_exts = dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in queries.CMR_DATA['attrs']])
     cmr = orm.ORM.query(  'cmr_table', 
 			  cmr_cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -2536,15 +2521,15 @@ class Application:
     cnds.update({"(report_date) >= '%s'" % (navb.start) : ''})
     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
     primary_table = 'ccm_table'
-    if kw.get('subcat') and kw.get('subcat') in [x[0].split()[0] for x in settings.CMR_DATA['attrs']]:
+    if kw.get('subcat') and kw.get('subcat') in [x[0].split()[0] for x in queries.CMR_DATA['attrs']]:
      primary_table = 'cmr_table'
-     cnds.update({settings.CMR_DATA['query_str']: ''})
-    else: cnds.update({settings.CCM_DATA['query_str']: ''}) 
+     cnds.update({queries.CMR_DATA['query_str']: ''})
+    else: cnds.update({queries.CCM_DATA['query_str']: ''}) 
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     else:
-     INDICS = settings.CCM_DATA['attrs']
+     INDICS = queries.CCM_DATA['attrs']
     if kw.get('summary'):
      province = kw.get('province') or auth.him()['province_pk']
      district = kw.get('district') or auth.him()['district_pk']
@@ -2583,7 +2568,7 @@ class Application:
       cnds[sc]  = ''
     attrs = []
     
-    cols    += settings.LOCATION_INFO   
+    cols    += queries.LOCATION_INFO   
     nat     = orm.ORM.query(primary_table, cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp) AS dob', 'Date Of Birth'),
@@ -2591,7 +2576,7 @@ class Application:
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'CCM %s' % (' (%s)' % (self.find_descr(DESCRI + settings.CCM_DATA['attrs'] + settings.CMR_DATA['attrs'], 
+    desc  = 'CCM %s' % (' (%s)' % (self.find_descr(DESCRI + queries.CCM_DATA['attrs'] + queries.CMR_DATA['attrs'], 
 						sc) or 'ALL', 
 					) )
     return self.dynamised('ccmdash_table', mapping = locals(), *args, **kw)
@@ -2610,19 +2595,19 @@ class Application:
     cnds    = navb.conditions('report_date', auth)
     exts = {}
     
-    attrs = [(x[0].split()[0], x[1]) for x in settings.DEATH_DATA['attrs']]
-    cnds.update({settings.DEATH_DATA['query_str']: ''})
-    exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.DEATH_DATA['attrs']]))
+    attrs = [(x[0].split()[0], x[1]) for x in queries.DEATH_DATA['attrs']]
+    cnds.update({queries.DEATH_DATA['query_str']: ''})
+    exts.update(dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in queries.DEATH_DATA['attrs']]))
     nat = orm.ORM.query(  'dth_table', 
 			  cnds, 
 			  cols = ['COUNT(*) AS total'], 
 			  extended = exts,
 			)
 
-    bylocs_attrs = [(x[0].split()[0], x[1]) for x in settings.DEATH_DATA['bylocs']['attrs']]
+    bylocs_attrs = [(x[0].split()[0], x[1]) for x in queries.DEATH_DATA['bylocs']['attrs']]
     bylocs_cnds = navb.conditions('report_date')
-    bylocs_cnds.update({settings.DEATH_DATA['bylocs']['query_str']: ''})
-    bylocs_exts = dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in settings.DEATH_DATA['bylocs']['attrs']])
+    bylocs_cnds.update({queries.DEATH_DATA['bylocs']['query_str']: ''})
+    bylocs_exts = dict([(x[0].split()[0], ('COUNT(*)',x[0])) for x in queries.DEATH_DATA['bylocs']['attrs']])
     bylocs = orm.ORM.query(  'dth_table', 
 			  bylocs_cnds, 
 			  cols = ['COUNT(*) AS total'], 
@@ -2646,12 +2631,12 @@ class Application:
     cnds    = navb.conditions(None, auth)
     cnds.update({"(report_date) >= '%s'" % (navb.start) : ''})
     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
-    cnds.update({settings.DEATH_DATA['query_str']: ''})
+    cnds.update({queries.DEATH_DATA['query_str']: ''})
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
      kw.update({'compare': ' IS NOT'})
      kw.update({'value': ' NULL'})
     else:
-     INDICS = settings.DEATH_DATA['attrs'] #+ settings.DEATH_DATA['bylocs']['attrs']
+     INDICS = queries.DEATH_DATA['attrs'] #+ settings.DEATH_DATA['bylocs']['attrs']
     if kw.get('summary'):
      province = kw.get('province') or auth.him()['province_pk']
      district = kw.get('district') or auth.him()['district_pk']
@@ -2661,7 +2646,7 @@ class Application:
 		'value': '%s' % kw.get('value') if kw.get('value') else '' 
 	   }] if kw.get('subcat') else []
 
-     wcl.append({'field_name': '(%s)' % settings.DEATH_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
+     wcl.append({'field_name': '(%s)' % queries.DEATH_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
      
      if kw.get('view') == 'table' or kw.get('view') != 'log' :
       locateds = summarize_by_location(primary_table = 'dth_table', MANY_INDICS = INDICS, where_clause = wcl, 
@@ -2692,7 +2677,7 @@ class Application:
       cnds[sc]  = ''
     attrs = []
     
-    cols    += settings.LOCATION_INFO   
+    cols    += queries.LOCATION_INFO   
     nat     = orm.ORM.query('dth_table', cnds,
       cols  = [x[0] for x in (cols + [
 					('(lmp) AS dob', 'Date Of Birth'),
@@ -2700,7 +2685,7 @@ class Application:
 					] + attrs) if x[0][0] != '_'],
       
     )
-    desc  = 'Death %s' % (' (%s)' % (self.find_descr(DESCRI + settings.DEATH_DATA['attrs'] + settings.DEATH_DATA['bylocs']['attrs'], 
+    desc  = 'Death %s' % (' (%s)' % (self.find_descr(DESCRI + queries.DEATH_DATA['attrs'] + queries.DEATH_DATA['bylocs']['attrs'], 
 						sc ) or 'ALL', 
 					) )
     return self.dynamised('deathdash_table', mapping = locals(), *args, **kw)
@@ -2711,11 +2696,11 @@ class Application:
 
   @cherrypy.expose
   def tables_patient(self, *args, **kw):
-    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
-    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in settings.RISK['attrs'] + settings.HIGH_RISK['attrs'] ]
-    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in settings.INDEXED_VALS['location']]
+    navb, auth, cnds, cols    = self.neater_tables(basics = queries.PATIENT_DETAILS , *args, **kw)
+    attrs = [ (' %s AS %s' % (x[0], x[0].split()[0]), x[1]) for x in queries.RISK['attrs'] + queries.HIGH_RISK['attrs'] ]
+    indexed_attrs = [ ('%s' % get_indexed_value('name', x[2], x[1], x[0], x[3]), x[3]) for x in queries.INDEXED_VALS['location']]
     nat     = orm.ORM.query('pre_table', cnds,
-      				cols  = [x[0] for x in (cols + indexed_attrs + settings.PREGNANCY_DATA + attrs) if x[0][0] != '_'],
+      				cols  = [x[0] for x in (cols + indexed_attrs + queries.PREGNANCY_DATA + attrs) if x[0][0] != '_'],
 				sort = ('report_date', False),
     			)
     patient = nat[0]  
@@ -2727,7 +2712,7 @@ class Application:
 
   @cherrypy.expose
   def tables_patienthistory(self, *args, **kw):
-    navb, auth, cnds, cols    = self.neater_tables(basics = settings.PATIENT_DETAILS , *args, **kw)
+    navb, auth, cnds, cols    = self.neater_tables(basics = queries.PATIENT_DETAILS , *args, **kw)
     data = []
     for key in REPORTS.keys():
      data.append(  [ REPORTS.get(key), FIELDS.get(key), orm.ORM.query('%s_table' % key.lower(),
@@ -2774,12 +2759,6 @@ class Application:
     total   = nat[0]['total']
     return self.dynamised('pregnancies', mapping = locals(), *args, **kw)
 
-  ADMIN_MIGRATIONS  = [
-    ('address',           'user@example.com'),
-    ('province_pk',       0),
-    ('district_pk',       0),
-    ('health_center_pk',  0)
-  ]
   @cherrypy.expose
   def dashboards_admins(self, *args, **kw):
     auth    = ThousandAuth(cherrypy.session['email'])
@@ -2797,7 +2776,7 @@ class Application:
       salt  = str(random.random()).join([str(random.random()) for x in range(settings.SALT_STRENGTH)])
       rslt  = sha.sha('%s%s' % (salt, npwd))
       thing = {'salt': salt, 'address': naddr, 'sha1_pass': rslt.hexdigest(), 'district_pk': dst, 'province_pk': prv, 'health_center_pk': hc}
-      orm.ORM.store('ig_admins', thing, migrations  = self.ADMIN_MIGRATIONS)
+      orm.ORM.store('ig_admins', thing, migrations  = migrations.ADMIN_MIGRATIONS)
       raise cherrypy.HTTPRedirect(cherrypy.request.headers.get('Referer') or '/dashboards/admins')
     cnds    = navb.conditions(None, auth)
     if not prv:
@@ -2806,7 +2785,7 @@ class Application:
       cnds['district_pk IS NULL'] = ''
     if not hc:
       cnds['health_center_pk IS NULL'] = ''
-    nat     = orm.ORM.query('ig_admins', cnds, sort = ('address', True), migrations = self.ADMIN_MIGRATIONS)
+    nat     = orm.ORM.query('ig_admins', cnds, sort = ('address', True), migrations = migrations.ADMIN_MIGRATIONS)
     return self.dynamised('admins', mapping = locals(), *args, **kw)
 
   def civilised_fetch(self, tbl, cnds, attrs):
@@ -2851,40 +2830,15 @@ class Application:
     cnds    = navb.conditions('report_date', auth)
     nat     = orm.ORM.query('pre_table', cnds,
       cols      = ['COUNT(*) AS allpregs'],
-      extended  = PREGNANCY_MATCHES,
-      migrations  = [
-        ('db_bool', False),
-        ('fe_bool', False),
-        ('ma_bool', False),
-        ('to_bool', False),
-        ('ch_bool', False),
-        ('vo_bool', False),
-        ('ja_bool', False),
-        ('ns_bool', False),
-        ('pc_bool', False),
-        ('ci_bool', False),
-        ('oe_bool', False),
-        ('di_bool', False),
-        ('sb_bool', False),
-        ('hy_bool', False),
-        ('hw_bool', False),
-        ('gs_bool', False),
-        ('mu_bool', False),
-        ('rm_bool', False),
-        ('ol_bool', False),
-        ('yg_bool', False),
-        ('kx_bool', False),
-        ('yj_bool', False),
-        ('lz_bool', False),
-        ('ib_bool', False)
-      ]
+      extended  = queries.PREGNANCY_MATCHES,
+      migrations  = migrations.PREGNANCY_MIGRATIONS
     )
     toi     = nat.specialise({'to_bool IS NOT NULL':''})
     hnd     = nat.specialise({'hw_bool IS NOT NULL':''})
     weighed = nat.specialise({'mother_height_float > 100.0 AND mother_weight_float > 15.0':''})
     thinq   = weighed.specialise({'(mother_weight_float / ((mother_height_float * mother_height_float) / 10000.0)) < %s': settings.BMI_MIN})
     fatq    = weighed.specialise({'(mother_weight_float / ((mother_height_float * mother_height_float) / 10000.0)) > %s': settings.BMI_MAX})
-    riskys  = nat.specialise(RISK_MOD)
+    riskys  = nat.specialise(queries.RISK_MOD)
     info    = nat[0]
     rez     = orm.ORM.query('res_table',
       cnds,

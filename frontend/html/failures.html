@@ -31,4 +31,10 @@
     {%  endfor  %}
   </tbody>
 </table>
+<div class="paginant">
+  Pages:
+  {%  for pg in display.pgs %}
+    <a href="{{ nav.link(ref, page = pg)  }}">{{  pg + 1  }}</a>
+  {%  endfor  %}
+</div>
 {%  endblock  %}
