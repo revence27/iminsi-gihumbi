@@ -21,7 +21,7 @@ ASSOCIATIONS = {
     {'initialises': []}
   ),
   'BIR':  (rmessages.BirMessage,
-    {'initialises': [entities.Mother, entities.Child]}
+    {'initialises': [entities.Mother, entities.Pregnancy, entities.Child]}
   ),
   'CHI':  (rmessages.ChildMessage,
     {'initialises': [entities.Mother, entities.Child]}
