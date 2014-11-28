@@ -10,6 +10,7 @@ WEBAPP          = 'iminsigihumbi'
 GESTATION       = 270
 NBC_GESTATION   = 28
 PNC_GESTATION   = 42
+ANC_GAP         = 90
 BMI_MIN         = 19
 BMI_MAX         = 25
 MIN_WEIGHT      = 45

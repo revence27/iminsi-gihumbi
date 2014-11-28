@@ -407,14 +407,17 @@ class ThouMessage:
     return erh(pz)
 
   @staticmethod
-  def parse(msg, ad = None):
+  def parse(msg, assoc = {}, activedate = None):
     code, rem = ThouMessage.pull_code(msg.strip())
-    klass     = UnknownMessage
+    response  = None
+    assocs    = ThouMessage.caseless_hash(assoc)
     try:
-      klass     = MSG_ASSOC[code.upper()]
+      response = assocs[code.lower()]
     except KeyError:
-      pass
-    return klass.process(klass, code, rem, ad or datetime.today())
+      raise ThouMsgError("Unknown code '%s'" % (code, ), [('unknown_code', None)])
+    klass = response[0]
+    msg   = klass.process(klass, code, rem, activedate or datetime.today())
+    return (msg, response[1])
 
   # “Private”
   @staticmethod
@@ -620,23 +623,3 @@ class ChildHealthMessage(ThouMessage):
   def semantics_check(self, adate):
     'TODO.'
     return []
-
-MSG_ASSOC = {
-  'PRE':  PregMessage,
-  'REF':  RefMessage,
-  'ANC':  ANCMessage,
-  'DEP':  DepMessage,
-  'RISK': RiskMessage,
-  'RED':  RedMessage,
-  'BIR':  BirMessage,
-  'CHI':  ChildMessage,
-  'DTH':  DeathMessage,
-  'RES':  ResultMessage,
-  'RAR':  RedResultMessage,
-  'NBC':  NBCMessage,
-  'PNC':  PNCMessage,
-
-  'CCM':  CCMMessage,
-  'CMR':  CMRMessage,
-  'CBN':  CBNMessage
-}

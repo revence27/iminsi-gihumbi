@@ -1460,7 +1460,7 @@ class Application:
     cnds    = navb.conditions(None, auth)
     cnds.update({queries.ANC_DATA['query_str']: ''})
     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
-    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.start) : ''})
+    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - settings.ANC_GAP, navb.start) : ''})
     #print cnds
     exts.update(dict([(x[0].split()[0], ('COUNT(*)', x[0])) for x in queries.ANC_DATA['attrs'] ])) 
     nat = orm.ORM.query(  'anc_table', 
@@ -1485,7 +1485,7 @@ class Application:
     cnds    = navb.conditions(None, auth)
     cnds.update({queries.ANC_DATA['query_str']: ''})
     cnds.update({"(report_date) <= '%s'" % (navb.finish) : ''})
-    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.start) : ''})
+    cnds.update({"(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - settings.ANC_GAP, navb.start) : ''})
     primary_table = 'anc_table'
 
     if kw.get('subcat') and kw.get('subcat').__contains__('_bool'):
@@ -1512,7 +1512,7 @@ class Application:
 		]
      else: 
       wcl.append({'field_name': '(%s)' % ("(report_date) <= '%s'" % ( navb.finish) ), 'compare': '', 'value': '', 'extra': True})
-      wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - 90, navb.start) ), 'compare': '', 'value': '', 'extra': True})
+      wcl.append({'field_name': '(%s)' % ("(lmp + INTERVAL \'%d days\') >= '%s'" % (settings.GESTATION - settings.ANC_GAP, navb.start) ), 'compare': '', 'value': '', 'extra': True})
       wcl.append({'field_name': '(%s)' % queries.ANC_DATA['query_str'], 'compare': '', 'value': '', 'extra': True})
       
      

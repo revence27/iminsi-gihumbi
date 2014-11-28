@@ -1,7 +1,9 @@
 # encoding: UTF-8
 import datetime
 from ectomorph import orm
+import entities
 from messages import rmessages
+import messageassocs
 import migrations
 import re, sys, os
 from optparse import OptionParser
@@ -98,12 +100,13 @@ def single_handle(tbn, pgc, args, options):
         sys.stdout.write('\r' + rsp[0:maxw])
         sys.stdout.flush()
       try:
-        ans   = rmessages.ThouMessage.parse(org, rep[3])
+        ans, ents = rmessages.ThouMessage.parse(org, messageassocs.ASSOCIATIONS, rep[3])
         mname = str(ans.__class__).split('.')[-1].lower()
         succ  = True
         nstbs = store_components(mname, ans, org, rep[0])
         stbs.add(mname)
         stbs  = stbs.union(nstbs)
+        etbs  = entities.process_entities(ans, ents)
       except rmessages.ThouMsgError, e:
         store_failures(e, org, rep[0])
       acrow = store_treatment(rep[0], succ)
