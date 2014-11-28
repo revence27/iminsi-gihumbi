@@ -91,6 +91,8 @@ class ThousandLocation:
 
 class ThousandAuth:
   def __init__(self, usn):
+    if not usn:
+      raise cherrypy.HTTPRedirect('/')
     self.usern  = usn
 
   def username(self):
@@ -421,7 +423,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_failures(self, *args, **kw):
-    auth  = ThousandAuth(cherrypy.session['email'])
+    auth  = ThousandAuth(cherrypy.session.get('email'))
     navb  = ThousandNavigation(auth, *args, **kw)
     cnds  = navb.conditions(None, auth)
     cnds.update({'NOT success':''})
@@ -436,7 +438,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_messages(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions(None, auth)
     msgs    = orm.ORM.query('treated_messages', cnds,
@@ -479,7 +481,7 @@ class Application:
     ]
   @cherrypy.expose
   def dashboards_nut(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('birth_date', auth)
     attrs   = self.NUT_DESCR
@@ -571,7 +573,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_nutr(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     nut = orm.ORM.query('cbn_view', cnds,
@@ -592,7 +594,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_redalert(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     attrs   = self.PREGNANCIES_DESCR
@@ -616,7 +618,7 @@ class Application:
     return self.dynamised('ccm', *args, **kw)
 
   def locals_for_births(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     pcnds   = copy.copy(cnds)
@@ -720,7 +722,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_vaccination(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     vacced  = orm.ORM.query('chi_table', cnds,
@@ -1103,7 +1105,7 @@ class Application:
       ('patient_id',        'Mother ID'),
       ('lmp',               'LMP')
     ], *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = {}
     pid     = kw.get('pid')
@@ -1121,7 +1123,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_home(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     return self.dynamised('home', mapping = locals(), *args, **kw)
 
@@ -1152,7 +1154,7 @@ class Application:
   # 2.  DB-validated tracking of current position
   @cherrypy.expose
   def exports_general(self, *args, **kw):
-    auth      = ThousandAuth(cherrypy.session['email'])
+    auth      = ThousandAuth(cherrypy.session.get('email'))
     navb      = ThousandNavigation(auth, *args, **kw)
     tbl, srt  = settings.EXPORT_KEYS.get(kw.get('key', '_'))
     cnds  = navb.conditions(srt or 'report_date', auth)
@@ -1206,7 +1208,7 @@ class Application:
 
   @cherrypy.expose
   def exports_delivery(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     nat     = orm.ORM.query('bir_table', cnds)
@@ -1217,7 +1219,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_reporting(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions(None, auth)
     nat     = orm.ORM.query('ig_reporters', cnds, cols = ['COUNT(*) AS total'])
@@ -1260,7 +1262,7 @@ class Application:
     ]
   @cherrypy.expose
   def dashboards_pregnancies(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     attrs   = self.PREGNANCIES_DESCR
@@ -1272,7 +1274,7 @@ class Application:
   #### START OF PREGNANCY ###
   @cherrypy.expose
   def dashboards_predash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT PREGNANCY, AND LET THE USER GO BACK AND FORTH
     cnds    = navb.conditions(None, auth)
@@ -1439,7 +1441,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_ancdash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
 
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT PREGNANCY, AND LET THE USER GO BACK AND FORTH
@@ -1570,7 +1572,7 @@ class Application:
   #### START OF RED ALERT ###
   @cherrypy.expose
   def dashboards_reddash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date', auth)
@@ -1678,7 +1680,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_deliverynotdash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     exts = {}
@@ -1863,7 +1865,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_deliverydash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date', auth)
@@ -1996,7 +1998,7 @@ class Application:
   #### START OF NEWBORN ###
   @cherrypy.expose
   def dashboards_nbcdash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
 
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
@@ -2058,7 +2060,7 @@ class Application:
       ('lmp',            'Date Of Birth'),
       
     ] , *args, **kw)
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     DESCRI = []
     INDICS = []
 
@@ -2215,7 +2217,7 @@ class Application:
   #### START OF POSTNATAL ###
   @cherrypy.expose
   def dashboards_pncdash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions(None, auth)
@@ -2370,7 +2372,7 @@ class Application:
   #### START OF VACCINATION ###
   @cherrypy.expose
   def dashboards_vaccindash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date', auth)
@@ -2476,7 +2478,7 @@ class Application:
   #### START OF CCM ###
   @cherrypy.expose
   def dashboards_ccmdash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date')
@@ -2589,7 +2591,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_deathdash(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     navb.gap= timedelta(days = 0)## USE THIS GAP OF ZERO DAYS TO DEFAULT TO CURRENT SITUATION
     cnds    = navb.conditions('report_date', auth)
@@ -2740,7 +2742,7 @@ class Application:
   ]
   @cherrypy.expose
   def dashboards_babies(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('birth_date', auth)
     attrs   = self.BABIES_DESCR
@@ -2750,7 +2752,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_delivs(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('lmp', auth)
     cnds[("""(lmp + '%d DAYS')""" % (settings.GESTATION, )) + """ >= %s"""] = navb.finish
@@ -2761,7 +2763,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_admins(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     naddr   = kw.get('addr')
     dadmin  = kw.get('del')
@@ -2814,7 +2816,7 @@ class Application:
     ]
   @cherrypy.expose
   def dashboards_mothers(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     pregs   = orm.ORM.query('ig_mothers', cnds, cols = ['(SUM(pregnancies) - COUNT(*)) AS total'])[0]['total']
@@ -2825,7 +2827,7 @@ class Application:
 
   @cherrypy.expose
   def dashboards_pregnancy(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     nat     = orm.ORM.query('pre_table', cnds,
@@ -2899,7 +2901,7 @@ class Application:
 
   @cherrypy.expose
   def data_reports(self, *args, **kw):
-    auth    = ThousandAuth(cherrypy.session['email'])
+    auth    = ThousandAuth(cherrypy.session.get('email'))
     navb    = ThousandNavigation(auth, *args, **kw)
     cnds    = navb.conditions('report_date', auth)
     cnds.update({'report_type = %s':kw.get('subcat')})
