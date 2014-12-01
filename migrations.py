@@ -37,12 +37,18 @@ RISK_MOD = {'(gs_bool IS NOT NULL OR mu_bool IS NOT NULL OR rm_bool IS NOT NULL 
 TREATED = [
   ('oldid',   0),
   ('success', True),
-  ('deleted', True)
+  ('deleted', True),
+  ('province_pk', 0),
+  ('district_pk', 0),
+  ('health_center_pk', 0)
 ]
 
 FAILED = [
   ('oldid',     0),
   ('message',   u''),
   ('failcode',  u''),
-  ('failpos',   0)
+  ('failpos',   0),
+  ('province_pk', 0),
+  ('district_pk', 0),
+  ('health_center_pk', 0)
 ]
