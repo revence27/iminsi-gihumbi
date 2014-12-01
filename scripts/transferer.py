@@ -79,7 +79,7 @@ def single_handle(tbn, pgc, args, options):
       Message.text,
       (SELECT province_id FROM chws_reporter Reporter WHERE Reporter.id = Message.contact_id) AS province_pk,
       (SELECT district_id FROM chws_reporter Reporter WHERE Reporter.id = Message.contact_id) AS district_pk,
-      (SELECT health_centre_id FROM chws_reporter Reporter WHERE Reporter.id = Message.contact_id) AS health_center_pk,
+      (SELECT health_centre_id FROM chws_reporter Reporter WHERE Reporter.id = Message.contact_id) AS health_center_pk
     FROM
       messagelog_message Message
     WHERE
@@ -117,15 +117,22 @@ def single_handle(tbn, pgc, args, options):
         sys.stdout.flush()
       try:
         ans, ents = rmessages.ThouMessage.parse(org, messageassocs.ASSOCIATIONS, rep[3])
+        loxn  = {
+          'province_pk': rep[5],
+          'district_pk': rep[6],
+          'health_center_pk': rep[7]
+        }
+        ans.add_extra(loxn)
         mname = str(ans.__class__).split('.')[-1].lower()
         succ  = True
-        nstbs = store_components(mname, ans, org, rep[0], rep)
+        nstbs = store_components(mname, ans, org, rep[0], loxn)
         stbs.add(mname)
         stbs  = stbs.union(nstbs)
         etbs  = entities.process_entities(ans, ents)
+        stbs  = stbs.union(etbs)
       except rmessages.ThouMsgError, e:
-        store_failures(e, org, rep[0], rep)
-      acrow = store_treatment(rep[0], succ, rep)
+        store_failures(e, org, rep[0], loxn)
+      acrow = store_treatment(rep[0], succ, loxn)
     except UnicodeEncodeError, e:
       # Is this sufficient?
       store_failures(rmessages.ThouMsgError('Badly-encoded message.', [('bad_encoding', None)]), 'Badly-encoded message #%d' % (rep[0], ), rep[0])
@@ -143,16 +150,11 @@ def single_handle(tbn, pgc, args, options):
   pgc.commit()
   return True
 
-def store_components(mname, msg, msgtxt, fid, rep):
+def store_components(mname, msg, msgtxt, fid, loxer):
   princ = {'oldid': fid, 'message': msgtxt}
   auxil = {}
-  loxer = {
-    'province_pk': rep[5],
-    'district_pk': rep[6],
-    'health_center_pk': rep[7]
-  }
   seen  = set()
-  for k in msg.entries.keys():
+  for k in msg.entries:
     chose = msg.entries[k]
     if chose.several_fields:
       subk  = '%s_%s' % (mname, k)
@@ -164,7 +166,7 @@ def store_components(mname, msg, msgtxt, fid, rep):
       princ[k]  = chose.data()
   princ.update(loxer)
   ix  = orm.ORM.store(mname, princ)
-  for k in auxil.keys():
+  for k in auxil:
     val = auxil[k]
     for v in val:
       tst = {'principal': ix, 'value': v}
@@ -172,13 +174,8 @@ def store_components(mname, msg, msgtxt, fid, rep):
       orm.ORM.store(k, tst)
   return seen
 
-def store_failures(err, msg, fid, rep):
+def store_failures(err, msg, fid, loxer):
   pos   = 0
-  loxer = {
-    'province_pk': rep[5],
-    'district_pk': rep[6],
-    'health_center_pk': rep[7]
-  }
   for fc in err.errors:
     fc  = fc[0] if type(fc) == type(('', None)) else fc
     tst = {'oldid': fid, 'message': msg, 'failcode': fc, 'failpos': pos}
@@ -186,14 +183,12 @@ def store_failures(err, msg, fid, rep):
     orm.ORM.store('failed_transfers', tst)
     pos = pos + 1
 
-def store_treatment(fid, stt, rep):
+def store_treatment(fid, stt, loxer):
   tst = {
-    'province_pk': rep[5],
-    'district_pk': rep[6],
-    'health_center_pk': rep[7],
     'oldid': fid,
     'success': stt
   }
+  tst.update(loxer)
   return orm.ORM.store(TREATED[0], tst, migrations = TREATED[1])
 
 def imain(args):

@@ -415,6 +415,8 @@ class ThouMessage:
       response = assocs[code.lower()]
     except KeyError:
       raise ThouMsgError("Unknown code '%s'" % (code, ), [('unknown_code', None)])
+    if type(response) == type({}):
+      return ThouMessage.parse(rem, response, activedate)
     klass = response[0]
     msg   = klass.process(klass, code, rem, activedate or datetime.today())
     return (msg, response[1])
@@ -452,6 +454,18 @@ class ThouMessage:
       p[n.__class__.subname()] = n
       return p
     self.entries  = reduce(as_hash, fobs, {})
+    self.extra    = {}
+
+  def add_extra(self, hsh = {}):
+    self.extra.update(hsh)
+    return self.extra
+
+  def data(self):
+    ans = {}
+    for x in self.entries:
+      ans[x] = self.entries[x].data()
+    ans.update(self.extra)
+    return ans
 
   @abstractmethod
   def semantics_check(self, adate):
