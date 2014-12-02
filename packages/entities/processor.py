@@ -115,8 +115,11 @@ class UniqueEntity(Entity):
   def identifier(self):
     ans         = []
     lks, _, _ = self.links(deep = False)
-    for x in self.id_fields():
-      ans.append((x, lks[x]))
+    try:
+      for x in self.id_fields():
+        ans.append((x, lks[x]))
+    except KeyError, e:
+      raise Exception, str((str(e), str(lks)))
     return ans
 
   def load(self):
@@ -135,33 +138,6 @@ class UniqueEntity(Entity):
       return self.fs['indexcol']
     except KeyError:
       raise EntityNonExistent, str(hsh)
-
-class IndangamuntuEntity(UniqueEntity):
-  unique  = ['indangamuntu']
-
-class IndangamuntuRelativeEntity(IndangamuntuEntity):
-  unique  = ['indangamuntu', 'number']
-
-class ANCVisit(UniqueEntity):
-  table     = 'rw_ancvisits'
-  unique    = ['indangamuntu', 'anc']
-
-class PNCVisit(UniqueEntity):
-  table     = 'rw_pncvisits'
-  unique    = ['indangamuntu', 'pnc']
-
-class Pregnancy(IndangamuntuEntity):
-  table     = 'rw_pregnancies'
-  unique    = ['indangamuntu', 'lmp']
-
-class Mother(IndangamuntuEntity):
-  table = 'rw_mothers'
-
-class Child(IndangamuntuRelativeEntity):
-  table = 'rw_children'
-
-class Death(IndangamuntuRelativeEntity):
-  table = 'rw_deaths'
 
 def process_entities(msg, enthash):
   objs, tbls  = load_dependencies(msg, enthash)

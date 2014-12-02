@@ -1,7 +1,7 @@
 # encoding: UTF-8
 import datetime
 from ectomorph import orm
-import entities
+from entities import processor
 from messages import rmessages
 import messageassocs
 import migrations
@@ -109,6 +109,11 @@ def single_handle(tbn, pgc, args, options):
     org   = rep[4].decode('utf-8')
     succ  = False
     acrow = 0
+    loxn  = {
+      'province_pk': rep[5] or 0,
+      'district_pk': rep[6] or 0,
+      'health_center_pk': rep[7] or 0
+    }
     try:
       # _ = org.encode('ascii') # Exception trigger. Necessary?
       if not options.get('BACKGROUND'):
@@ -117,18 +122,13 @@ def single_handle(tbn, pgc, args, options):
         sys.stdout.flush()
       try:
         ans, ents = rmessages.ThouMessage.parse(org, messageassocs.ASSOCIATIONS, rep[3])
-        loxn  = {
-          'province_pk': rep[5],
-          'district_pk': rep[6],
-          'health_center_pk': rep[7]
-        }
         ans.add_extra(loxn)
         mname = str(ans.__class__).split('.')[-1].lower()
         succ  = True
         nstbs = store_components(mname, ans, org, rep[0], loxn)
         stbs.add(mname)
         stbs  = stbs.union(nstbs)
-        etbs  = entities.process_entities(ans, ents)
+        etbs  = processor.process_entities(ans, ents)
         stbs  = stbs.union(etbs)
       except rmessages.ThouMsgError, e:
         store_failures(e, org, rep[0], loxn)

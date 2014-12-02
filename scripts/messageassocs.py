@@ -1,33 +1,33 @@
-import entities
+from entities import rentities
 from messages import rmessages
 
 ASSOCIATIONS = {
   'PRE':  (rmessages.PregMessage,
-    {'initialises': [entities.Mother, entities.Pregnancy]}
+    {'initialises': [rentities.Mother, rentities.Pregnancy]}
   ),
   'REF':  (rmessages.RefMessage,
     {'initialises': []}
   ),
   'ANC':  (rmessages.ANCMessage,
-    {'initialises': [entities.Mother, entities.ANCVisit]}
+    {'initialises': [rentities.Mother, rentities.ANCVisit]}
   ),
   'DEP':  (rmessages.DepMessage,
-    {'initialises': [entities.Mother]}
+    {'initialises': [rentities.Mother]}
   ),
   'RISK': (rmessages.RiskMessage,
-    {'initialises': [entities.Mother]}
+    {'initialises': [rentities.Mother]}
   ),
   'RED':  (rmessages.RedMessage,
     {'initialises': []}
   ),
   'BIR':  (rmessages.BirMessage,
-    {'initialises': [entities.Mother, entities.Pregnancy, entities.Child]}
+    {'initialises': [rentities.Mother, rentities.Pregnancy, rentities.Child]}
   ),
   'CHI':  (rmessages.ChildMessage,
-    {'initialises': [entities.Mother, entities.Child]}
+    {'initialises': [rentities.Mother, rentities.Child]}
   ),
   'DTH':  (rmessages.DeathMessage,
-    {'initialises': [entities.Mother, entities.Child, entities.Death]}
+    {'initialises': [rentities.Mother, rentities.Child, rentities.Death]}
   ),
   'RES':  (rmessages.ResultMessage,
     {'initialises': []}
@@ -39,7 +39,7 @@ ASSOCIATIONS = {
     {'initialises': []}
   ),
   'PNC':  (rmessages.PNCMessage,
-    {'initialises': [entities.PNCVisit]}
+    {'initialises': [rentities.PNCVisit]}
   ),
   'CCM':  (rmessages.CCMMessage,
     {'initialises': []}
