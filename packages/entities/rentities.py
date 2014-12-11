@@ -1,4 +1,6 @@
 from processor import *
+from datetime import timedelta
+import settings
 
 class IndangamuntuEntity(UniqueEntity):
   unique  = ['indangamuntu']
@@ -20,11 +22,14 @@ class Pregnancy(IndangamuntuEntity):
   table       = 'rw_pregnancies'
   unique      = ['indangamuntu', 'lmp']
   belongs_to  = lambda _: Mother
-  has_some    = lambda _: [ANCVisit, Child, PNCVisit]
+  can_have    = lambda _: [ANCVisit, Child, PNCVisit]
+
+  def get_identifiers(self, _, ents):
+    return [('indangamuntu', ents['indangamuntu']), ('lmp', ents['daymonthyear'] - timedelta(days = settings.GESTATION))]
 
 class Mother(IndangamuntuEntity):
   table       = 'rw_mothers'
-  has_some    = lambda _: [Pregnancy]
+  can_have    = lambda _: [Pregnancy]
 
 class Child(IndangamuntuRelativeEntity):
   table       = 'rw_children'

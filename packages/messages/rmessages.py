@@ -250,7 +250,7 @@ class BreastFeedField(NBCField):
   @classmethod
   def expectations(self):
     'The accepted codes. May be booleanisable.'
-    return ['CBF', 'EBF', 'NB']
+    return ['CBF', 'EBF', 'NB', 'BF1']
 
 class InterventionField(CodeField):
   'Field for general interventions.'

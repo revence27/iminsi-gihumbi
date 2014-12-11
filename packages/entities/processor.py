@@ -43,7 +43,7 @@ class Entity:
     self.b4.extend(objs)
     return self.b4
 
-  def links(self, deep = True):
+  def links(self):
     ans   = {}
     dem   = []
     mods  = []
@@ -69,13 +69,13 @@ class Entity:
   def process(self, key, data):
     self.fs[key]  = data
 
-  def fetch(self):
+  def fetch(self, msg):
     if self.live:
       return live
-    self.live = self.load()
+    self.live = self.load(msg)
     return self.live
 
-  def load(self):
+  def load(self, _):
     raise EntityNonExistent, ('Load what? (%s)' % (str(self)))
 
   def sufficient_data(self):
@@ -104,26 +104,32 @@ class Entity:
     return (self.live, tbls)
 
 class UniqueEntity(Entity):
-  def id_fields(self):
+  def id_fields(self, msg):
     if not self.__class__.unique:
       raise Exception, 'What uniqueness fields?'
     return self.__class__.unique
 
-  def identifier(self):
+  def get_identifiers(self, msg, ents):
+    '''type: [(string, value)]
+
+[('indangamuntu', ents['indangamuntu']), ('lmp', ents['daymonthyear'] - timedelta(days = 270))]'''
+    raise Exception, str(u'Return workable identifiers.\r\n' % (str(__doc__)))
+
+  def identifier(self, msg):
     ans         = []
-    lks, _, _ = self.links(deep = False)
+    lks, _, _ = self.links()
     try:
-      for x in self.id_fields():
+      for x in self.id_fields(msg):
         ans.append((x, lks[x]))
     except KeyError, e:
-      raise Exception, str((str(e), str(lks)))
+      return self.get_identifiers(msg, lks)
     return ans
 
-  def load(self):
+  def load(self, msg):
     hsh   = {}
     mig   = []
     cols  = ['indexcol']
-    for k, v  in  self.identifier():
+    for k, v  in  self.identifier(msg):
       hsh['%s = %%s' % (k, )] = v
       mig.append((k, v))
       cols.append(k)
@@ -145,7 +151,7 @@ def process_entities(msg, enthash):
     data  = msg.data()
     collate_data(obj, data)
     try:
-      obj.fetch()
+      obj.fetch(msg)
       if obj.replace_conditions():
         _, ntbls  = obj.save()
         tbls      = tbls.union(ntbls)
@@ -164,7 +170,7 @@ def load_dependencies(msg, enthash):
     obj.link(deps)
     data  = msg.data()
     collate_data(obj, data)
-    deps.append(obj.fetch())
+    deps.append(obj.fetch(msg))
   return (deps, tbls)
 
 def collate_data(obj, data, cle = None):
